@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "glob": "^7.2.0",
+    "gltf-pipeline": "^4.1.0",
+    "gsap": "file:gsap-member/npm-install-this/gsap-bonus.tgz",
+    "sharp-cli": "^5.1.0",
+    "yarn": "^1.22.22"
+  }
+}

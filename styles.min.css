@@ -1,0 +1,1300 @@
+.card_infoSpaceContainer,
+.card_infoSpaceContainer *,
+.choice-container-step3 > div > img,
+.embroidery-image,
+select {
+  width: 100%;
+}
+.embroidery-customization h3,
+.text-step3,
+body {
+  margin: 0;
+}
+#sidePanel,
+body {
+  height: 100vh;
+  background: #fff;
+}
+.info-container,
+.text-container > p {
+  font-style: italic;
+  font-weight: 600;
+  color: #000;
+}
+.accordion,
+.sub_accordion,
+select {
+  background-color: #fff;
+  cursor: pointer;
+}
+@font-face {
+  font-family: "TAN Angleton";
+  src: url("../fonts/TAN - Angleton Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+a,
+button {
+  transition: 0.3s;
+}
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+.custom-select {
+  min-width: 350px;
+  position: relative;
+}
+#arrow,
+#tooltip {
+  position: absolute;
+}
+#arrow {
+  bottom: 20px;
+  right: calc(66vw - 20px);
+  width: 40px;
+  cursor: pointer;
+  z-index: 10;
+}
+.accordion,
+.text-container > p,
+.text-step3 {
+  font-family: "TAN Angleton", sans-serif;
+  line-height: 1.5;
+}
+select {
+  appearance: none;
+  font-size: 1rem;
+  padding: 10px;
+  border: 1px solid #caced1;
+  border-radius: 0.25rem;
+  color: #000;
+  margin-top: -20px;
+}
+canvas {
+  outline: 0;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+body {
+  width: 100vw;
+  overflow: hidden;
+  font-family: inter, sans-serif;
+}
+body:has(#pantsMeasurementWrapper) {
+  width: 100vw;
+}
+#sidePanel:has(#pantsMeasurementWrapper) {
+  width: 100vw;
+}
+#sidePanel:has(#pantsMeasurementWrapper) main {
+  height: 100%;
+  overflow: hidden;
+}
+.content-wrapper {
+  width: 100vw;
+  display: flex;
+}
+.widescreen-step {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+}
+.texture-container {
+  max-height: 80vh;
+  overflow-x: auto;
+}
+.svg-arrow-right {
+  width: 16px;
+  height: 16px;
+}
+#sidePanel {
+  width: 30vw;
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  padding: 30px 15px;
+}
+#textureContainer {
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  row-gap: 15px;
+}
+#textureContainer:has(.accordion) .part-option {
+  padding: 15px;
+}
+.next-back-btns {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 0 0;
+}
+#backButton,
+#nextButton,
+#resetCameraButton {
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  width: 40%;
+  cursor: pointer;
+  border-radius: 21px;
+  text-align: center;
+}
+#backButton:hover,
+#nextButton:hover,
+#resetCameraButton:hover {
+  background-color: #222;
+}
+#renderCanvas {
+  width: calc(100% - 200px);
+  height: 100%;
+  display: block;
+  float: right;
+  touch-action: none;
+}
+.texture-button {
+  width: 100%;
+  cursor: pointer;
+}
+.textureItem {
+  width: 26%;
+  cursor: pointer;
+}
+.text-container > p {
+  text-align: center;
+  font-size: 14px;
+  padding: 0;
+}
+.info-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "TAN Angleton", sans-serif;
+  font-size: 11px;
+  padding: 0 5px;
+}
+.accordion,
+.sub_accordion {
+  padding: 16px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.3s, max-height 0.3s;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+}
+#pantsCutContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.pants-item {
+  width: 128px;
+  text-align: center;
+  margin-right: 10px;
+}
+.pants-item img {
+  width: 90%;
+  height: 115px;
+  display: block;
+  cursor: pointer;
+  margin: 0 auto;
+  object-fit: contain;
+  padding: 0 5px;
+}
+.img-wrapper img {
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+.img-wrapper {
+  border-radius: 7px;
+  width: 100%;
+}
+.pants-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #000;
+}
+.text-step3 {
+  color: #000;
+  font-size: 27px;
+  font-style: normal;
+  font-weight: 400;
+  text-align: start;
+}
+.choice-container-step3 {
+  display: flex;
+  align-self: center;
+  gap: 10px;
+  align-items: start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.choice-container-step3 > div,
+.left {
+  flex-direction: column;
+  gap: 5px;
+  display: flex;
+}
+.choice-container-step3 > div {
+  justify-content: center;
+  align-items: center;
+  width: 45%;
+}
+#tooltip {
+  display: none;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  z-index: 1000;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.part-option {
+  background: 0 0;
+  margin: 10px 5px;
+  font-family: inter, sans-serif;
+  font-size: 18px;
+  cursor: pointer;
+}
+.right > p,
+.text-step4 {
+  font-family: Inter;
+  font-weight: 400;
+  line-height: 100%;
+}
+.choice-container-step3 > div > p {
+  color: #000;
+  text-align: center;
+  font-family: "TAN Angleton", sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+}
+.panel .part-item {
+  padding: 10px;
+  font-family: inter, sans-serif;
+}
+.panel,
+.sub_panel {
+  max-height: 0;
+  overflow: hidden;
+  overflow-y: auto;
+  width: 100%;
+  padding: 0 10px;
+  transition: max-height 0.3s;
+}
+.card_cardContainer.selected p,
+.jacket-embroidery-choice.selected p,
+.jacket-embroidery-choice:hover p,
+.part-option:hover p,
+.selected-back p,
+.selected-bottom-pocket p,
+.selected-lapel p,
+.selected-top-pocket p,
+div .selected p {
+  color: #fff;
+}
+.embroidery-text-input input,
+.right > p,
+.text-step4 {
+  color: #000;
+  font-style: normal;
+}
+.selected {
+  border-radius: 7px;
+  border: 1px solid #1a1a1a;
+  background: #363636;
+}
+.jacket-embroidery-choice.selected,
+.pants-embroidery-choice.selected {
+  border: 2px solid #1a1a1a;
+  background-color: #1a1a1a;
+}
+.jacket-embroidery-choice,
+.pants-embroidery-choice {
+  cursor: pointer;
+  padding: 5px;
+}
+.step4 {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  gap: 5px;
+  width: 100%;
+}
+.left {
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+}
+.acket-embroidery-choice-user-input,
+.embroidery-color-and-text-input,
+.jacket-embroidery-choice-user-input,
+.right {
+  width: 60%;
+}
+.left > img {
+  width: 100%;
+  border-radius: 5px;
+}
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 20px;
+}
+.right > p {
+  font-size: 15px;
+  text-align: start;
+  margin: 0;
+}
+.right > input {
+  width: 100%;
+  border: none;
+  background-color: #eee;
+  padding: 10px;
+  margin-left: 20px;
+}
+.text-step4 {
+  font-size: 27px;
+}
+.embroidery-color-and-text {
+  display: flex;
+  align-items: end;
+  display: flex;
+  gap: 20px;
+}
+.jacket-embroidery-choice:hover {
+  background-color: #1a1a1a;
+}
+.jacket-embroidery-choice {
+  width: 40%;
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.jacket-embroidery-choice p {
+  margin: 5px;
+  font-size: 14px;
+}
+.color-circle:hover {
+  transform: scale(1.1);
+}
+.embroidery-text-input input {
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 300;
+  width: 100%;
+  letter-spacing: 3px;
+  border: none;
+  border-bottom: 0.5px solid #000;
+  margin-bottom: 14px;
+}
+#apply-embroidery-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: flex-start;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+#apply-embroidery-button:hover {
+  background-color: #45a049;
+}
+.color-picker-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.color-circle {
+  transition: transform 0.2s, border-color 0.2s;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+.color-circle.selected {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  border-color: #000;
+}
+#pantsMeasurementWrapper {
+  position: relative;
+  text-align: center;
+}
+#pantsMeasurementImage {
+  max-width: 30%;
+  height: auto;
+}
+.measurement-input {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  text-align: start;
+  flex-direction: column;
+}
+.measurement-input label {
+  margin-right: 5px;
+}
+.measurement-input input {
+  width: 60px;
+  background: #eee;
+  border: none;
+  height: 29px;
+}
+.measurement-input .line {
+  width: 50px;
+  background-color: #000;
+  height: 1px;
+  order: -1;
+}
+#WaistMeasurement {
+  top: 11%;
+  left: 35%;
+}
+#CrotchDepthMeasurement {
+  left: 33.5%;
+  top: 22.5%;
+}
+#CrotchDepthMeasurement .line {
+  width: 280px;
+}
+#WaistMeasurement .line {
+  width: 176px;
+}
+#SeatMeasurement {
+  left: 27%;
+  top: 34%;
+}
+#SeatMeasurement .line {
+  width: 260px;
+}
+#HipsMeasurement {
+  left: 67%;
+  top: 28%;
+  text-align: end;
+  align-items: end;
+}
+#ThighMeasurement {
+  left: 69%;
+  top: 42%;
+  text-align: end;
+  align-items: end;
+}
+#ThighMeasurement .line {
+  width: 168px;
+}
+#HipsMeasurement .line {
+  width: 151px;
+}
+#OutseamMeasurement .line {
+  width: 165px;
+}
+#OutseamMeasurement {
+  left: 71.5%;
+  top: 57%;
+  text-align: end;
+  align-items: end;
+}
+#KneeMeasurement {
+  left: 29.5%;
+  top: 60%;
+}
+#InseamMeasurement {
+  left: 31.7%;
+  top: 80%;
+}
+#AnkleMeasurement {
+  left: 72%;
+  top: 96.5%;
+  text-align: end;
+  align-items: end;
+}
+#AnkleMeasurement .line {
+  width: 150px;
+}
+#InseamMeasurement .line,
+#KneeMeasurement .line {
+  width: 226px;
+}
+body:has(#pantsMeasurementImage) #arrow,
+body:has(#pantsMeasurementImage) #resetCameraButton {
+  display: none;
+}
+.card_cardContainer {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+div .image-pants-cut,
+div .image-pants-pleat {
+  height: 64px;
+  object-fit: contain;
+}
+.card_cardImageContainer {
+  position: relative;
+  width: 30%;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+}
+.card_cardImage {
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+}
+.card_itemAmountContainer {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.part-option {
+  width: 100%;
+  border-radius: 7px;
+}
+.card_cardDetails {
+  display: block;
+  padding: 8px 20px;
+  text-align: left;
+  width: 50%;
+}
+.embroidery-customization {
+  position: relative;
+}
+div.card_cardImageContainer > .image-pants-cut:first-child,
+div.card_cardImageContainer > .image-pants-pleat:first-child {
+  border: 1px solid #000;
+  border-top-left-radius: 7px;
+}
+div.card_cardImageContainer > .image-pants-cut:nth-child(2),
+div.card_cardImageContainer > .image-pants-pleat:nth-child(2) {
+  border: 1px solid #000;
+  border-left: none;
+  border-top-right-radius: 7px;
+}
+div.card_cardImageContainer > .image-pants-cut:nth-child(3),
+div.card_cardImageContainer > .image-pants-pleat:nth-child(3) {
+  border-left: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+  border-bottom-left-radius: 7px;
+}
+div.card_cardImageContainer > .image-pants-cut:nth-child(4),
+div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+  border-bottom-right-radius: 7px;
+}
+.remove-emb {
+  width: 2em;
+  height: 2em;
+}
+.remove-embroidery-button:hover .remove-emb {
+  stroke: white;
+  fill: white;
+}
+.remove-embroidery-button:hover {
+  background: #363636;
+}
+.remove-embroidery-button {
+  padding: 10px;
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.3s;
+  display: block;
+  margin-left: auto;
+}
+.card_arrowIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.card_cardContainer {
+  margin: 0 5px;
+}
+.card_cardContainer.selected {
+  border-radius: 7px;
+  border: 1px solid #1a1a1a;
+  background: #363636;
+  color: #fff;
+}
+.loader-tn {
+  height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: proxima-nova, sans-serif;
+  background: repeating-linear-gradient(
+      0deg,
+      hsla(103, 11%, 32%, 0.09) 0,
+      hsla(103, 11%, 32%, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      hsla(103, 11%, 32%, 0.09) 0,
+      hsla(103, 11%, 32%, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    linear-gradient(90deg, #110d10, #110d10);
+  position: fixed;
+  z-index: 999999999999999999999999999999999999999;
+  top: 0;
+}
+.avatar,
+.twitterLink,
+.version {
+  position: absolute;
+}
+#demo {
+  max-height: 80%;
+  max-width: 80%;
+  font-weight: 700;
+}
+.avatar {
+  bottom: 0;
+  right: 0;
+  display: block;
+  width: 120px;
+  height: auto;
+  z-index: 10;
+}
+.twitterLink {
+  text-decoration: none;
+  font-size: 0.6rem;
+  color: #fff;
+  background: #42a6e0;
+  padding: 4px 12px;
+  border-radius: 4px;
+  bottom: 30px;
+  right: 70px;
+  z-index: 20;
+}
+.version {
+  display: block;
+  top: 85%;
+  left: 5%;
+  color: gray;
+}
+@media screen and (min-width: 1025px) {
+  #textureContainer {
+    align-items: start;
+    justify-content: start;
+  }
+  .card_cardImageContainer {
+    width: 50%;
+    max-width: 150px;
+  }
+  .cards-wrapper {
+    padding: 40px 0;
+  }
+  .step-1-ws .cards-wrapper {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 1024.9px) {
+  .card_cardText,
+  .part-option p {
+    color: #2d2d2c;
+    line-height: normal;
+  }
+  *,
+  .part-option p {
+    font-family: Inter, sans-serif;
+  }
+  .back-button,
+  .next-back-btns {
+    background-color: transparent;
+  }
+  .card_cardText,
+  .susu-pcons {
+    font-family: Inter;
+    font-style: normal;
+    text-align: center;
+  }
+  .card_cardSubText,
+  .card_cardText,
+  .embroidery-text,
+  .part-option p,
+  .susu-pcons {
+    text-align: center;
+  }
+  .card_small {
+    width: 150px;
+  }
+  #chooseGarmentContainer .card_cardContainer,
+  .pants-image-wrapper {
+    width: 50%;
+  }
+  .card_cardDetails,
+  .pants-image-wrapper img,
+  .pleat-image img,
+  .step-2 .card_cardImageContainer,
+  .step-2 .design-options .card_cardImageContainer,
+  .swiper-container,
+  .widescreen-step {
+    width: 100%;
+  }
+  #backButton,
+  #nextButton,
+  #resetCameraButton {
+    border-radius: 21px;
+    background: #000;
+  }
+  body {
+    width: 100vw;
+    height: 100vh;
+  }
+  #sidePanel:has(.card_cardContainer) {
+    min-width: 100vw;
+  }
+  #stepTitle p {
+    margin: 0;
+  }
+  #sidePanel:has(.text-step3) {
+    gap: 0;
+  }
+  #sidePanel:has(.text-step3) .text-container {
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  .mobile-colors {
+    padding: 7px 7px 5px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .mobile-colors:has(.selected) {
+    background: #363636;
+  }
+  #sidePanel {
+    width: 100vw;
+    overflow: hidden;
+    border-radius: 0;
+    height: 35vh;
+    justify-content: center;
+    position: relative;
+    order: 2;
+    padding: 30px 0 10px;
+  }
+  #sidePanel:has(.pants-item) {
+    justify-content: center;
+  }
+  .sub_accordion {
+    position: relative;
+    z-index: 9999;
+  }
+  #mobileBackSlider.cards-wrapper,
+  #mobileLapelsSlider .cards-wrapper {
+    justify-content: center;
+    gap: 30px;
+  }
+  #chooseGarmentContainer,
+  .step-1 .cards-wrapper,
+  .step-5-ws.widescreen-step {
+    justify-content: start;
+  }
+  .cards-wrapper {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    justify-content: center;
+  }
+  .pockets-slider .card_cardImageContainer {
+    height: 148px;
+  }
+  .pockets-slider .card_cardContainer {
+    height: 148px;
+    width: 200px;
+  }
+  .step-1 .cards-wrapper .card_cardContainer:last-child {
+    margin-right: 5px;
+  }
+  .step-1 .cards-wrapper .card_cardContainer {
+    justify-content: start;
+    width: 100%;
+    max-width: 150px;
+  }
+  #textureContainer.step-1 {
+    align-items: start;
+    padding: 20px;
+  }
+  .step-1 .card_cardDetails {
+    padding: 6px;
+  }
+  #chooseGarmentContainer .card_cardImage {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+  }
+  .cards-wrapper .card_cardContainer {
+    flex: 0 0 auto;
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  #mobilePocketsContainer,
+  .design-options {
+    align-items: center;
+    display: flex;
+    height: 100%;
+  }
+  .controls button {
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  .design-options {
+    justify-content: center;
+    padding: 30px;
+  }
+  .cards-wrapper .card_cardContainer.part-option {
+    max-width: 150px;
+    width: 30%;
+  }
+  .part-option p {
+    font-size: 10.656px;
+    font-style: normal;
+    font-weight: 300;
+    margin-bottom: 0;
+  }
+  .card_cardText,
+  .text-container > p {
+    font-size: 11px;
+  }
+  .design-options .card_cardContainer {
+    max-width: 150px;
+  }
+  #mobileBackSlider .part-option {
+    padding: 5px;
+    max-width: 150px;
+    justify-content: center;
+    gap: 20px;
+  }
+  #mobileBackSlider.cards-wrapper,
+  #mobileLapelsSlider.cards-wrapper {
+    justify-content: space-around;
+    align-items: center;
+  }
+  .card_cardText {
+    font-weight: 500;
+    margin: 0;
+  }
+  #textureContainer {
+    justify-content: center;
+    padding: 0 20px;
+    width: 100%;
+    position: relative;
+    align-items: center;
+  }
+  .top-bottom-pockets-wrapper {
+    position: absolute;
+    z-index: 99;
+    display: flex;
+    gap: 30px;
+    top: 80%;
+  }
+  #mobilePocketsContainer .part-option.card_cardContainer {
+    width: 30%;
+    max-width: 150px;
+  }
+  #sidePanel:has(#mobileCutSlider) .text-container,
+  #sidePanel:has(.design-options) .text-container,
+  #sidePanel:has(.part-option) .text-container {
+    display: none;
+  }
+  #mobileCutSlider .cards-wrapper,
+  #mobilePleatSlider .cards-wrapper {
+    align-items: center;
+  }
+  #textureContainer:has(.text-step3) {
+    flex-direction: column;
+  }
+  #mobilePocketsContainer:has(
+      .card_cardContainer[data-mesh-name="4on2_pocket_5"]
+    ) {
+    justify-content: center;
+    gap: 30px;
+  }
+  #chooseGarmentContainer.step-2
+    .card_cardContainer[data-test-id="chooseJacket"] {
+    width: 30%;
+  }
+  .cards-wrapper:has([data-test-id="Back"]) .card_cardContainer {
+    width: 40%;
+  }
+  .design-options:has([data-test-id="Back"]) .card_cardImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .next-back-btns {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  #backButton,
+  #nextButton {
+    width: auto;
+    padding: 8px 35px;
+    font-size: 16px;
+  }
+  .swiper-free-mode > .swiper-wrapper {
+    gap: 20px;
+  }
+  body > main {
+    display: block;
+    flex-direction: column;
+  }
+  #arrow {
+    right: calc(50vw - 20px);
+    top: 60vh;
+  }
+  #resetCameraButton,
+  #stepTitle > p:nth-child(2),
+  .card_arrowIcon,
+  .color-options.hidden,
+  .hidden,
+  .text-step3 {
+    display: none;
+  }
+  .swiper-slide {
+    width: 15%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  #jacketPartsSlider {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  #jacketPartsSlider > .card_cardContainer {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+  .swiper-wrapper {
+    width: auto !important;
+  }
+  #textureContainer {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+  }
+  .card_cardContainer {
+    flex: 0 0 auto;
+    margin: 0;
+    flex-direction: column;
+  }
+  .dragging {
+    cursor: grabbing;
+  }
+  #chooseGarmentContainer .card_cardImageContainer {
+    background: #95959559;
+    width: 100%;
+  }
+  .step-1 .card_cardImageContainer {
+    width: 100%;
+    max-width: 150px;
+    border-radius: 5px;
+  }
+  .slider-container {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    white-space: nowrap;
+    padding: 30px 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+  }
+  .back-button,
+  .embroidery-button {
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  .slider-wrapper {
+    display: flex;
+    cursor: grab;
+    will-change: transform;
+  }
+  .choice-container-step3 > div > p {
+    line-height: 1.3;
+  }
+  .slide {
+    min-width: 250px;
+    flex-shrink: 0;
+    margin-right: 15px;
+  }
+  div.canvas-container {
+    height: 65vh;
+    width: 100vw;
+  }
+  .back-svg-slider {
+    width: 18px;
+    height: 18px;
+  }
+  .choice-container-step3 {
+    order: 2;
+  }
+  .characters-input {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .characters-input label {
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .characters-input input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  .embroidery-button:active,
+  .embroidery-button:focus,
+  .embroidery-button:hover {
+    background: #363636;
+  }
+  .embroidery-button.active {
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+  .mobile-embroidery-buttons {
+    order: -1;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  .embroidery-text {
+    margin-bottom: 5px;
+  }
+  .text-step3 {
+    order: -2;
+  }
+  .embroidery-input::placeholder {
+    padding: 0;
+    color: #818181;
+    font-weight: 200;
+  }
+  .step-1 .back-to-cat,
+  div .back-to-cat {
+    position: absolute;
+    z-index: 2;
+    padding: 8px 35px;
+  }
+  .embroidery-input {
+    color: #000;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 300;
+    width: 100%;
+    letter-spacing: 3px;
+    border: none;
+    border-bottom: 0.5px solid #000;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .color-option.selected {
+    border: 2px solid #000;
+  }
+  .back-button {
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+    align-self: flex-start;
+    order: -1;
+    position: absolute;
+    z-index: 99999;
+    top: -10px;
+    left: 10px;
+  }
+  .back-button:hover {
+    background-color: #e0e0e0;
+  }
+  .susu-pcons {
+    color: #2d2d2c;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: normal;
+  }
+  .step-1 .card_cardContainer.card_small {
+    max-width: 150px;
+    width: 100%;
+    justify-content: start;
+  }
+  .cards-wrapper:has(.card_cardContainer.card_small) .card_cardImage {
+    height: 100%;
+  }
+  div .back-to-cat {
+    left: calc(100vw - 120.405px);
+    top: 2%;
+    font-size: 10px;
+  }
+  #mobilePocketsSliderWrapper {
+    justify-self: start;
+  }
+  .step-1 .back-to-cat {
+    left: calc(50% - 65px);
+    top: 83%;
+    font-size: 16px;
+  }
+  #sidePanel:has(.step-5) {
+    height: 100vh;
+  }
+  .card_small .card_cardDetails {
+    display: block;
+  }
+  .choice-container-step3 > div {
+    width: 22%;
+    max-width: 150px;
+  }
+  #colorChoices .color-option {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    border: none;
+    max-width: 160px;
+    cursor: pointer;
+  }
+  #colorChoices .color-option[data-color="#0000FF"] {
+    border-radius: 10px;
+    border: 1px solid #000;
+  }
+  .embroidery-button {
+    border-radius: 21px;
+    background: #818181;
+    color: #fff;
+    border: none;
+    line-height: 1;
+  }
+  .color-options {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 75%;
+    margin: 0 auto;
+  }
+  #embroideryLocationsContainer,
+  #embroideryLocationsContainer img {
+    width: 100%;
+    height: 100%;
+  }
+  .jacket-embroidery-choice p {
+    font-size: 10px;
+  }
+  .content-wrapper {
+    flex-direction: column;
+  }
+}
+.card_small:has(.susu-pcons) .card_infoSpaceContainer {
+  display: none;
+}
+.arrow-right {
+  width: 20px;
+  height: 20px;
+}
+.card_small .card_cardImage {
+  width: 100%;
+  border-radius: 10px;
+  padding: 4px;
+}
+.canvas-container {
+  height: 100vh;
+  width: 70vw;
+}
+.part-option:hover,
+.selected-back,
+.selected-bottom-pocket,
+.selected-lapel,
+.selected-top-pocket {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+#embroideryChoices img {
+  border-radius: 10px;
+}
+.back-to-cat,
+.top-bottom-btns {
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  z-index: 99999;
+  cursor: pointer;
+  text-align: center;
+}
+.back-to-cat {
+  position: sticky;
+  top: 0;
+  left: 75%;
+  margin-bottom: -95px;
+}
