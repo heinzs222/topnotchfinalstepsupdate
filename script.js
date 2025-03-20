@@ -1068,7 +1068,7 @@ document.addEventListener("DOMContentLoaded", function () {
       backButton.classList.add("back-button");
       backButton.style.marginBottom = "20px";
       backButton.innerHTML = `
-      Categories
+      Garment 
     `;
 
       backButton.addEventListener("click", () => {
@@ -2774,10 +2774,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileCutSlider.id = "mobileCutSlider";
     mobileCutSlider.classList.add("cards-wrapper");
 
-    const cardsWrapper = document.createElement("div");
-    cardsWrapper.classList.add("cards-wrapper");
-    mobileCutSlider.appendChild(cardsWrapper);
-
+    // Append each cut card directly into mobileCutSlider:
     cutOptions.forEach((item) => {
       const cutCard = document.createElement("div");
       cutCard.classList.add("card_cardContainer", "part-option");
@@ -2810,23 +2807,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       cutCard.addEventListener("click", () => {
         console.log("[showMobileCutOptions] Chosen cut:", item.label);
-
-        cardsWrapper.querySelectorAll(".part-option").forEach((p) => {
+        // Remove previously selected classes from cut cards within mobileCutSlider:
+        mobileCutSlider.querySelectorAll(".part-option").forEach((p) => {
           p.classList.remove("selected");
         });
-
         cutCard.classList.add("selected");
-
         userChoices.design.pants.cut = item.meshName;
-
         switchPartMesh("Cut", item.meshName);
       });
 
-      cardsWrapper.appendChild(cutCard);
+      mobileCutSlider.appendChild(cutCard);
     });
 
     textureContainer.appendChild(mobileCutSlider);
-
     setupMobileSlider("#mobileCutSlider");
   }
 
