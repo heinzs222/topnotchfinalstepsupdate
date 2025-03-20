@@ -307,15 +307,12 @@ document.addEventListener("DOMContentLoaded", function () {
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPointerOverTrigger,
             function (evt) {
-              const partName = getPartNameFromMeshName(mesh.name);
-              if (partName && currentPartMeshes[partName]) {
-                const currentMesh = currentPartMeshes[partName];
-                highlightLayer.addMesh(currentMesh, BABYLON.Color3.White());
-                canvas.style.cursor = "pointer";
-
-                tooltip.style.display = "block";
-                tooltip.innerHTML = partName;
-              }
+              // Instead of trying to get the mesh from currentPartMeshes,
+              // simply add the hovered mesh directly.
+              highlightLayer.addMesh(mesh, BABYLON.Color3.White());
+              canvas.style.cursor = "pointer";
+              tooltip.style.display = "block";
+              tooltip.innerHTML = getPartNameFromMeshName(mesh.name);
             }
           )
         );
@@ -324,14 +321,9 @@ document.addEventListener("DOMContentLoaded", function () {
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPointerOutTrigger,
             function (evt) {
-              const partName = getPartNameFromMeshName(mesh.name);
-              if (partName && currentPartMeshes[partName]) {
-                const currentMesh = currentPartMeshes[partName];
-                highlightLayer.removeMesh(currentMesh);
-                canvas.style.cursor = "default";
-
-                tooltip.style.display = "none";
-              }
+              highlightLayer.removeMesh(mesh);
+              canvas.style.cursor = "default";
+              tooltip.style.display = "none";
             }
           )
         );
@@ -573,9 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupPartHoverHighlight() {
     const partOptionButtons = document.querySelectorAll(".part-option");
     const partItems = document.querySelectorAll(".part-item");
-
     partOptionButtons.forEach((button) => {
-      // Mouse events for desktop
       button.addEventListener("mouseenter", function () {
         const partName = this.getAttribute("data-part-name");
         const meshName = this.getAttribute("data-mesh-name");
@@ -592,26 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
           highlightLayer.removeMesh(mesh);
         }
       });
-
-      // Touch events for mobile devices
-      button.addEventListener("touchstart", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      button.addEventListener("touchend", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
     });
-
     partItems.forEach((item) => {
       item.addEventListener("mouseenter", function () {
         const partName = this.getAttribute("data-part");
@@ -621,21 +592,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
       item.addEventListener("mouseleave", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
-      // Optionally add touch events for items if needed
-      item.addEventListener("touchstart", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      item.addEventListener("touchend", function () {
         const partName = this.getAttribute("data-part");
         const mesh = currentPartMeshes[partName];
         if (mesh) {
@@ -3205,6 +3161,7 @@ document.addEventListener("DOMContentLoaded", function () {
       container.classList.add("cards-wrapper");
       if (!container) return;
       container.innerHTML = "";
+
       filteredOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.classList.add("part-option", "card_cardContainer");
@@ -3213,26 +3170,26 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // Attach a click (and touchend) listener for toggling selection.
+        // *** Set the initial selected class if the option is already chosen ***
+        if (userChoices.design.jacket["PocketsTop"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-top-pocket");
+        }
+
         function toggleSelection(e) {
           e.preventDefault();
           e.stopPropagation();
-          // If this option is already selected, unselect it.
+          // If already selected, remove selection
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-top-pocket")
           ) {
-            console.log(
-              "[renderMobilePocketsOptions] Toggling off top pocket option:",
-              item.label
-            );
             pocketCard.classList.remove("selected", "selected-top-pocket");
             userChoices.design.jacket["PocketsTop"] = undefined;
             disablePocketMesh(item.meshName);
             resetCamera();
             return;
           }
-          // Otherwise, clear other top pocket selections and select this one.
+          // Otherwise, clear previous selections and set this one
           container.querySelectorAll(".part-option").forEach((p) => {
             p.classList.remove("selected", "selected-top-pocket");
           });
@@ -3242,7 +3199,6 @@ document.addEventListener("DOMContentLoaded", function () {
           resetCamera();
         }
         pocketCard.addEventListener("click", toggleSelection);
-        // Also listen to touchend for immediacy on mobile.
         pocketCard.addEventListener("touchend", toggleSelection);
 
         const imgWrapper = document.createElement("div");
@@ -3266,7 +3222,7 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
-      // Similar toggle logic for bottom pockets...
+      // Similar logic for bottom pockets...
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3288,6 +3244,11 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
+        // *** Set the initial selected class if the option is already chosen ***
+        if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-bottom-pocket");
+        }
+
         function toggleSelection(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -3295,10 +3256,6 @@ document.addEventListener("DOMContentLoaded", function () {
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
           ) {
-            console.log(
-              "[renderMobilePocketsOptions] Toggling off bottom pocket option:",
-              item.label
-            );
             pocketCard.classList.remove("selected", "selected-bottom-pocket");
             userChoices.design.jacket["PocketsBottom"] = undefined;
             disablePocketMesh(item.meshName);

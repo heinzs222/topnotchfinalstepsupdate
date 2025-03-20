@@ -1226,13 +1226,13 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     order: -1;
     position: absolute;
     z-index: 99999;
-    top: -10px;
-    left: 10px;
-    background: #202020;
+    top: 0px;
+    left: 25px;
+    background: #161616;
     color: white;
   }
   .back-button:hover {
-    background: #202020;
+    background: #272727;
   }
   .susu-pcons {
     color: #2d2d2c;

@@ -573,9 +573,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupPartHoverHighlight() {
     const partOptionButtons = document.querySelectorAll(".part-option");
     const partItems = document.querySelectorAll(".part-item");
-
     partOptionButtons.forEach((button) => {
-      // Mouse events for desktop
       button.addEventListener("mouseenter", function () {
         const partName = this.getAttribute("data-part-name");
         const meshName = this.getAttribute("data-mesh-name");
@@ -592,26 +590,7 @@ document.addEventListener("DOMContentLoaded", function () {
           highlightLayer.removeMesh(mesh);
         }
       });
-
-      // Touch events for mobile devices
-      button.addEventListener("touchstart", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      button.addEventListener("touchend", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
     });
-
     partItems.forEach((item) => {
       item.addEventListener("mouseenter", function () {
         const partName = this.getAttribute("data-part");
@@ -621,21 +600,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
       item.addEventListener("mouseleave", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
-      // Optionally add touch events for items if needed
-      item.addEventListener("touchstart", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      item.addEventListener("touchend", function () {
         const partName = this.getAttribute("data-part");
         const mesh = currentPartMeshes[partName];
         if (mesh) {
