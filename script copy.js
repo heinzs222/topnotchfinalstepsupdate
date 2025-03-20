@@ -1,6 +1,92 @@
 import EmailSender from "./emailSender.js";
+gsap.registerPlugin(
+  DrawSVGPlugin,
+  ScrollSmoother,
+  GSDevTools,
+  InertiaPlugin,
+  MorphSVGPlugin,
+  MotionPathHelper,
+  Physics2DPlugin,
+  PhysicsPropsPlugin,
+  ScrambleTextPlugin,
+  SplitText,
+  CustomEase,
+  CustomBounce,
+  CustomWiggle
+);
 
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("all good added fadein fadeout model");
+  function observeAddedNodes(container, callback, options = {}) {
+    const observerOptions = Object.assign(
+      { childList: true, subtree: true },
+      options
+    );
+    const observer = new MutationObserver((mutationsList) => {
+      observer.disconnect();
+      mutationsList.forEach((mutation) => {
+        if (mutation.type === "childList" && mutation.addedNodes.length) {
+          const nodes = Array.from(mutation.addedNodes);
+          callback(nodes);
+        }
+      });
+
+      observer.observe(container, observerOptions);
+    });
+    observer.observe(container, observerOptions);
+    return observer;
+  }
+
+  const animatedElements = new WeakSet();
+
+  function animateNewImages(nodes) {
+    const images = [];
+    nodes.forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.matches("img") && !animatedElements.has(node)) {
+          images.push(node);
+          animatedElements.add(node);
+        }
+
+        node.querySelectorAll("img").forEach((img) => {
+          if (!animatedElements.has(img)) {
+            images.push(img);
+            animatedElements.add(img);
+          }
+        });
+      }
+    });
+
+    if (images.length > 0) {
+      gsap.fromTo(
+        images,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1 }
+      );
+    }
+  }
+
+  const container = document.getElementById("textureContainer");
+  if (container) {
+    observeAddedNodes(container, animateNewImages);
+  }
+
+  console.log("cards entrance update");
+  console.log("cards entrance update");
+  function hideLoader() {
+    gsap.to(".loader-tn", {
+      opacity: 0,
+      duration: 1,
+      ease: "power2.out",
+      onComplete: function () {
+        const loader = document.getElementById("loader-top-notch");
+        if (loader) {
+          loader.style.zIndex = "-1";
+        }
+      },
+    });
+  }
+
   console.log("cart update new");
   console.log("I hope plz");
   let mannequinRoot;
@@ -174,38 +260,23 @@ document.addEventListener("DOMContentLoaded", function () {
     highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
     let modelsLoaded = 0;
     const modelsToLoad = 4;
-    function hideLoader() {
-      gsap.to(".loader-tn", {
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out",
-        onComplete: function () {
-          const loader = document.getElementById("loader-top-notch");
-          if (loader) {
-            loader.style.zIndex = "-1";
-          }
-        },
-      });
-    }
-    setTimeout(() => {
-      console.log("All images have loaded and rendered.");
-      hideLoader();
-    }, 1000);
     const onModelLoaded = () => {
       modelsLoaded++;
-
       if (modelsLoaded === modelsToLoad) {
         parentNode.rotation.y = Math.PI / 2;
         initialRotationY = parentNode.rotation.y;
         currentRotationY = initialRotationY;
         currentOrientation = "front";
-        applyTexture("./assets/fabric/All Fabrics/A52024006- $850.webp");
+
+        applyTexture(
+          "./assets/fabric_optimized/All Fabrics/A52024006- $850.webp"
+        );
         centerModel();
         selectDefaultJacketParts();
-
         transitionToStep(step);
       }
     };
+
     function getPartNameFromMeshName(meshName) {
       if (meshName.startsWith("4on2_Back")) {
         return "Back";
@@ -832,10 +903,10 @@ document.addEventListener("DOMContentLoaded", function () {
   <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
     <div class="card_cardImageContainer">
       <!-- Default Images -->
-      <img loading="lazy" class="card_cardImage"  src="./assets/fabric/business/E5101-38.webp" alt="E5101-38">
-      <img loading="lazy" class="card_cardImage"  src="./assets/fabric/business/E5102-38.webp" alt="E5102-38">
-      <img loading="lazy" class="card_cardImage"  src="./assets/fabric/business/E5103-38.webp" alt="E5103-38">
-      <img loading="lazy" class="card_cardImage"  src="./assets/fabric/business/E5104-38.webp" alt="E5104-38">
+      <img loading="lazy" class="card_cardImage"  src="./assets/fabric_optimized_2048/business/E5101-38.webp" alt="E5101-38">
+      <img loading="lazy" class="card_cardImage"  src="./assets/fabric_optimized_2048/business/E5102-38.webp" alt="E5102-38">
+      <img loading="lazy" class="card_cardImage"  src="./assets/fabric_optimized_2048/business/E5103-38.webp" alt="E5103-38">
+      <img loading="lazy" class="card_cardImage"  src="./assets/fabric_optimized_2048/business/E5104-38.webp" alt="E5104-38">
       <div class="card_itemAmountContainer" data-test-id="item-amount">25</div>
     </div>
     <div class="card_cardDetails">
@@ -863,6 +934,7 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 `;
   }
+
   function resetCameraBack() {
     if (
       initialCameraRadius === undefined ||
@@ -997,11 +1069,11 @@ document.addEventListener("DOMContentLoaded", function () {
       backButton.classList.add("back-button");
       backButton.style.marginBottom = "20px";
       backButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
         <circle cx="9" cy="9" r="9" fill="#EFEFEF"/>
         <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"/>
       </svg>
-      Back
+      Categories
     `;
 
       backButton.addEventListener("click", () => {
@@ -1022,6 +1094,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
+
   function showMobileLapelsOptions() {
     console.log(
       "[showMobileLapelsOptions] Displaying lapels design options..."
@@ -1030,7 +1103,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm  ";
+    confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log("[showMobileLapelsOptions] Confirm clicked => returning");
@@ -1126,7 +1202,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm  ";
+    confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log(
@@ -1251,7 +1330,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm";
+    confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log(
@@ -1564,7 +1646,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const sidePanel = document.getElementById("sidePanel");
     if (!sidePanel) return;
 
-    // Remove any previous wrapper with class "widescreen-step"
     const existingWrapper = sidePanel.querySelector(".widescreen-step");
     if (existingWrapper) {
       while (existingWrapper.firstChild) {
@@ -1574,21 +1655,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      // On mobile, wrap only the content except the next/back buttons
       const wrapper = document.createElement("div");
       wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
 
-      // Select all children that are not the next/back buttons container.
-      // (Assumes that container has a class "next-back-btns")
       Array.from(sidePanel.children).forEach((child) => {
         if (!child.classList.contains("next-back-btns")) {
           wrapper.appendChild(child);
         }
       });
-      // Insert the wrapper at the beginning so that the next/back buttons remain separate.
+
       sidePanel.insertBefore(wrapper, sidePanel.firstChild);
     } else {
-      // On desktop, wrap everything
       const wrapper = document.createElement("div");
       wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
       while (sidePanel.firstChild) {
@@ -2048,7 +2125,6 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
 
       case 5:
-        // Hide the canvas on step 5
         document.querySelector(
           "body > main > div > div.canvas-container"
         ).style.display = "none";
@@ -2077,7 +2153,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setupPantsMeasurementListeners();
 
-        // Change the Next button text to "Finish"
         document.getElementById("nextButton").textContent = "Finish";
         break;
 
@@ -2239,7 +2314,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const backButton = document.createElement("button");
-    backButton.textContent = "Back";
+    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     backButton.classList.add("back-to-cat");
     backButton.addEventListener("click", () => {
       if (subCategoryKey) {
@@ -2282,13 +2360,19 @@ document.addEventListener("DOMContentLoaded", function () {
     imageContainer.className = "card_cardImageContainer";
     imageContainer.style.touchAction = "pan-y;";
 
+    const folderPath = `./assets/fabric_optimized/${categoryKey}/${subCategoryKey}/`;
+
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
     const imagesToShow = fileNames.slice(0, 4);
     imagesToShow.forEach((item) => {
       const img = document.createElement("img");
       img.className = "card_cardImage";
       img.loading = "lazy";
-      const folderPath = `./assets/fabric/${categoryKey}/${subCategoryKey}/`;
-      img.src = folderPath + item;
+      img.src = optimizedFolderPath + item;
       img.alt = item;
       img.style.touchAction = "pan-y;";
       imageContainer.appendChild(img);
@@ -2327,7 +2411,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cardContainer.appendChild(arrowIcon);
 
     cardContainer.addEventListener("click", () => {
-      const folderPath = `./assets/fabric/${categoryKey}/${subCategoryKey}/`;
       showFabricItems(categoryKey, subCategoryKey, folderPath, fileNames);
     });
 
@@ -2339,7 +2422,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const backButton = document.createElement("button");
-    backButton.textContent = "Back";
+    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     backButton.classList.add("back-to-cat");
     backButton.addEventListener("click", () => {
       initializeTextureButtons();
@@ -2349,7 +2435,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const categoryData = textures[categoryKey];
 
     if (Array.isArray(categoryData)) {
-      const folderPath = `./assets/fabric/All Fabrics/`;
+      const folderPath = `./assets/fabric_optimized/All Fabrics/`;
       showFabricItems(categoryKey, null, folderPath, categoryData);
     } else {
       let cardsWrapper;
@@ -2371,6 +2457,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       Object.keys(categoryData).forEach((subCategoryKey, index) => {
+        const folderPath = `./assets/fabric_optimized/${categoryKey}/${subCategoryKey}/`;
         const fileNames = categoryData[subCategoryKey];
         const card = createSubCategoryCard(
           categoryKey,
@@ -2395,7 +2482,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cardContainer.className = "card_cardContainer";
     cardContainer.dataset.testId = categoryKey;
     cardContainer.tabIndex = index + 1;
-
     cardContainer.style.cssText =
       "translate: none; rotate: none; scale: none; transform: translate(0px, 0px); touch-action: pan-y;";
 
@@ -2419,21 +2505,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let folderPath = "";
     if (categoryKey === "All Fabrics") {
-      folderPath = "./assets/fabric/All Fabrics/";
+      folderPath = "./assets/fabric_optimized/All Fabrics/";
     } else if (categoryKey === "Colour") {
-      folderPath = "./assets/fabric/Colour/Beige/";
+      folderPath = "./assets/fabric_optimized/Colour/Beige/";
     } else if (categoryKey === "Design") {
-      folderPath = "./assets/fabric/Design/Birdseye/";
+      folderPath = "./assets/fabric_optimized/Design/Birdseye/";
     } else if (categoryKey === "Event") {
-      folderPath = "./assets/fabric/Event/Business/";
+      folderPath = "./assets/fabric_optimized/Event/Business/";
     } else {
-      folderPath = "./assets/fabric/All Fabrics/";
+      folderPath = "./assets/fabric_optimized/All Fabrics/";
     }
+
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
     images.forEach((imgName) => {
       const img = document.createElement("img");
       img.className = "card_cardImage";
       img.loading = "lazy";
-      img.src = folderPath + imgName;
+
+      img.src = optimizedFolderPath + imgName;
       img.alt = imgName;
       img.style.touchAction = "pan-y;";
       imageContainer.appendChild(img);
@@ -2485,24 +2578,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const cardsWrapper = document.createElement("div");
     cardsWrapper.className = "cards-wrapper";
-
-    Object.keys(textures).forEach((categoryKey, index) => {
-      const card = createTopLevelCategoryCard(categoryKey, index);
-      cardsWrapper.appendChild(card);
-    });
-
+    for (let i = 0; i < 2; i++) {
+      Object.keys(textures).forEach((categoryKey, index) => {
+        const card = createTopLevelCategoryCard(categoryKey, index);
+        cardsWrapper.appendChild(card);
+      });
+    }
     textureContainer.appendChild(cardsWrapper);
 
     if (window.matchMedia("(max-width: 1024.9px)").matches) {
       initializeCardsSlider();
     }
+
+    gsap.fromTo(
+      ".card_cardImage",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1 }
+    );
   }
 
   function createFabricCard(categoryKey, item, index, folderPath) {
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
     const cardContainer = document.createElement("div");
     cardContainer.className = "card_cardContainer card_small";
     cardContainer.dataset.testId = index;
     cardContainer.tabIndex = index + 1;
+
+    cardContainer.setAttribute("data-original-url", folderPath + item);
 
     const imageContainer = document.createElement("div");
     imageContainer.className = "card_cardImageContainer";
@@ -2510,7 +2616,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const img = document.createElement("img");
     img.className = "card_cardImage";
     img.loading = "lazy";
-    img.src = folderPath + item;
+
+    img.src = optimizedFolderPath + item;
     img.alt = item;
     imageContainer.appendChild(img);
 
@@ -2555,43 +2662,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
     console.log("Texture clicked:", item);
+
     document.querySelectorAll(".card_small.selected").forEach((card) => {
       card.classList.remove("selected");
     });
-
     cardElement.classList.add("selected");
 
-    const textureUrl = folderPath + item;
-    applyTexture(textureUrl);
+    const originalTextureUrl =
+      cardElement.getAttribute("data-original-url") || folderPath + item;
+
+    applyTexture(originalTextureUrl);
     userChoices.texture = item;
     console.log("userChoices.texture updated to:", userChoices.texture);
   }
 
   function applyTexture(url) {
     if (!material) return;
+    // If the texture is already set, don't change anything.
     if (material.diffuseTexture && material.diffuseTexture.name === url) {
       return;
     }
-    const texture = new BABYLON.Texture(
-      url,
-      scene,
-      false,
-      true,
-      BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
-      () => {
-        console.log(`Texture loaded: ${url}`);
+
+    // Get the canvas element to fade everything (you could also target a container if desired)
+    const canvasEl = document.getElementById("renderCanvas");
+
+    // Fade out the canvas over 0.5 seconds.
+    gsap.to(canvasEl, {
+      opacity: 0,
+      duration: 0.5,
+      ease: "power2.out",
+      onComplete: () => {
+        // Load the new texture.
+        const newTexture = new BABYLON.Texture(
+          url,
+          scene,
+          false,
+          true,
+          BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
+          () => {
+            console.log(`Texture loaded: ${url}`);
+            hideLoader();
+            // Apply the new texture.
+            material.diffuseTexture = newTexture;
+            material.diffuseTexture.name = url;
+            newTexture.uScale = 5.0;
+            newTexture.vScale = 5.0;
+            material.backFaceCulling = false;
+            material.specularColor = new BABYLON.Color3(0, 0, 0);
+            material.ambientColor = new BABYLON.Color3(1, 1, 1);
+            // Fade the canvas back in over 0.5 seconds.
+            gsap.to(canvasEl, { opacity: 1, duration: 0.5, ease: "power2.in" });
+          },
+          (message, exception) => {
+            console.error(`Failed to load texture: ${url}`, message, exception);
+          }
+        );
+        console.log("Changing texture to:", url);
       },
-      (message, exception) => {
-        console.error(`Failed to load texture: ${url}`, message, exception);
-      }
-    );
-    texture.uScale = 5.0;
-    texture.vScale = 5.0;
-    material.diffuseTexture = texture;
-    material.diffuseTexture.name = url;
-    material.backFaceCulling = false;
-    material.specularColor = new BABYLON.Color3(0, 0, 0);
-    material.ambientColor = new BABYLON.Color3(1, 1, 1);
+    });
   }
 
   function showMobileCutOptions() {
@@ -2601,7 +2729,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm ";
+    confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log("[showMobileCutOptions] Confirm clicked => returning");
@@ -2908,7 +3039,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupPartSelection() {
     if (isPartSelectionSetup) return;
     isPartSelectionSetup = true;
-
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.addEventListener("click", partSelectionHandler);
   }
@@ -2916,7 +3046,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function partSelectionHandler(e) {
     const partOptionButton = e.target.closest(".part-option");
     if (!partOptionButton) return;
-
     const partName = partOptionButton.getAttribute("data-part-name");
     const meshName = partOptionButton.getAttribute("data-mesh-name");
     if (!partName || !meshName) {
@@ -3172,9 +3301,12 @@ document.addEventListener("DOMContentLoaded", function () {
             "[renderMobilePocketsOptions] Chosen bottom pocket option:",
             item.label
           );
-          sliderWrapper.querySelectorAll(".part-option").forEach((p) => {
-            p.classList.remove("selected", "selected-bottom-pocket");
-          });
+          document
+            .querySelectorAll("#mobilePocketsSlider .part-option")
+            .forEach((p) => {
+              p.classList.remove("selected", "selected-bottom-pocket");
+            });
+
           pocketCard.classList.add("selected", "selected-bottom-pocket");
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
@@ -3478,8 +3610,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ).style.display = "block";
   });
   function getFabricName(filename) {
-    let baseName = filename.replace(/\.[^.]+$/, ""); // remove extension
-    return baseName.replace(/-\s*\$[\d.]+$/, ""); // remove " - $price"
+    let baseName = filename.replace(/\.[^.]+$/, "");
+    return baseName.replace(/-\s*\$[\d.]+$/, "");
   }
 
   document.getElementById("nextButton").addEventListener("click", function () {
@@ -3489,7 +3621,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (step === 1) {
       if (userChoices.texture) {
-        // Use getFabricName to remove the price and file extension.
         const cleanedName = getFabricName(userChoices.texture);
         selectedChoice = { texture: cleanedName };
         userChoices.texture = cleanedName;
@@ -3842,10 +3973,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     alert(summary);
     EmailSender.sendUserChoicesEmail(userChoices);
-    window.parent.postMessage(
-      { type: "userChoices", data: userChoices },
-      "*" // For security, you can restrict this to your parent domain
-    );
+    window.parent.postMessage({ type: "userChoices", data: userChoices }, "*");
   }
 
   document
@@ -3862,10 +3990,63 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+  function buildImageUrls(jsonData) {
+    const urls = [];
+    for (let category in jsonData) {
+      const value = jsonData[category];
+      if (Array.isArray(value)) {
+        value.forEach((fileName) => {
+          urls.push(`./assets/fabric_optimized/${category}/${fileName}`);
+        });
+      } else if (typeof value === "object") {
+        for (let subCategory in value) {
+          value[subCategory].forEach((fileName) => {
+            urls.push(
+              `./assets/fabric_optimized/${category}/${subCategory}/${fileName}`
+            );
+          });
+        }
+      }
+    }
+    return urls;
+  }
+  function duplicateSliderItems(containerSelector, times = 1) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const items = Array.from(container.children);
+
+    for (let i = 0; i < times; i++) {
+      items.forEach((item) => {
+        const clone = item.cloneNode(true);
+        container.appendChild(clone);
+      });
+    }
+  }
+
+  function preloadImages(urls) {
+    return new Promise((resolve) => {
+      let loadedCount = 0;
+      const total = urls.length;
+      urls.forEach((url) => {
+        const img = new Image();
+        img.onload = img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === total) {
+            resolve();
+          }
+        };
+        img.src = url;
+      });
+    });
+  }
   fetch("textures.json")
     .then((response) => response.json())
     .then((data) => {
       textures = data;
+
+      const urlsToPreload = buildImageUrls(textures);
+      console.log(`Preloading ${urlsToPreload.length} images...`);
 
       setupAccordions();
       setupPartSelection();

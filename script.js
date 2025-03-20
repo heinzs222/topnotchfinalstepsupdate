@@ -2677,33 +2677,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function applyTexture(url) {
     if (!material) return;
-
+    // If the texture is already set, don't change anything.
     if (material.diffuseTexture && material.diffuseTexture.name === url) {
       return;
     }
-    const texture = new BABYLON.Texture(
-      url,
-      scene,
-      false,
-      true,
-      BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
-      () => {
-        console.log(`Texture loaded: ${url}`);
 
-        hideLoader();
+    // Get the canvas element to fade everything (you could also target a container if desired)
+    const canvasEl = document.getElementById("renderCanvas");
+
+    // Fade out the canvas over 0.5 seconds.
+    gsap.to(canvasEl, {
+      opacity: 0,
+      duration: 0.5,
+      ease: "power2.out",
+      onComplete: () => {
+        // Load the new texture.
+        const newTexture = new BABYLON.Texture(
+          url,
+          scene,
+          false,
+          true,
+          BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
+          () => {
+            console.log(`Texture loaded: ${url}`);
+            hideLoader();
+            // Apply the new texture.
+            material.diffuseTexture = newTexture;
+            material.diffuseTexture.name = url;
+            newTexture.uScale = 5.0;
+            newTexture.vScale = 5.0;
+            material.backFaceCulling = false;
+            material.specularColor = new BABYLON.Color3(0, 0, 0);
+            material.ambientColor = new BABYLON.Color3(1, 1, 1);
+            // Fade the canvas back in over 0.5 seconds.
+            gsap.to(canvasEl, { opacity: 1, duration: 0.5, ease: "power2.in" });
+          },
+          (message, exception) => {
+            console.error(`Failed to load texture: ${url}`, message, exception);
+          }
+        );
+        console.log("Changing texture to:", url);
       },
-      (message, exception) => {
-        console.error(`Failed to load texture: ${url}`, message, exception);
-      }
-    );
-    texture.uScale = 5.0;
-    texture.vScale = 5.0;
-    material.diffuseTexture = texture;
-    material.diffuseTexture.name = url;
-    material.backFaceCulling = false;
-    material.specularColor = new BABYLON.Color3(0, 0, 0);
-    material.ambientColor = new BABYLON.Color3(1, 1, 1);
-    console.log("Applied texture src:", url);
+    });
   }
 
   function showMobileCutOptions() {
