@@ -922,6 +922,12 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     max-width: 150px;
     width: 30%;
   }
+
+  .cards-wrapper:has([data-part-name="Pleat"]) .card_cardContainer.part-option {
+    max-width: 135px;
+    width: 100%;
+  }
+
   .part-option p {
     font-size: 10.656px;
     font-style: normal;
@@ -982,8 +988,12 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     gap: 30px;
     top: 80%;
   }
-  #mobilePocketsContainer .part-option.card_cardContainer {
+  #mobilePocketsContainer:has([data-mesh-name="4on2_pocket_2"])
+    .part-option.card_cardContainer {
     width: 100%;
+  }
+  #mobilePocketsContainer .part-option.card_cardContainer {
+    width: 30%;
     max-width: 135px;
   }
   #sidePanel:has(#mobileCutSlider) .text-container,
@@ -1218,6 +1228,8 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     z-index: 99999;
     top: -10px;
     left: 10px;
+    background: #161616;
+    color: white;
   }
   .back-button:hover {
     background-color: #e0e0e0;

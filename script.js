@@ -1068,10 +1068,6 @@ document.addEventListener("DOMContentLoaded", function () {
       backButton.classList.add("back-button");
       backButton.style.marginBottom = "20px";
       backButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="9" fill="#EFEFEF"/>
-        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"/>
-      </svg>
       Categories
     `;
 
@@ -1282,7 +1278,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     textureContainer.appendChild(mobileBackSlider);
-    setupMobileSlider("#mobileBackSlider");
+    setupMobileSlider(".part-option.card_cardContainer ");
   }
 
   function setupMobileSlider(selector) {
@@ -3680,7 +3676,10 @@ document.addEventListener("DOMContentLoaded", function () {
     textureContainer.innerHTML = "";
 
     const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm ";
+    confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg> `;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log("[showMobilePleatOptions] Confirm clicked => returning");
@@ -3699,10 +3698,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const mobilePleatSlider = document.createElement("div");
     mobilePleatSlider.id = "mobilePleatSlider";
     mobilePleatSlider.classList.add("cards-wrapper");
-
-    const cardsWrapper = document.createElement("div");
-    cardsWrapper.classList.add("cards-wrapper");
-    mobilePleatSlider.appendChild(cardsWrapper);
 
     pleatOptions.forEach((item) => {
       const pleatCard = document.createElement("div");
@@ -3735,23 +3730,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
       pleatCard.addEventListener("click", () => {
         console.log("[showMobilePleatOptions] Chosen pleat:", item.label);
-
-        cardsWrapper.querySelectorAll(".part-option").forEach((p) => {
+        // Remove any previously selected classes
+        mobilePleatSlider.querySelectorAll(".part-option").forEach((p) => {
           p.classList.remove("selected");
         });
-
         pleatCard.classList.add("selected");
-
         userChoices.design.pants.pleat = item.label;
-
         switchPartMesh("Pleat", item.label);
       });
 
-      cardsWrapper.appendChild(pleatCard);
+      // Append the card directly to the slider container
+      mobilePleatSlider.appendChild(pleatCard);
     });
 
     textureContainer.appendChild(mobilePleatSlider);
-
     setupMobileSlider("#mobilePleatSlider");
   }
 
