@@ -3177,8 +3177,11 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // Toggle-off logic: if this option is already selected, unselect it.
-        pocketCard.addEventListener("click", () => {
+        // Attach a click (and touchend) listener for toggling selection.
+        function toggleSelection(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          // If this option is already selected, unselect it.
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-top-pocket")
@@ -3193,7 +3196,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resetCamera();
             return;
           }
-          // Otherwise, clear other selections and select this one.
+          // Otherwise, clear other top pocket selections and select this one.
           container.querySelectorAll(".part-option").forEach((p) => {
             p.classList.remove("selected", "selected-top-pocket");
           });
@@ -3201,7 +3204,10 @@ document.addEventListener("DOMContentLoaded", function () {
           userChoices.design.jacket["PocketsTop"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "top");
           resetCamera();
-        });
+        }
+        pocketCard.addEventListener("click", toggleSelection);
+        // Also listen to touchend for immediacy on mobile.
+        pocketCard.addEventListener("touchend", toggleSelection);
 
         const imgWrapper = document.createElement("div");
         imgWrapper.classList.add("img-wrapper");
@@ -3224,7 +3230,7 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
-      // (Similar toggle logic can be applied to bottom pockets.)
+      // Similar toggle logic for bottom pockets...
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3246,8 +3252,9 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // Toggle-off logic for bottom pockets:
-        pocketCard.addEventListener("click", () => {
+        function toggleSelection(e) {
+          e.preventDefault();
+          e.stopPropagation();
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3271,7 +3278,9 @@ document.addEventListener("DOMContentLoaded", function () {
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
           resetCamera();
-        });
+        }
+        pocketCard.addEventListener("click", toggleSelection);
+        pocketCard.addEventListener("touchend", toggleSelection);
 
         const imgWrapper = document.createElement("div");
         imgWrapper.classList.add("img-wrapper");
