@@ -3177,9 +3177,31 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        if (userChoices.design.jacket["PocketsTop"] === item.meshName) {
+        // Toggle-off logic: if this option is already selected, unselect it.
+        pocketCard.addEventListener("click", () => {
+          if (
+            pocketCard.classList.contains("selected") &&
+            pocketCard.classList.contains("selected-top-pocket")
+          ) {
+            console.log(
+              "[renderMobilePocketsOptions] Toggling off top pocket option:",
+              item.label
+            );
+            pocketCard.classList.remove("selected", "selected-top-pocket");
+            userChoices.design.jacket["PocketsTop"] = undefined;
+            disablePocketMesh(item.meshName);
+            resetCamera();
+            return;
+          }
+          // Otherwise, clear other selections and select this one.
+          container.querySelectorAll(".part-option").forEach((p) => {
+            p.classList.remove("selected", "selected-top-pocket");
+          });
           pocketCard.classList.add("selected", "selected-top-pocket");
-        }
+          userChoices.design.jacket["PocketsTop"] = item.meshName;
+          switchPartMesh("Pockets", item.meshName, "top");
+          resetCamera();
+        });
 
         const imgWrapper = document.createElement("div");
         imgWrapper.classList.add("img-wrapper");
@@ -3199,25 +3221,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         pocketCard.appendChild(imgWrapper);
         pocketCard.appendChild(pEl);
-
-        pocketCard.addEventListener("click", () => {
-          console.log(
-            "[renderMobilePocketsOptions] Chosen top pocket option:",
-            item.label
-          );
-          container.querySelectorAll(".part-option").forEach((p) => {
-            p.classList.remove("selected", "selected-top-pocket");
-          });
-          pocketCard.classList.add("selected", "selected-top-pocket");
-          userChoices.design.jacket["PocketsTop"] = item.meshName;
-          switchPartMesh("Pockets", item.meshName, "top");
-
-          resetCamera();
-        });
-
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
+      // (Similar toggle logic can be applied to bottom pockets.)
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3231,7 +3238,6 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         sliderContainer.innerHTML = "";
       }
-      // Append each card directly into sliderContainer
       filteredOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.classList.add("part-option", "card_cardContainer");
@@ -3240,9 +3246,32 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
+        // Toggle-off logic for bottom pockets:
+        pocketCard.addEventListener("click", () => {
+          if (
+            pocketCard.classList.contains("selected") &&
+            pocketCard.classList.contains("selected-bottom-pocket")
+          ) {
+            console.log(
+              "[renderMobilePocketsOptions] Toggling off bottom pocket option:",
+              item.label
+            );
+            pocketCard.classList.remove("selected", "selected-bottom-pocket");
+            userChoices.design.jacket["PocketsBottom"] = undefined;
+            disablePocketMesh(item.meshName);
+            resetCamera();
+            return;
+          }
+          document
+            .querySelectorAll("#mobilePocketsSlider .part-option")
+            .forEach((p) => {
+              p.classList.remove("selected", "selected-bottom-pocket");
+            });
           pocketCard.classList.add("selected", "selected-bottom-pocket");
-        }
+          userChoices.design.jacket["PocketsBottom"] = item.meshName;
+          switchPartMesh("Pockets", item.meshName, "bottom");
+          resetCamera();
+        });
 
         const imgWrapper = document.createElement("div");
         imgWrapper.classList.add("img-wrapper");
@@ -3262,23 +3291,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         pocketCard.appendChild(imgWrapper);
         pocketCard.appendChild(pEl);
-
-        pocketCard.addEventListener("click", () => {
-          console.log(
-            "[renderMobilePocketsOptions] Chosen bottom pocket option:",
-            item.label
-          );
-          document
-            .querySelectorAll("#mobilePocketsSlider .part-option")
-            .forEach((p) => {
-              p.classList.remove("selected", "selected-bottom-pocket");
-            });
-          pocketCard.classList.add("selected", "selected-bottom-pocket");
-          userChoices.design.jacket["PocketsBottom"] = item.meshName;
-          switchPartMesh("Pockets", item.meshName, "bottom");
-          resetCamera();
-        });
-
         sliderContainer.appendChild(pocketCard);
       });
       setupMobileSlider("#mobilePocketsSlider");
@@ -3438,9 +3450,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const isBottom = BOTTOM_POCKETS.includes(meshName);
       if (isTop) {
         if (userChoices.design.jacket["PocketsTop"] === meshName) {
-          userChoices.design.jacket["PocketsTop"] = undefined;
-          disablePocketMesh(meshName);
-          highlightLayer.removeMesh(partOptionsMeshes.Pockets[meshName]);
+          // Already selected – do nothing on model click.
+          return;
         } else {
           TOP_POCKETS.forEach((pName) => disablePocketMesh(pName));
           enablePocketMesh(meshName);
@@ -3448,9 +3459,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } else if (isBottom) {
         if (userChoices.design.jacket["PocketsBottom"] === meshName) {
-          userChoices.design.jacket["PocketsBottom"] = undefined;
-          disablePocketMesh(meshName);
-          highlightLayer.removeMesh(partOptionsMeshes.Pockets[meshName]);
+          // Already selected – do nothing on model click.
+          return;
         } else {
           BOTTOM_POCKETS.forEach((pName) => disablePocketMesh(pName));
           enablePocketMesh(meshName);
