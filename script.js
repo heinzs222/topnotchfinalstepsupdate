@@ -1287,38 +1287,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setupMobileSlider(selector) {
     const sliderContainer = document.querySelector(selector);
-
     if (!sliderContainer) {
       console.error(`Slider container "${selector}" not found.`);
       return;
     }
-
-    const cardsWrapper = sliderContainer.querySelector(".cards-wrapper");
-
-    if (!cardsWrapper) {
-      console.error(`"cards-wrapper" not found within "${selector}".`);
-      return;
+    // Initialize Flickity on the container if it’s not already enabled.
+    if (!sliderContainer.classList.contains("flickity-enabled")) {
+      new Flickity(sliderContainer, {
+        cellAlign: "left",
+        contain: true,
+        draggable: true,
+        prevNextButtons: false,
+        pageDots: false,
+      });
     }
-
-    const cards = gsap.utils.toArray(
-      ".part-option.card_cardContainer",
-      cardsWrapper
-    );
-
-    if (cards.length === 0) {
-      console.error("No cards found within the slider.");
-      return;
-    }
-
-    const loop = horizontalLoop(cards, {
-      paused: true,
-      draggable: true,
-      speed: 2,
-      snap: 1,
-      repeat: -1,
-    });
-
-    cardsWrapper.dataset.sliderInitialized = "true";
   }
 
   function showMobilePocketsOptions() {
@@ -2577,12 +2559,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const cardsWrapper = document.createElement("div");
     cardsWrapper.className = "cards-wrapper";
-    for (let i = 0; i < 2; i++) {
-      Object.keys(textures).forEach((categoryKey, index) => {
-        const card = createTopLevelCategoryCard(categoryKey, index);
-        cardsWrapper.appendChild(card);
-      });
-    }
+
+    Object.keys(textures).forEach((categoryKey, index) => {
+      const card = createTopLevelCategoryCard(categoryKey, index);
+      cardsWrapper.appendChild(card);
+    });
+
     textureContainer.appendChild(cardsWrapper);
 
     if (window.matchMedia("(max-width: 1024.9px)").matches) {
@@ -3260,10 +3242,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         sliderContainer.innerHTML = "";
       }
-      const sliderWrapper = document.createElement("div");
-      sliderWrapper.classList.add("cards-wrapper");
-      sliderWrapper.id = "mobilePocketsSliderWrapper";
-      sliderContainer.appendChild(sliderWrapper);
+      // Append each card directly into sliderContainer
       filteredOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.classList.add("part-option", "card_cardContainer");
@@ -3305,16 +3284,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .forEach((p) => {
               p.classList.remove("selected", "selected-bottom-pocket");
             });
-
           pocketCard.classList.add("selected", "selected-bottom-pocket");
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
           resetCamera();
         });
 
-        sliderWrapper.appendChild(pocketCard);
+        sliderContainer.appendChild(pocketCard);
       });
-      sliderWrapper.removeAttribute("data-sliderInitialized");
       setupMobileSlider("#mobilePocketsSlider");
     }
   }
@@ -4051,6 +4028,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setupPartSelection();
       setupPantsItemSelection();
       setupEmbroideryChoiceListener();
+      initializeCardsSlider();
     })
     .catch((error) => console.error("Error loading textures.json:", error));
 
@@ -4066,21 +4044,52 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Camera controls enabled.");
   }
   function initializeCardsSlider() {
+    // Get all elements with the "cards-wrapper" class.
     const cardsWrappers = document.querySelectorAll(".cards-wrapper");
-    cardsWrappers.forEach((cardsWrapper) => {
-      if (cardsWrapper.dataset.sliderInitialized) return;
-      const cards = gsap.utils.toArray(".card_cardContainer", cardsWrapper);
-      const loop = horizontalLoop(cards, {
-        paused: true,
-        draggable: true,
-        speed: 2,
-        snap: 1,
-      });
-      loop.progress(0, false);
-      gsap.set(cardsWrapper, { x: 0 });
-      cardsWrapper.dataset.sliderInitialized = "true";
+    const screenWidth = window.innerWidth;
+
+    cardsWrappers.forEach((wrapper) => {
+      // Force Flickity on the mobilePocketsSliderWrapper
+      if (wrapper.id === "mobilePocketsSliderWrapper") {
+        // If Flickity isn’t already initialized on this wrapper, create a new Flickity instance.
+        if (!wrapper.classList.contains("flickity-enabled")) {
+          new Flickity(wrapper, {
+            cellAlign: "left",
+            contain: true,
+            draggable: true,
+            prevNextButtons: false,
+            pageDots: false,
+          });
+        }
+        return; // Skip further checks for this wrapper.
+      }
+
+      // For screens wider than 400px, check the container’s content width.
+      const contentWidth = wrapper.scrollWidth;
+
+      // If the content is too small, then destroy Flickity (if it exists).
+      if (contentWidth <= screenWidth - 30) {
+        if (wrapper.classList.contains("flickity-enabled")) {
+          Flickity.data(wrapper).destroy();
+        }
+        return;
+      }
+
+      // If the content is wide enough, initialize Flickity (if not already done).
+      if (contentWidth >= screenWidth - 100) {
+        if (!wrapper.classList.contains("flickity-enabled")) {
+          new Flickity(wrapper, {
+            cellAlign: "left",
+            contain: true,
+            draggable: true,
+            prevNextButtons: false,
+            pageDots: false,
+          });
+        }
+      }
     });
   }
+
   function renderCharactersPanel() {
     const oldPanel = document.querySelector(".characters-inputs");
     if (oldPanel) oldPanel.remove();
@@ -4158,4 +4167,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("resetCameraButton")
     .addEventListener("click", resetCamera);
+  initializeCardsSlider();
+  window.addEventListener("resize", initializeCardsSlider);
 });

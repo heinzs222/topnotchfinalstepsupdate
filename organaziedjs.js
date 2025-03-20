@@ -16,24 +16,12 @@ gsap.registerPlugin(
 );
 
 document.addEventListener("DOMContentLoaded", function () {
-  // ============================================================================
-  // 1. UTILITY FUNCTIONS
-  // ============================================================================
-
-  /**
-   * Observe a container for added nodes and run a callback on them.
-   * @param {HTMLElement} container - The container element.
-   * @param {Function} callback - The callback to run with the added nodes.
-   * @param {Object} [options] - MutationObserver options.
-   * @returns {MutationObserver} The observer instance.
-   */
   function observeAddedNodes(container, callback, options = {}) {
     const observerOptions = Object.assign(
       { childList: true, subtree: true },
       options
     );
     const observer = new MutationObserver((mutationsList) => {
-      // Disconnect to prevent re-triggering during our update.
       observer.disconnect();
       mutationsList.forEach((mutation) => {
         if (mutation.type === "childList" && mutation.addedNodes.length) {
@@ -41,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
           callback(nodes);
         }
       });
-      // Reconnect after processing.
+
       observer.observe(container, observerOptions);
     });
     observer.observe(container, observerOptions);
@@ -51,16 +39,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const animatedElements = new WeakSet();
 
   function animateNewImages(nodes) {
-    // Collect images that have not been animated yet.
     const images = [];
     nodes.forEach((node) => {
       if (node.nodeType === Node.ELEMENT_NODE) {
-        // Check if node is an image.
         if (node.matches("img") && !animatedElements.has(node)) {
           images.push(node);
           animatedElements.add(node);
         }
-        // Also check for images inside the node.
+
         node.querySelectorAll("img").forEach((img) => {
           if (!animatedElements.has(img)) {
             images.push(img);
@@ -79,6 +65,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  const container = document.getElementById("textureContainer");
+  if (container) {
+    observeAddedNodes(container, animateNewImages);
+  }
+
+  console.log("cards entrance update");
+  console.log("cards entrance update");
   function hideLoader() {
     gsap.to(".loader-tn", {
       opacity: 0,
@@ -93,97 +86,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function getFabricPrice(filename) {
-    const baseName = filename.replace(/\.[^.]+$/, "");
-    const match = baseName.match(/-\s*(\$[\d.]+)/);
-    if (match) {
-      return match[1];
-    }
-    return "$0.00";
-  }
-
-  function getFabricName(filename) {
-    let baseName = filename.replace(/\.[^.]+$/, ""); // remove extension
-    return baseName.replace(/-\s*\$[\d.]+$/, ""); // remove " - $price"
-  }
-
-  function getSelectedClass(partName, meshName) {
-    switch (partName) {
-      case "Back":
-        return "selected-back";
-      case "Lapels":
-        return "selected-lapel";
-      case "Pockets":
-        if (TOP_POCKETS.includes(meshName)) {
-          return "selected-top-pocket";
-        } else if (BOTTOM_POCKETS.includes(meshName)) {
-          return "selected-bottom-pocket";
-        }
-        return "selected-pockets";
-      default:
-        return "selected";
-    }
-  }
-
-  function buildImageUrls(jsonData) {
-    const urls = [];
-    for (let category in jsonData) {
-      const value = jsonData[category];
-      if (Array.isArray(value)) {
-        // For top-level arrays (like "All Fabrics")
-        value.forEach((fileName) => {
-          urls.push(`./assets/fabric/${category}/${fileName}`);
-        });
-      } else if (typeof value === "object") {
-        // For nested objects (e.g. "Colour", "Design")
-        for (let subCategory in value) {
-          value[subCategory].forEach((fileName) => {
-            urls.push(`./assets/fabric/${category}/${subCategory}/${fileName}`);
-          });
-        }
-      }
-    }
-    return urls;
-  }
-
-  function duplicateSliderItems(containerSelector, times = 1) {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
-    // Get an array of the current items
-    const items = Array.from(container.children);
-    // Repeat for the specified number of times
-    for (let i = 0; i < times; i++) {
-      items.forEach((item) => {
-        // Clone the node (with all its children) and append it
-        const clone = item.cloneNode(true);
-        container.appendChild(clone);
-      });
-    }
-  }
-
-  // Preload images given an array of URLs; returns a promise that resolves when done
-  function preloadImages(urls) {
-    return new Promise((resolve) => {
-      let loadedCount = 0;
-      const total = urls.length;
-      urls.forEach((url) => {
-        const img = new Image();
-        img.onload = img.onerror = () => {
-          loadedCount++;
-          if (loadedCount === total) {
-            resolve();
-          }
-        };
-        img.src = url;
-      });
-    });
-  }
-
-  // ============================================================================
-  // 2. SCENE & MODEL SETUP FUNCTIONS
-  // ============================================================================
-
+  console.log("cart update new");
+  console.log("I hope plz");
   let mannequinRoot;
+
   let initialCameraRadius,
     initialCameraTarget,
     initialCameraAlpha,
@@ -200,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     measurements: {},
   };
+
   let shirtRoot;
   let material, scene, parentNode, camera;
   let jacketMeshes = [];
@@ -243,6 +150,17 @@ document.addEventListener("DOMContentLoaded", function () {
   let initialRotationY = 0;
   let currentRotationY = 0;
   let currentOrientation = "front";
+
+  function getFabricPrice(filename) {
+    const baseName = filename.replace(/\.[^.]+$/, "");
+
+    const match = baseName.match(/-\s*(\$[\d.]+)/);
+    if (match) {
+      return match[1];
+    }
+
+    return "$0.00";
+  }
 
   function selectDefaultJacketParts() {
     const originalZoomToMesh = zoomToMesh;
@@ -295,7 +213,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function normalizeAngle(angle) {
     return angle % (2 * Math.PI);
   }
-
   const createScene = () => {
     scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.937, 0.937, 0.937);
@@ -308,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
       scene
     );
     camera.attachControl(canvas, true);
+
     engine.setHardwareScalingLevel(1 / (window.devicePixelRatio || 1));
 
     const fxaa = new BABYLON.FxaaPostProcess(
@@ -320,8 +238,10 @@ document.addEventListener("DOMContentLoaded", function () {
     scene.postProcesses.push(fxaa);
     if (camera.inputs.attached.touch) {
       camera.inputs.attached.touch.pinchPrecision = 30;
+
       camera.inputs.attached.touch.touchAngularSensibility = 10000;
     }
+
     camera.panningSensibility = 0;
     camera.lowerRadiusLimit = 2.5;
     camera.upperRadiusLimit = 20;
@@ -339,8 +259,6 @@ document.addEventListener("DOMContentLoaded", function () {
     highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
     let modelsLoaded = 0;
     const modelsToLoad = 4;
-
-    // setTimeout(() => { console.log("All images have loaded and rendered."); hideLoader(); }, 1000);
     const onModelLoaded = () => {
       modelsLoaded++;
       if (modelsLoaded === modelsToLoad) {
@@ -348,8 +266,10 @@ document.addEventListener("DOMContentLoaded", function () {
         initialRotationY = parentNode.rotation.y;
         currentRotationY = initialRotationY;
         currentOrientation = "front";
-        // Apply texture – its onLoad callback will then hide the loader
-        applyTexture("./assets/fabric/All Fabrics/A52024006- $850.webp");
+
+        applyTexture(
+          "./assets/fabric_optimized/All Fabrics/A52024006- $850.webp"
+        );
         centerModel();
         selectDefaultJacketParts();
         transitionToStep(step);
@@ -374,12 +294,15 @@ document.addEventListener("DOMContentLoaded", function () {
         jacketMeshes.push(mesh);
         mesh.renderingGroupId = 2;
         partMeshes[mesh.name] = mesh;
+
         let partName = getPartNameFromMeshName(mesh.name);
         if (partName) {
           currentPartMeshes[partName] = mesh;
           partOptionsMeshes[partName][mesh.name] = mesh;
         }
+
         mesh.actionManager = new BABYLON.ActionManager(scene);
+
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPointerOverTrigger,
@@ -389,12 +312,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 const currentMesh = currentPartMeshes[partName];
                 highlightLayer.addMesh(currentMesh, BABYLON.Color3.White());
                 canvas.style.cursor = "pointer";
+
                 tooltip.style.display = "block";
                 tooltip.innerHTML = partName;
               }
             }
           )
         );
+
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPointerOutTrigger,
@@ -404,11 +329,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 const currentMesh = currentPartMeshes[partName];
                 highlightLayer.removeMesh(currentMesh);
                 canvas.style.cursor = "default";
+
                 tooltip.style.display = "none";
               }
             }
           )
         );
+
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickDownTrigger,
@@ -427,6 +354,7 @@ document.addEventListener("DOMContentLoaded", function () {
         mesh.material = material;
         mesh.parent = parentNode;
         pantsMeshes.push(mesh);
+
         partMeshes[mesh.name] = mesh;
       });
       onModelLoaded();
@@ -452,17 +380,21 @@ document.addEventListener("DOMContentLoaded", function () {
       scene,
       (meshes) => {
         mannequinRoot = new BABYLON.TransformNode("mannequinRoot", scene);
+
         meshes.forEach((mesh) => {
           mesh.renderingGroupId = 1;
           console.log("Mesh Name:", mesh.name);
           mesh.parent = mannequinRoot;
           mannequinMeshes.push(mesh);
           mesh.actionManager = null;
+
           mesh.useVertexColors = false;
+
           if (mesh.material) {
             mesh.material.dispose();
           }
           mesh.material = null;
+
           if (
             mesh.name.includes("unamed_unamedmesh_1") ||
             mesh.name.includes("Posed__mask_")
@@ -470,12 +402,17 @@ document.addEventListener("DOMContentLoaded", function () {
             mesh.material = mannequinMaterial;
           } else if (mesh.name === "shoe_L" || mesh.name === "shoe_R") {
             mesh.material = shoeMaterial;
+          } else {
           }
         });
+
         mannequinRoot.parent = parentNode;
+
         mannequinRoot.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
         mannequinRoot.position = new BABYLON.Vector3(0, 0, 0);
+
         onModelLoaded();
+
         loadShirtModel();
       }
     );
@@ -494,17 +431,22 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             shirtMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
             shirtMaterial.backFaceCulling = false;
+
             shirtRoot = new BABYLON.TransformNode("shirtRoot", scene);
+
             const actualShirtMeshes = [];
+
             meshes.forEach((m) => {
               if (m instanceof BABYLON.Mesh) {
                 console.log("[SHIRT LOAD] Found shirt mesh:", m.name);
                 actualShirtMeshes.push(m);
+
                 m.material = shirtMaterial;
                 m.parent = shirtRoot;
                 m.scaling = new BABYLON.Vector3(1, 1, 1);
                 m.rotation = new BABYLON.Vector3(0, 0, 0);
                 m.position = new BABYLON.Vector3(0, 0, 0);
+
                 if (m.name === "Front_1") {
                   m.renderingGroupId = 2;
                 } else if (m.name == "2_Button") {
@@ -514,12 +456,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
               }
             });
+
             shirtRoot.parent = mannequinRoot;
             shirtRoot.scaling = new BABYLON.Vector3(1, 1, 0.9);
             shirtRoot.position = new BABYLON.Vector3(0, 0, 0);
+
             initialRotationY = shirtRoot.rotation.y;
             currentRotationY = initialRotationY;
             currentOrientation = "front";
+
             const keepThese = [
               "1_pleat",
               "2_Button",
@@ -527,14 +472,17 @@ document.addEventListener("DOMContentLoaded", function () {
               "Front_1",
               "Sleeves",
             ];
+
             actualShirtMeshes.forEach((mesh) => {
               if (keepThese.includes(mesh.name)) {
                 mesh.setEnabled(true);
+
                 highlightLayer.addMesh(mesh, BABYLON.Color3.White());
               } else {
                 mesh.setEnabled(false);
               }
             });
+
             onModelLoaded();
           }
         );
@@ -561,9 +509,13 @@ document.addEventListener("DOMContentLoaded", function () {
               mesh.material = material;
               mesh.parent = parentNode;
               partOptionsMeshes[partName][meshName] = mesh;
+
               partMeshes[mesh.name] = mesh;
+
               mesh.setEnabled(false);
+
               mesh.actionManager = new BABYLON.ActionManager(scene);
+
               mesh.actionManager.registerAction(
                 new BABYLON.ExecuteCodeAction(
                   BABYLON.ActionManager.OnPickDownTrigger,
@@ -581,6 +533,7 @@ document.addEventListener("DOMContentLoaded", function () {
     scene.onPointerDown = function (evt, pickResult) {
       if (!pickResult.hit) {
         highlightLayer.removeAllMeshes();
+
         document
           .querySelectorAll(".part-item")
           .forEach((item) => item.classList.remove("selected"));
@@ -617,312 +570,158 @@ document.addEventListener("DOMContentLoaded", function () {
   engine.runRenderLoop(() => scene && scene.render());
   window.addEventListener("resize", () => engine.resize());
 
-  // ============================================================================
-  // 3. UI BUILDING FUNCTIONS
-  // ============================================================================
-
-  function initializeTextureButtons() {
-    const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    const cardsWrapper = document.createElement("div");
-    cardsWrapper.className = "cards-wrapper";
-    for (let i = 0; i < 2; i++) {
-      Object.keys(textures).forEach((categoryKey, index) => {
-        const card = createTopLevelCategoryCard(categoryKey, index);
-        cardsWrapper.appendChild(card);
+  function setupPartHoverHighlight() {
+    const partOptionButtons = document.querySelectorAll(".part-option");
+    const partItems = document.querySelectorAll(".part-item");
+    partOptionButtons.forEach((button) => {
+      button.addEventListener("mouseenter", function () {
+        const partName = this.getAttribute("data-part-name");
+        const meshName = this.getAttribute("data-mesh-name");
+        const mesh = partOptionsMeshes[partName][meshName];
+        if (mesh) {
+          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
+        }
       });
-    }
-    textureContainer.appendChild(cardsWrapper);
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      initializeCardsSlider();
-    }
-    // Run the entrance animation on all cards
-    gsap.fromTo(
-      ".card_cardImage",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1 }
-    );
-  }
-
-  function createTopLevelCategoryCard(categoryKey, index) {
-    const cardContainer = document.createElement("div");
-    cardContainer.className = "card_cardContainer";
-    cardContainer.dataset.testId = categoryKey;
-    cardContainer.tabIndex = index + 1;
-    cardContainer.style.cssText =
-      "translate: none; rotate: none; scale: none; transform: translate(0px, 0px); touch-action: pan-y;";
-    const imageContainer = document.createElement("div");
-    imageContainer.className = "card_cardImageContainer";
-    imageContainer.style.touchAction = "pan-y;";
-    let images = [];
-    let count = 0;
-    const categoryData = textures[categoryKey];
-    if (Array.isArray(categoryData)) {
-      images = categoryData.slice(0, 4);
-      count = categoryData.length;
-    } else {
-      const subKeys = Object.keys(categoryData);
-      if (subKeys.length > 0) {
-        images = categoryData[subKeys[0]].slice(0, 4);
-        count = categoryData[subKeys[0]].length;
-      }
-    }
-    let folderPath = "";
-    if (categoryKey === "All Fabrics") {
-      folderPath = "./assets/fabric/All Fabrics/";
-    } else if (categoryKey === "Colour") {
-      folderPath = "./assets/fabric/Colour/Beige/";
-    } else if (categoryKey === "Design") {
-      folderPath = "./assets/fabric/Design/Birdseye/";
-    } else if (categoryKey === "Event") {
-      folderPath = "./assets/fabric/Event/Business/";
-    } else {
-      folderPath = "./assets/fabric/All Fabrics/";
-    }
-    const optimizedFolderPath = folderPath.replace(
-      "/fabric/",
-      "/fabric_optimized_2048/"
-    );
-    images.forEach((imgName) => {
-      const img = document.createElement("img");
-      img.className = "card_cardImage";
-      img.loading = "lazy";
-      img.src = optimizedFolderPath + imgName;
-      img.alt = imgName;
-      img.style.touchAction = "pan-y;";
-      imageContainer.appendChild(img);
-    });
-    const itemAmountContainer = document.createElement("div");
-    itemAmountContainer.className = "card_itemAmountContainer";
-    itemAmountContainer.dataset.testId = "item-amount";
-    itemAmountContainer.style.touchAction = "pan-y;";
-    itemAmountContainer.textContent = count;
-    imageContainer.appendChild(itemAmountContainer);
-    cardContainer.appendChild(imageContainer);
-    const cardDetails = document.createElement("div");
-    cardDetails.className = "card_cardDetails";
-    cardDetails.style.touchAction = "pan-y;";
-    const cardText = document.createElement("p");
-    cardText.className = "card_cardText";
-    cardText.dataset.testId = "card-text";
-    cardText.style.touchAction = "pan-y;";
-    cardText.textContent = categoryKey;
-    cardDetails.appendChild(cardText);
-    cardContainer.appendChild(cardDetails);
-    const arrowIcon = document.createElement("div");
-    arrowIcon.className = "card_arrowIcon";
-    arrowIcon.style.touchAction = "pan-y;";
-    arrowIcon.innerHTML = `<svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30" style="touch-action: pan-y;">
-    <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
-       c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394
-       c-5.857,5.858-5.857,15.355,0.001,21.213  
-       C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
-       l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-       C255,161.018,253.42,157.202,250.606,154.389z" style="touch-action: pan-y;"></path>
-  </svg>`;
-    cardContainer.appendChild(arrowIcon);
-    cardContainer.addEventListener("click", () => {
-      showSubCategories(categoryKey);
-    });
-    return cardContainer;
-  }
-
-  function createSubCategoryCard(
-    categoryKey,
-    subCategoryKey,
-    fileNames,
-    index
-  ) {
-    const cardContainer = document.createElement("div");
-    cardContainer.className = "card_cardContainer";
-    cardContainer.dataset.testId = subCategoryKey;
-    cardContainer.tabIndex = index + 1;
-    cardContainer.style.cssText =
-      "translate: none; rotate: none; scale: none; transform: translate(0px, 0px); touch-action: pan-y;";
-    const imageContainer = document.createElement("div");
-    imageContainer.className = "card_cardImageContainer";
-    imageContainer.style.touchAction = "pan-y;";
-    const folderPath = `./assets/fabric/${categoryKey}/${subCategoryKey}/`;
-    const optimizedFolderPath = folderPath.replace(
-      "/fabric/",
-      "/fabric_optimized_2048/"
-    );
-    const imagesToShow = fileNames.slice(0, 4);
-    imagesToShow.forEach((item) => {
-      const img = document.createElement("img");
-      img.className = "card_cardImage";
-      img.loading = "lazy";
-      img.src = optimizedFolderPath + item;
-      img.alt = item;
-      img.style.touchAction = "pan-y;";
-      imageContainer.appendChild(img);
-    });
-    const itemAmountContainer = document.createElement("div");
-    itemAmountContainer.className = "card_itemAmountContainer";
-    itemAmountContainer.dataset.testId = "item-amount";
-    itemAmountContainer.style.touchAction = "pan-y;";
-    itemAmountContainer.textContent = fileNames.length;
-    imageContainer.appendChild(itemAmountContainer);
-    cardContainer.appendChild(imageContainer);
-    const cardDetails = document.createElement("div");
-    cardDetails.className = "card_cardDetails";
-    cardDetails.style.touchAction = "pan-y;";
-    const cardText = document.createElement("p");
-    cardText.className = "card_cardText";
-    cardText.dataset.testId = "card-text";
-    cardText.style.touchAction = "pan-y;";
-    cardText.textContent = subCategoryKey;
-    cardDetails.appendChild(cardText);
-    cardContainer.appendChild(cardDetails);
-    const arrowIcon = document.createElement("div");
-    arrowIcon.className = "card_arrowIcon";
-    arrowIcon.style.touchAction = "pan-y;";
-    arrowIcon.innerHTML = `<svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30" style="touch-action: pan-y;">
-    <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
-       c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394
-       c-5.857,5.858-5.857,15.355,0.001,21.213  
-       C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
-       l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-       C255,161.018,253.42,157.202,250.606,154.389z" style="touch-action: pan-y;"></path>
-  </svg>`;
-    cardContainer.appendChild(arrowIcon);
-    cardContainer.addEventListener("click", () => {
-      showFabricItems(categoryKey, subCategoryKey, folderPath, fileNames);
-    });
-    return cardContainer;
-  }
-
-  function createFabricCard(categoryKey, item, index, folderPath) {
-    const optimizedFolderPath = folderPath.replace(
-      "/fabric/",
-      "/fabric_optimized_2048/"
-    );
-    const cardContainer = document.createElement("div");
-    cardContainer.className = "card_cardContainer card_small";
-    cardContainer.dataset.testId = index;
-    cardContainer.tabIndex = index + 1;
-    cardContainer.setAttribute("data-original-url", folderPath + item);
-    const imageContainer = document.createElement("div");
-    imageContainer.className = "card_cardImageContainer";
-    const img = document.createElement("img");
-    img.className = "card_cardImage";
-    img.loading = "lazy";
-    img.src = optimizedFolderPath + item;
-    img.alt = item;
-    imageContainer.appendChild(img);
-    const infoSpaceContainer = document.createElement("div");
-    infoSpaceContainer.className = "card_infoSpaceContainer card_dark";
-    infoSpaceContainer.dataset.testId = "info-btn";
-    infoSpaceContainer.innerHTML =
-      '<p class="susu-pcons" translate="no">info</p>';
-    imageContainer.appendChild(infoSpaceContainer);
-    const cardDetails = document.createElement("div");
-    cardDetails.className = "card_cardDetails card_hideMobileInfoText";
-    const cardText = document.createElement("div");
-    cardText.className = "card_cardText";
-    cardText.dataset.testId = "card-text";
-    cardText.textContent = getFabricName(item);
-    const cardSubText = document.createElement("div");
-    cardSubText.className = "card_cardSubText";
-    cardSubText.dataset.testId = "card-subtext";
-    cardSubText.textContent = getFabricPrice(item);
-    cardDetails.appendChild(cardText);
-    cardDetails.appendChild(cardSubText);
-    cardContainer.appendChild(imageContainer);
-    cardContainer.appendChild(cardDetails);
-    cardContainer.addEventListener("click", (e) => {
-      e.stopPropagation();
-      selectFabric(categoryKey, item, cardContainer, folderPath);
-    });
-    return cardContainer;
-  }
-
-  function showFabricItems(categoryKey, subCategoryKey, folderPath, fileNames) {
-    const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    const backButton = document.createElement("button");
-    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
-        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
-      </svg>`;
-    backButton.classList.add("back-to-cat");
-    backButton.addEventListener("click", () => {
-      if (subCategoryKey) {
-        showSubCategories(categoryKey);
-      } else {
-        initializeTextureButtons();
-      }
-    });
-    textureContainer.appendChild(backButton);
-    const cardsWrapper = document.createElement("div");
-    cardsWrapper.className = "cards-wrapper";
-    fileNames.forEach((item, index) => {
-      const fabricCard = createFabricCard(categoryKey, item, index, folderPath);
-      cardsWrapper.appendChild(fabricCard);
-    });
-    textureContainer.appendChild(cardsWrapper);
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      initializeCardsSlider();
-    }
-  }
-
-  function showSubCategories(categoryKey) {
-    const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    const backButton = document.createElement("button");
-    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
-        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
-      </svg>`;
-    backButton.classList.add("back-to-cat");
-    backButton.addEventListener("click", () => {
-      initializeTextureButtons();
-    });
-    textureContainer.appendChild(backButton);
-    const categoryData = textures[categoryKey];
-    if (Array.isArray(categoryData)) {
-      const folderPath = `./assets/fabric/All Fabrics/`;
-      showFabricItems(categoryKey, null, folderPath, categoryData);
-    } else {
-      let cardsWrapper;
-      if (
-        window.matchMedia("(max-width: 1024.9px)").matches &&
-        (categoryKey === "Colour" || categoryKey === "Design")
-      ) {
-        const sliderContainer = document.createElement("div");
-        sliderContainer.classList.add("cards-wrapper");
-        cardsWrapper = document.createElement("div");
-        cardsWrapper.classList.add("cards-wrapper");
-        sliderContainer.appendChild(cardsWrapper);
-        textureContainer.appendChild(sliderContainer);
-      } else {
-        cardsWrapper = document.createElement("div");
-        cardsWrapper.className = "cards-wrapper";
-        textureContainer.appendChild(cardsWrapper);
-      }
-      Object.keys(categoryData).forEach((subCategoryKey, index) => {
-        const folderPath = `./assets/fabric/${categoryKey}/${subCategoryKey}/`;
-        const fileNames = categoryData[subCategoryKey];
-        const card = createSubCategoryCard(
-          categoryKey,
-          subCategoryKey,
-          fileNames,
-          index
-        );
-        cardsWrapper.appendChild(card);
+      button.addEventListener("mouseleave", function () {
+        const partName = this.getAttribute("data-part-name");
+        const meshName = this.getAttribute("data-mesh-name");
+        const mesh = partOptionsMeshes[partName][meshName];
+        if (mesh) {
+          highlightLayer.removeMesh(mesh);
+        }
       });
-      if (
-        window.matchMedia("(max-width: 1024.9px)").matches &&
-        (categoryKey === "Colour" || categoryKey === "Design")
-      ) {
-        initializeCardsSlider();
-      }
-    }
+    });
+    partItems.forEach((item) => {
+      item.addEventListener("mouseenter", function () {
+        const partName = this.getAttribute("data-part");
+        const mesh = currentPartMeshes[partName];
+        if (mesh) {
+          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
+        }
+      });
+      item.addEventListener("mouseleave", function () {
+        const partName = this.getAttribute("data-part");
+        const mesh = currentPartMeshes[partName];
+        if (mesh) {
+          highlightLayer.removeMesh(mesh);
+        }
+      });
+    });
   }
 
-  // ============================================================================
-  // 4. MOBILE & ACCORDION UI FUNCTIONS
-  // ============================================================================
+  function centerModel() {
+    parentNode.computeWorldMatrix(true);
+    const meshes = parentNode.getChildMeshes();
+    let min = new BABYLON.Vector3(
+      Number.MAX_VALUE,
+      Number.MAX_VALUE,
+      Number.MAX_VALUE
+    );
+    let max = new BABYLON.Vector3(
+      -Number.MAX_VALUE,
+      -Number.MAX_VALUE,
+      -Number.MAX_VALUE
+    );
+    meshes.forEach((mesh) => {
+      mesh.computeWorldMatrix(true);
+      const boundingInfo = mesh.getBoundingInfo();
+      const meshMin = boundingInfo.boundingBox.minimumWorld;
+      const meshMax = boundingInfo.boundingBox.maximumWorld;
+      min = BABYLON.Vector3.Minimize(min, meshMin);
+      max = BABYLON.Vector3.Maximize(max, meshMax);
+    });
+    const center = min.add(max).scale(0.5);
+    parentNode.position = parentNode.position.subtract(center);
+    camera.setTarget(BABYLON.Vector3.Zero());
+    const size = max.subtract(min).length();
+    camera.radius = size * 1.5;
+    initialCameraRadius = camera.radius;
+    initialCameraTarget = camera.target.clone();
+    initialCameraAlpha = camera.alpha;
+    initialCameraBeta = camera.beta;
+    camera.upperRadiusLimit = initialCameraRadius;
+  }
+
+  function zoomToMesh(mesh) {
+    if (!mesh) {
+      console.error("zoomToMesh called with undefined mesh");
+      return;
+    }
+    console.log(`Zooming to mesh: ${mesh.name}`);
+    const boundingInfo = mesh.getBoundingInfo();
+    const meshCenter = boundingInfo.boundingBox.centerWorld;
+    const radius = boundingInfo.boundingSphere.radiusWorld * 1.5;
+    const fps = 60;
+    const durationSeconds = 4.0;
+    const totalFrames = durationSeconds * fps;
+    scene.stopAnimation(camera);
+    const radiusAnim = new BABYLON.Animation(
+      "cameraRadiusAnim",
+      "radius",
+      fps,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    const radiusKeys = [
+      { frame: 0, value: camera.radius },
+      { frame: totalFrames, value: radius },
+    ];
+    radiusAnim.setKeys(radiusKeys);
+    radiusAnim.setEasingFunction(new BABYLON.CubicEase());
+    radiusAnim
+      .getEasingFunction()
+      .setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+    const targetXAnim = new BABYLON.Animation(
+      "cameraTargetXAnim",
+      "target.x",
+      fps,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    const targetYAnim = new BABYLON.Animation(
+      "cameraTargetYAnim",
+      "target.y",
+      fps,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    const targetZAnim = new BABYLON.Animation(
+      "cameraTargetZAnim",
+      "target.z",
+      fps,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    const targetXKeys = [
+      { frame: 0, value: camera.target.x },
+      { frame: totalFrames, value: meshCenter.x },
+    ];
+    const targetYKeys = [
+      { frame: 0, value: camera.target.y },
+      { frame: totalFrames, value: meshCenter.y },
+    ];
+    const targetZKeys = [
+      { frame: 0, value: camera.target.z },
+      { frame: totalFrames, value: meshCenter.z },
+    ];
+    targetXAnim.setKeys(targetXKeys);
+    targetYAnim.setKeys(targetYKeys);
+    targetZAnim.setKeys(targetZKeys);
+    const cubicEase = new BABYLON.CubicEase();
+    cubicEase.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+    targetXAnim.setEasingFunction(cubicEase);
+    targetYAnim.setEasingFunction(cubicEase);
+    targetZAnim.setEasingFunction(cubicEase);
+    camera.animations = [];
+    camera.animations.push(radiusAnim, targetXAnim, targetYAnim, targetZAnim);
+    scene.beginAnimation(camera, 0, totalFrames, false, 1, () => {
+      console.log(`Camera smoothly zoomed to mesh: ${mesh.name}`);
+    });
+  }
+
+  function handlePartSelection(partName, meshName) {
+    switchPartMesh(partName, meshName);
+  }
 
   function createMobileJacketPartCard(partName) {
     if (partName === "Back") {
@@ -938,13 +737,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="card_cardText" data-test-id="card-text">${partName}</p>
       </div>
       <div class="card_arrowIcon">
-        <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+        <svg
+          class="arrow-right"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#000000"
+          viewBox="0 0 330 330"
+          width="30"
+          height="30"
+        >
+          <path
+            d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
                c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
                c-5.857,5.858-5.857,15.355,0.001,21.213  
                C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
                l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-               C255,161.018,253.42,157.202,250.606,154.389z"/>
+               C255,161.018,253.42,157.202,250.606,154.389z"
+          />
         </svg>
       </div>
     </div>
@@ -961,13 +769,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="card_cardText" data-test-id="card-text">${partName}</p>
       </div>
       <div class="card_arrowIcon">
-        <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+        <svg
+          class="arrow-right"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#000000"
+          viewBox="0 0 330 330"
+          width="30"
+          height="30"
+        >
+          <path
+            d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
                c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
                c-5.857,5.858-5.857,15.355,0.001,21.213  
                C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
                l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-               C255,161.018,253.42,157.202,250.606,154.389z"/>
+               C255,161.018,253.42,157.202,250.606,154.389z"
+          />
         </svg>
       </div>
     </div>
@@ -984,13 +801,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="card_cardText" data-test-id="card-text">${partName}</p>
       </div>
       <div class="card_arrowIcon">
-        <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+        <svg
+          class="arrow-right"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#000000"
+          viewBox="0 0 330 330"
+          width="30"
+          height="30"
+        >
+          <path
+            d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
                c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
                c-5.857,5.858-5.857,15.355,0.001,21.213  
                C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
                l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-               C255,161.018,253.42,157.202,250.606,154.389z"/>
+               C255,161.018,253.42,157.202,250.606,154.389z"
+          />
         </svg>
       </div>
     </div>
@@ -1013,13 +839,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="card_cardText" data-test-id="card-text">${partName}</p>
       </div>
       <div class="card_arrowIcon">
-        <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+        <svg
+          class="arrow-right"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#000000"
+          viewBox="0 0 330 330"
+          width="30"
+          height="30"
+        >
+          <path
+            d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
                c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
                c-5.857,5.858-5.857,15.355,0.001,21.213  
                C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
                l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-               C255,161.018,253.42,157.202,250.606,154.389z"/>
+               C255,161.018,253.42,157.202,250.606,154.389z"
+          />
         </svg>
       </div>
     </div>
@@ -1033,6 +868,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <img loading="lazy" class="card_cardImage image-pants-pleat"  src="./assets/pants/pleat/pleat2.png" alt="Pleat 2">
         <img loading="lazy" class="card_cardImage image-pants-pleat"  src="./assets/pants/pleat/pleat3.png" alt="Pleat 3">
         <img loading="lazy" class="card_cardImage image-pants-pleat"  src="./assets/pants/pleat/pleat4.png" alt="Pleat 4">
+ 
         <!-- Show # of images if you like -->
         <div class="card_itemAmountContainer" data-test-id="item-amount">5</div>
       </div>
@@ -1040,13 +876,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="card_cardText" data-test-id="card-text">${partName}</p>
       </div>
       <div class="card_arrowIcon">
-        <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+        <svg
+          class="arrow-right"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#000000"
+          viewBox="0 0 330 330"
+          width="30"
+          height="30"
+        >
+          <path
+            d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
                c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
                c-5.857,5.858-5.857,15.355,0.001,21.213  
                C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
                l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-               C255,161.018,253.42,157.202,250.606,154.389z"/>
+               C255,161.018,253.42,157.202,250.606,154.389z"
+          />
         </svg>
       </div>
     </div>
@@ -1067,50 +912,186 @@ document.addEventListener("DOMContentLoaded", function () {
       <p class="card_cardText" data-test-id="card-text">${partName}</p>
     </div>
     <div class="card_arrowIcon">
-      <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30">
-        <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+      <svg
+        class="arrow-right"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 330 330"
+        width="30"
+        height="30"
+      >
+        <path
+          d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
              c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394  
              c-5.857,5.858-5.857,15.355,0.001,21.213  
              C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
              l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
-             C255,161.018,253.42,157.202,250.606,154.389z"/>
+             C255,161.018,253.42,157.202,250.606,154.389z"
+        />
       </svg>
     </div>
   </div>
 `;
   }
 
-  // ============================================================================
-  // 5. MOBILE & ACCORDION FUNCTIONS (CONTINUED)
-  // ============================================================================
+  function resetCameraBack() {
+    if (
+      initialCameraRadius === undefined ||
+      initialCameraTarget === undefined ||
+      initialCameraAlpha === undefined ||
+      initialCameraBeta === undefined
+    ) {
+      console.error("Initial camera parameters are not set.");
+      return;
+    }
 
-  function setupMobileSlider(selector) {
-    const sliderContainer = document.querySelector(selector);
-    if (!sliderContainer) {
-      console.error(`Slider container "${selector}" not found.`);
-      return;
-    }
-    const cardsWrapper = sliderContainer.querySelector(".cards-wrapper");
-    if (!cardsWrapper) {
-      console.error(`"cards-wrapper" not found within "${selector}".`);
-      return;
-    }
-    const cards = gsap.utils.toArray(
-      ".part-option.card_cardContainer",
-      cardsWrapper
+    let deltaRotation = parentNode.rotation.y - initialRotationY;
+
+    let desiredAlpha = initialCameraAlpha + Math.PI - deltaRotation;
+    desiredAlpha = desiredAlpha % (2 * Math.PI);
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraRadiusResetBack",
+      camera,
+      "radius",
+      60,
+      120,
+      camera.radius,
+      initialCameraRadius,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
     );
-    if (cards.length === 0) {
-      console.error("No cards found within the slider.");
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraTargetResetBack",
+      camera,
+      "target",
+      60,
+      120,
+      camera.target,
+      initialCameraTarget,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraAlphaResetBack",
+      camera,
+      "alpha",
+      60,
+      120,
+      camera.alpha,
+      desiredAlpha,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraBetaResetBack",
+      camera,
+      "beta",
+      60,
+      120,
+      camera.beta,
+      initialCameraBeta,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    console.log("Camera reset to back view (with model rotation offset).");
+  }
+
+  function resetCamera() {
+    if (
+      initialCameraRadius === undefined ||
+      initialCameraTarget === undefined ||
+      initialCameraAlpha === undefined ||
+      initialCameraBeta === undefined
+    ) {
+      console.error("Initial camera parameters are not set.");
       return;
     }
-    const loop = horizontalLoop(cards, {
-      paused: true,
-      draggable: true,
-      speed: 2,
-      snap: 1,
-      repeat: -1,
-    });
-    cardsWrapper.dataset.sliderInitialized = "true";
+
+    let deltaRotation = parentNode.rotation.y - initialRotationY;
+
+    let desiredAlpha = (initialCameraAlpha - deltaRotation) % (2 * Math.PI);
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraRadiusReset",
+      camera,
+      "radius",
+      60,
+      120,
+      camera.radius,
+      initialCameraRadius,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraTargetReset",
+      camera,
+      "target",
+      60,
+      120,
+      camera.target,
+      initialCameraTarget,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraAlphaReset",
+      camera,
+      "alpha",
+      60,
+      120,
+      camera.alpha,
+      desiredAlpha,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    BABYLON.Animation.CreateAndStartAnimation(
+      "cameraBetaReset",
+      camera,
+      "beta",
+      60,
+      120,
+      camera.beta,
+      initialCameraBeta,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    console.log(
+      "Camera reset to initial relative view (adjusted for model rotation)."
+    );
+  }
+
+  function createBackButton() {
+    let backButton = document.querySelector("#sidePanel .back-button");
+    if (!backButton) {
+      backButton = document.createElement("button");
+      backButton.classList.add("back-button");
+      backButton.style.marginBottom = "20px";
+      backButton.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"/>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"/>
+      </svg>
+      Categories
+    `;
+
+      backButton.addEventListener("click", () => {
+        resetCamera();
+        step = 2;
+        transitionToStep(step);
+        backButton.remove();
+      });
+
+      const sidePanel = document.getElementById("sidePanel");
+      if (sidePanel) {
+        sidePanel.appendChild(backButton);
+      } else {
+        console.warn(
+          "#sidePanel element not found. Appending to textureContainer instead."
+        );
+        textureContainer.appendChild(backButton);
+      }
+    }
   }
 
   function showMobileLapelsOptions() {
@@ -1119,6 +1100,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
+
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
         <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
@@ -1130,6 +1112,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showJacketDesignOptions();
     });
     textureContainer.appendChild(confirmButton);
+
     const lapelsDesigns = [
       {
         src: "./assets/jacket/lapel/jacketlapel.png",
@@ -1147,11 +1130,14 @@ document.addEventListener("DOMContentLoaded", function () {
         meshName: "4on2_Lapels_3",
       },
     ];
+
     const mobileLapelsSlider = document.createElement("div");
     mobileLapelsSlider.id = "mobileLapelsSlider";
     mobileLapelsSlider.classList.add("cards-wrapper");
+
     const mobileLapelsSliderWrapper = document.createElement("div");
     mobileLapelsSliderWrapper.classList.add("cards-wrapper");
+
     lapelsDesigns.forEach((item) => {
       const lapelCard = document.createElement("div");
       lapelCard.classList.add("part-option", "card_cardContainer");
@@ -1159,41 +1145,52 @@ document.addEventListener("DOMContentLoaded", function () {
       lapelCard.setAttribute("data-mesh-name", item.meshName);
       lapelCard.style.touchAction = "pan-y";
       lapelCard.style.cursor = "pointer";
+
       if (userChoices.design.jacket.Lapels === item.meshName) {
         lapelCard.classList.add("selected");
       }
+
       const imgWrapper = document.createElement("div");
       imgWrapper.classList.add("img-wrapper");
       imgWrapper.style.touchAction = "pan-y";
+
       const imgEl = document.createElement("img");
       imgEl.src = item.src;
       imgEl.alt = item.label;
       imgEl.style.touchAction = "pan-y";
       imgEl.style.width = "100%";
       imgEl.style.height = "auto";
+
       imgWrapper.appendChild(imgEl);
+
       const pEl = document.createElement("p");
       pEl.textContent = item.label;
       pEl.style.touchAction = "pan-y";
+
       lapelCard.appendChild(imgWrapper);
       lapelCard.appendChild(pEl);
+
       lapelCard.addEventListener("click", () => {
         console.log(
           "[showMobileLapelsOptions] Chosen lapels option:",
           item.label
         );
+
         mobileLapelsSliderWrapper
           .querySelectorAll(".part-option")
           .forEach((p) => {
             p.classList.remove("selected");
           });
+
         lapelCard.classList.add("selected");
         userChoices.design.jacket.Lapels = item.meshName;
         switchPartMesh("Lapels", item.meshName);
         resetCamera();
       });
+
       mobileLapelsSliderWrapper.appendChild(lapelCard);
     });
+
     mobileLapelsSlider.appendChild(mobileLapelsSliderWrapper);
     textureContainer.appendChild(mobileLapelsSlider);
   }
@@ -1202,6 +1199,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("[showMobileBackOptions] Displaying back view options...");
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
+
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
         <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
@@ -1215,6 +1213,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showJacketDesignOptions();
     });
     textureContainer.appendChild(confirmButton);
+
     const backViewOptions = [
       {
         src: "./assets/jacket/back/jacketback.png",
@@ -1232,9 +1231,11 @@ document.addEventListener("DOMContentLoaded", function () {
         meshName: "4on2_Back_3",
       },
     ];
+
     const mobileBackSlider = document.createElement("div");
     mobileBackSlider.id = "mobileBackSlider";
     mobileBackSlider.classList.add("cards-wrapper");
+
     backViewOptions.forEach((item) => {
       const backCard = document.createElement("div");
       backCard.classList.add("part-option");
@@ -1242,24 +1243,31 @@ document.addEventListener("DOMContentLoaded", function () {
       backCard.setAttribute("data-mesh-name", item.meshName);
       backCard.style.touchAction = "pan-y";
       backCard.style.cursor = "pointer";
+
       if (userChoices.design.jacket["Back"] === item.meshName) {
         backCard.classList.add("selected");
       }
+
       const imgWrapper = document.createElement("div");
       imgWrapper.classList.add("img-wrapper");
       imgWrapper.style.touchAction = "pan-y";
+
       const imgEl = document.createElement("img");
       imgEl.src = item.src;
       imgEl.alt = item.label;
       imgEl.style.touchAction = "pan-y";
       imgEl.style.width = "100%";
       imgEl.style.height = "auto";
+
       imgWrapper.appendChild(imgEl);
+
       const pEl = document.createElement("p");
       pEl.textContent = item.label;
       pEl.style.touchAction = "pan-y";
+
       backCard.appendChild(imgWrapper);
       backCard.appendChild(pEl);
+
       backCard.addEventListener("click", () => {
         console.log("[showMobileBackOptions] Chosen back option:", item.label);
         mobileBackSlider.querySelectorAll(".part-option").forEach((p) => {
@@ -1269,10 +1277,48 @@ document.addEventListener("DOMContentLoaded", function () {
         userChoices.design.jacket["Back"] = item.meshName;
         switchPartMesh("Back", item.meshName);
       });
+
       mobileBackSlider.appendChild(backCard);
     });
+
     textureContainer.appendChild(mobileBackSlider);
     setupMobileSlider("#mobileBackSlider");
+  }
+
+  function setupMobileSlider(selector) {
+    const sliderContainer = document.querySelector(selector);
+
+    if (!sliderContainer) {
+      console.error(`Slider container "${selector}" not found.`);
+      return;
+    }
+
+    const cardsWrapper = sliderContainer.querySelector(".cards-wrapper");
+
+    if (!cardsWrapper) {
+      console.error(`"cards-wrapper" not found within "${selector}".`);
+      return;
+    }
+
+    const cards = gsap.utils.toArray(
+      ".part-option.card_cardContainer",
+      cardsWrapper
+    );
+
+    if (cards.length === 0) {
+      console.error("No cards found within the slider.");
+      return;
+    }
+
+    const loop = horizontalLoop(cards, {
+      paused: true,
+      draggable: true,
+      speed: 2,
+      snap: 1,
+      repeat: -1,
+    });
+
+    cardsWrapper.dataset.sliderInitialized = "true";
   }
 
   function showMobilePocketsOptions() {
@@ -1281,6 +1327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
+
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
         <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
@@ -1294,8 +1341,10 @@ document.addEventListener("DOMContentLoaded", function () {
       showJacketDesignOptions();
     });
     textureContainer.appendChild(confirmButton);
+
     const tbBtnWrapper = document.createElement("div");
     tbBtnWrapper.classList.add("top-bottom-pockets-wrapper");
+
     const topPctsBtn = document.createElement("button");
     topPctsBtn.textContent = "Top Pockets";
     topPctsBtn.classList.add("top-bottom-btns");
@@ -1303,6 +1352,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Top pockets button clicked");
       renderMobilePocketsOptions("top");
     });
+
     const bottomPctsBtn = document.createElement("button");
     bottomPctsBtn.textContent = "Bottom Pockets";
     bottomPctsBtn.classList.add("top-bottom-btns");
@@ -1310,9 +1360,11 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Bottom pockets button clicked");
       renderMobilePocketsOptions("bottom");
     });
+
     tbBtnWrapper.appendChild(topPctsBtn);
     tbBtnWrapper.appendChild(bottomPctsBtn);
     textureContainer.appendChild(tbBtnWrapper);
+
     let pocketsParent = document.getElementById("mobilePocketsContainer");
     if (!pocketsParent) {
       pocketsParent = document.createElement("div");
@@ -1321,13 +1373,1360 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       pocketsParent.innerHTML = "";
     }
+
     renderMobilePocketsOptions("top");
+  }
+
+  function showJacketDesignOptions() {
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    createBackButton();
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      const jacketParts = ["Back", "Lapels", "Pockets"];
+      let contentHTML = "";
+      jacketParts.forEach((part) => {
+        contentHTML += createMobileJacketPartCard(part);
+      });
+
+      textureContainer.innerHTML += `
+      <div class="cards-wrapper design-options">
+        ${contentHTML}
+      </div>
+    `;
+
+      const jacketPartCards = textureContainer.querySelectorAll(
+        ".design-options .card_cardContainer"
+      );
+      jacketPartCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          const partName = card.getAttribute("data-test-id");
+          console.log(`Clicked on jacket part: ${partName}`);
+
+          if (partName === "Back") {
+            showMobileBackOptions();
+          } else if (partName === "Lapels") {
+            showMobileLapelsOptions();
+          } else if (partName === "Pockets") {
+            showMobilePocketsOptions();
+          }
+        });
+      });
+    } else {
+      const jacketParts = ["Back", "Lapels", "Pockets"];
+      let contentHTML = "";
+      jacketParts.forEach((part) => {
+        contentHTML += createMobileJacketPartCard(part);
+      });
+
+      textureContainer.innerHTML += `
+      <div class="controls">
+        <button class="prevButton">Prev</button>
+        <button class="nextButton">Next</button>
+      </div>
+      <div class="cards-wrapper design-options">
+        ${contentHTML}
+      </div>
+    `;
+
+      const jacketPartCards = textureContainer.querySelectorAll(
+        ".design-options .card_cardContainer"
+      );
+      jacketPartCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          const partName = card.getAttribute("data-test-id");
+          console.log(`Clicked on jacket part: ${partName}`);
+
+          if (partName === "Back") {
+            showMobileBackOptions();
+          } else if (partName === "Lapels") {
+            showMobileLapelsOptions();
+          } else if (partName === "Pockets") {
+            showMobilePocketsOptions();
+          }
+        });
+      });
+    }
+  }
+
+  function showPantsDesignOptions() {
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    createBackButton();
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      const pantsParts = ["Cut", "Pleat"];
+      let contentHTML = "";
+      pantsParts.forEach((part) => {
+        contentHTML += createMobileJacketPartCard(part);
+      });
+      textureContainer.innerHTML += `
+      <div class="design-options">${contentHTML}</div>
+    `;
+
+      const sliderItems = document.querySelectorAll(
+        ".design-options .card_cardContainer"
+      );
+      sliderItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const clickedPart = item.getAttribute("data-test-id");
+          console.log("Clicked Pants Part (mobile):", clickedPart);
+
+          if (clickedPart === "Cut") {
+            showMobileCutOptions();
+          } else if (clickedPart === "Pleat") {
+            showMobilePleatOptions();
+          }
+        });
+      });
+    } else {
+      textureContainer.innerHTML += `
+      <button class="accordion" data-category="pants">
+        Pants <span class="sign-acc">+</span>
+      </button>
+      <div class="panel" style="max-height: 0px;">
+        <button class="sub_accordion" data-category="cut">
+          Cut <span class="sign-acc">+</span>
+        </button>
+        <div class="sub_panel">
+          <!-- your existing "cut" content -->
+        </div>
+        <button class="sub_accordion" data-category="pleat">
+          Pleat <span class="sign-acc">+</span>
+        </button>
+        <div class="sub_panel">
+          <!-- etc. -->
+        </div>
+        <!-- Add more sub-accordions if needed -->
+      </div>
+    `;
+      setupPartHoverHighlight();
+    }
+  }
+
+  function setupMobileEmbroideryButtons() {
+    const locationButton = document.getElementById("locationButton");
+    const colorButton = document.getElementById("colorButton");
+    const charactersButton = document.getElementById("charactersButton");
+    const embroideryChoices = document.getElementById("embroideryChoices");
+
+    const allButtons = [locationButton, colorButton, charactersButton];
+
+    function activateButton(clickedButton) {
+      allButtons.forEach((btn) => btn?.classList.remove("active"));
+      clickedButton.classList.add("active");
+    }
+
+    if (locationButton) {
+      locationButton.addEventListener("click", () => {
+        activateButton(locationButton);
+        const colorChoices = document.getElementById("colorChoices");
+        const charactersPanel = document.querySelector(".characters-inputs");
+        if (embroideryChoices) embroideryChoices.classList.remove("hidden");
+        if (colorChoices) colorChoices.classList.add("hidden");
+        if (charactersPanel) charactersPanel.style.display = "none";
+        event.stopPropagation();
+      });
+    }
+
+    if (colorButton) {
+      colorButton.addEventListener("click", () => {
+        activateButton(colorButton);
+        const colorChoices = document.getElementById("colorChoices");
+        const charactersPanel = document.querySelector(".characters-inputs");
+        if (embroideryChoices) embroideryChoices.classList.add("hidden");
+        if (colorChoices) colorChoices.classList.remove("hidden");
+        if (charactersPanel) charactersPanel.style.display = "none";
+        event.stopPropagation();
+      });
+    }
+
+    if (charactersButton) {
+      charactersButton.addEventListener("click", () => {
+        activateButton(charactersButton);
+        if (embroideryChoices) embroideryChoices.classList.add("hidden");
+        const colorChoices = document.getElementById("colorChoices");
+        if (colorChoices) colorChoices.classList.add("hidden");
+
+        const chosenLocations = userChoices.embroidery.jacket;
+        if (chosenLocations.length === 0) {
+          alert("No embroidery locations chosen.");
+          return;
+        }
+
+        renderCharactersPanel();
+        const panel = document.querySelector(".characters-inputs");
+        if (panel) {
+          panel.style.display = "block";
+        }
+        event.stopPropagation();
+      });
+    }
+
+    const colorChoices = document.getElementById("colorChoices");
+    if (colorChoices) {
+      const colorOptions = colorChoices.querySelectorAll(".color-option");
+      colorOptions.forEach((option) => {
+        option.addEventListener("click", (e) => {
+          colorOptions.forEach((opt) => opt.classList.remove("selected"));
+
+          option.classList.add("selected");
+
+          const chosenColor = option.getAttribute("data-color");
+
+          userChoices.embroidery.threadColor = chosenColor;
+
+          if (
+            userChoices.embroidery.jacket &&
+            userChoices.embroidery.jacket.length > 0
+          ) {
+            userChoices.embroidery.jacket.forEach((emb) => {
+              emb.color = chosenColor;
+            });
+          }
+          console.log("Mobile embroidery thread color selected:", chosenColor);
+          e.stopPropagation();
+        });
+      });
+    }
+
+    if (!window.matchMedia("(max-width: 1024.9px)").matches) {
+      document.addEventListener("click", (evt) => {
+        let embroideryContainer = document.getElementById(
+          "embroideryLocationsContainer"
+        );
+        if (!embroideryContainer) {
+          console.error(
+            "Element with ID 'embroideryLocationsContainer' not found."
+          );
+          return;
+        }
+        const clickedInsideContainer =
+          embroideryContainer.contains(evt.target) ||
+          (locationButton && locationButton.contains(evt.target)) ||
+          (colorButton && colorButton.contains(evt.target)) ||
+          (charactersButton && charactersButton.contains(evt.target));
+
+        if (!clickedInsideContainer) {
+          embroideryChoices.classList.add("hidden");
+          const colorChoices = document.getElementById("colorChoices");
+          if (colorChoices) colorChoices.classList.add("hidden");
+        }
+      });
+    }
+  }
+
+  function updateStepClass(currentStep) {
+    const isMobile = window.matchMedia("(max-width: 1024.9px)").matches;
+    if (!isMobile) return;
+
+    const textureContainer = document.getElementById("textureContainer");
+    if (!textureContainer) {
+      console.error("Element with ID 'textureContainer' not found.");
+      return;
+    }
+
+    const stepClasses = ["step-1", "step-2", "step-3", "step-4", "step-5"];
+
+    textureContainer.classList.remove(...stepClasses);
+
+    if (currentStep >= 1 && currentStep <= 5) {
+      textureContainer.classList.add(`step-${currentStep}`);
+      console.log(`Added class: step-${currentStep}`);
+    } else {
+      console.warn(
+        `Invalid step number: ${currentStep}. Must be between 1 and 5.`
+      );
+    }
+  }
+
+  function wrapSidePanelContent(step) {
+    const sidePanel = document.getElementById("sidePanel");
+    if (!sidePanel) return;
+
+    const existingWrapper = sidePanel.querySelector(".widescreen-step");
+    if (existingWrapper) {
+      while (existingWrapper.firstChild) {
+        sidePanel.insertBefore(existingWrapper.firstChild, existingWrapper);
+      }
+      existingWrapper.remove();
+    }
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
+
+      Array.from(sidePanel.children).forEach((child) => {
+        if (!child.classList.contains("next-back-btns")) {
+          wrapper.appendChild(child);
+        }
+      });
+
+      sidePanel.insertBefore(wrapper, sidePanel.firstChild);
+    } else {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
+      while (sidePanel.firstChild) {
+        wrapper.appendChild(sidePanel.firstChild);
+      }
+      sidePanel.appendChild(wrapper);
+    }
+  }
+
+  function transitionToStep(newStep) {
+    const sidePanel = document.getElementById("sidePanel");
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      const currentWrapper = sidePanel.querySelector(".widescreen-step");
+      if (currentWrapper) {
+        gsap.to(currentWrapper, {
+          y: window.innerHeight,
+          duration: 0.5,
+          ease: "power2.in",
+          onComplete: () => {
+            initializeStep(newStep);
+
+            const newWrapper = sidePanel.querySelector(".widescreen-step");
+            if (newWrapper) {
+              gsap.set(newWrapper, { y: -window.innerHeight });
+
+              gsap.to(newWrapper, {
+                y: 0,
+                duration: 0.8,
+                ease: "power2.out",
+              });
+            }
+          },
+        });
+      } else {
+        initializeStep(newStep);
+      }
+    } else {
+      const currentWrapper = sidePanel.querySelector(".widescreen-step");
+      if (currentWrapper) {
+        gsap.to(currentWrapper, {
+          x: window.innerWidth,
+          duration: 0.5,
+          ease: "power2.in",
+          onComplete: () => {
+            initializeStep(newStep);
+            const newWrapper = sidePanel.querySelector(".widescreen-step");
+            if (newWrapper) {
+              gsap.set(newWrapper, { x: window.innerWidth });
+              gsap.to(newWrapper, {
+                x: 0,
+                duration: 0.8,
+                ease: "power2.out",
+              });
+            }
+          },
+        });
+      } else {
+        initializeStep(newStep);
+      }
+    }
+  }
+
+  function initializeStep(currentStep) {
+    updateStepClass(currentStep);
+    const stepTitle = document.getElementById("stepTitle");
+    const textureContainer = document.getElementById("textureContainer");
+    const batchSelector = document.getElementById("batchSelector");
+
+    const existingBackButton = document.querySelector(
+      "#sidePanel .back-button"
+    );
+    if (existingBackButton) {
+      existingBackButton.remove();
+      console.log("[initializeStep] Existing back button removed.");
+    }
+    stepTitle.innerHTML = "";
+
+    switch (step) {
+      case 1:
+        stepTitle.innerHTML = `
+        <p>Here we’ve curated a selection of fabrics that best suits you.</p>
+        <p>Please choose your preferred fabric group from the options below to proceed to the next step.</p>
+      `;
+        batchSelector.style.display = "none";
+        loadJacketBasedOnUserChoices();
+        initializeTextureButtons();
+        textureContainer.style.display = "flex";
+        break;
+
+      case 2:
+        stepTitle.innerHTML = `
+          <p>Great choice!</br>Now, let’s move on to designing your garment.</p>
+        `;
+        batchSelector.style.display = "none";
+        textureContainer.style.display = "flex";
+        textureContainer.classList.add("texture-container");
+
+        if (window.matchMedia("(max-width: 1024.9px)").matches) {
+          stepTitle.innerHTML += `
+            <p>Please choose which garment to design first:</p>
+          `;
+          textureContainer.innerHTML = `
+            <div id="chooseGarmentContainer" style="display: flex; gap: 20px;">
+              <div class="card_cardContainer" data-test-id="chooseJacket" tabindex="0">
+                <div class="card_cardImageContainer">
+                  <img loading="lazy" class="card_cardImage"  src="./assets/jacketandpants/jacket.png" alt="Jacket">
+                  <div class="card_itemAmountContainer" data-test-id="item-amount">Jacket</div>
+                </div>
+                <div class="card_cardDetails">
+                  <p class="card_cardText" data-test-id="card-text">Design Jacket</p>
+                </div>
+              </div>
+              <div class="card_cardContainer" data-test-id="choosePants" tabindex="0">
+                <div class="card_cardImageContainer">
+                  <img loading="lazy" class="card_cardImage"  src="assets/jacketandpants/pant.png" alt="Pants">
+                  <div class="card_itemAmountContainer" data-test-id="item-amount">Pants</div>
+                </div>
+                <div class="card_cardDetails">
+                  <p class="card_cardText" data-test-id="card-text">Design Pants</p>
+                </div>
+              </div>
+            </div>
+          `;
+          const chooseJacketCard = document.querySelector(
+            '[data-test-id="chooseJacket"]'
+          );
+          const choosePantsCard = document.querySelector(
+            '[data-test-id="choosePants"]'
+          );
+
+          if (chooseJacketCard) {
+            chooseJacketCard.addEventListener("click", () => {
+              showJacketDesignOptions();
+            });
+          }
+          if (choosePantsCard) {
+            choosePantsCard.addEventListener("click", () => {
+              showPantsDesignOptions();
+            });
+          }
+        } else {
+          stepTitle.innerHTML += `
+            <p>Choose from the available options for each key design feature. Let’s start creating your perfect look!</p>
+          `;
+          textureContainer.innerHTML = `
+            <button class="accordion" data-category="jacket">
+              Jacket <span class="sign-acc">+</span>
+            </button>
+            <div class="panel" style="max-height: 0px;">
+              ${generatePartItems([
+                { partName: "Back", options: partOptions["Back"] },
+
+                { partName: "Lapels", options: partOptions["Lapels"] },
+                { partName: "Pockets", options: partOptions["Pockets"] },
+              ])}
+            </div>
+
+            <button class="accordion" data-category="pants">
+              Pants <span class="sign-acc">+</span>
+            </button>
+            <div class="panel" style="max-height: 0px;">
+              <button class="sub_accordion" data-category="cut">
+                Cut <span class="sign-acc">+</span>
+              </button>
+              <div class="sub_panel">
+                <!-- 8 images for Cut -->
+                <div id="pantsCutContainer" style="display: flex; flex-wrap: wrap;">
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut1.png" alt="Extra Slim">
+                    <p>Extra Slim</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut2.png" alt="Slim">
+                    <p>Slim</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut3.png" alt="Straight">
+                    <p>Straight</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut4.png" alt="Classic">
+                    <p>Classic</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut5.png" alt="Relaxed Fit">
+                    <p>Relaxed Fit</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut6.png" alt="Tapered Leg">
+                    <p>Tapered Leg</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut7.png" alt="Flat Front">
+                    <p>Flat Front</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut8.png" alt="Pleated Front">
+                    <p>Pleated Front</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut9.png" alt="High waist">
+                    <p>High waist</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/cut/cut10.png" alt="Low rise">
+                    <p>Low rise</p>
+                  </div>
+                </div>
+              </div>
+
+              <button class="sub_accordion" data-category="pleat">
+                Pleat <span class="sign-acc">+</span>
+              </button>
+              <div class="sub_panel">
+                 <div id="pantsCutContainer" style="display: flex; flex-wrap: wrap;">
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/pleat/pleat1.png" alt="pleat">
+                    <p>pleat</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/pleat/pleat2.png" alt="pleat">
+                    <p>pleat</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/pleat/pleat3.png" alt="pleat">
+                    <p>pleat</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/pleat/pleat4.png" alt="pleat">
+                    <p>pleat</p>
+                  </div>
+                  <div class="pants-item">
+                    <img loading="lazy" src="./assets/pants/pleat/pleat5.png" alt="pleat">
+                    <p>pleat</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          setupPartHoverHighlight();
+        }
+
+        break;
+
+      case 3:
+        stepTitle.innerHTML = `
+        <p>Now it’s time to add a personal touch to your garment!</p>
+        <p>You can customize your suit with embroidery. Please select your preferred locations for the embroidery or choose "No Embroidery" to skip.</p>
+      `;
+
+        const isMobile = window.matchMedia("(max-width: 1024.9px)").matches;
+
+        let embroideryHTML = `
+        <h2 class="text-step3">Jacket Embroidery Locations</h2>
+        <div id="embroideryLocationsContainer">
+          <!-- Embroidery Choices -->
+          <div class="choice-container-step3" id="embroideryChoices">
+            <div class="jacket-embroidery-choice">
+              <img loading="lazy" src="./assets/embroidery/behind-your-lapel.png" alt="Inner right chest pocket"/>
+              <p>Inner right chest pocket</p>
+            </div>
+            <div class="jacket-embroidery-choice">
+              <img loading="lazy" src="./assets/embroidery/inner-left-embroidery.png" alt="Inner left chest pocket"/>
+              <p>Inner left chest pocket</p>
+            </div>
+            <div class="jacket-embroidery-choice">
+              <img loading="lazy" src="./assets/embroidery/inner-right-embroidery.png" alt="Under the collar flap"/>
+              <p>Under the collar flap</p>
+            </div>
+            <!-- "No Embroidery" Option -->
+            <div class="jacket-embroidery-choice no-embroidery">
+              <img loading="lazy" src="./assets/rectangle_115.webp" alt="No Embroidery"/>
+              <p>No Embroidery</p>
+            </div>
+          </div>
+      `;
+
+        if (isMobile) {
+          embroideryHTML += `
+          <!-- Color Choices (created only on mobile) -->
+          <div class="color-options hidden" id="colorChoices">
+          <span class="mobile-colors">
+            <button class="color-option" data-color="#FF0000" style="background-color: #7A1313;"></button>
+          </span>
+          <span class="mobile-colors">
+            <button class="color-option" data-color="#00FF00" style="background-color: #000000;"></button>
+          </span>
+          <span class="mobile-colors">
+            <button class="color-option" data-color="#0000FF" style="background-color: #FFFFFF;"></button>
+          </span>
+          </div>
+        `;
+        }
+
+        embroideryHTML += `</div>`;
+
+        if (isMobile) {
+          embroideryHTML += `
+          <div class="mobile-embroidery-buttons">
+            <button id="locationButton" class="embroidery-button">Location</button>
+            <button id="colorButton" class="embroidery-button">Color</button>
+            <button id="charactersButton" class="embroidery-button">Characters</button>
+          </div>
+        `;
+        }
+
+        textureContainer.innerHTML = embroideryHTML;
+
+        if (userChoices.embroidery.jacket.length > 0) {
+          userChoices.embroidery.jacket.forEach((embroidery) => {
+            const choiceEl = Array.from(
+              document.querySelectorAll(".jacket-embroidery-choice")
+            ).find(
+              (el) =>
+                el.querySelector("p").innerText.trim() === embroidery.location
+            );
+            if (choiceEl) {
+              choiceEl.classList.add("selected");
+            }
+          });
+        } else {
+          const noEmbroideryEl = document.querySelector(
+            ".jacket-embroidery-choice.no-embroidery"
+          );
+          if (noEmbroideryEl) {
+            noEmbroideryEl.classList.add("selected");
+          }
+        }
+
+        if (window.matchMedia("(max-width: 1024.9px)").matches) {
+          setupMobileEmbroideryButtons();
+        }
+
+        loadJacketBasedOnUserChoices(false);
+        pantsMeshes.forEach((mesh) => mesh.setEnabled(true));
+
+        highlightLayer.removeAllMeshes();
+
+        break;
+
+      case 4:
+        if (window.matchMedia("(max-width: 1024.9px)").matches) {
+          step = 5;
+          transitionToStep(step);
+          return;
+        }
+        if (
+          !userChoices.embroidery.jacket ||
+          userChoices.embroidery.jacket.length === 0
+        ) {
+          step = 5;
+          transitionToStep(step);
+          return;
+        }
+
+        stepTitle.innerHTML = `
+        <p>Customize your jacket embroidery!</p>
+        <p>Please enter your desired text and select your preferred color for each embroidery location.</p>
+      `;
+        batchSelector.style.display = "none";
+        textureContainer.style.display = "flex";
+        textureContainer.style.padding = "0 20px";
+        textureContainer.style.justifyContent = "start";
+
+        textureContainer.innerHTML = `
+        <h2 class="text-step3 step4 embroidery">Jacket Embroidery Customization</h2>
+        <div id="embroideryCustomizationContainer"></div>
+      `;
+
+        const customizationContainer = document.getElementById(
+          "embroideryCustomizationContainer"
+        );
+
+        userChoices.embroidery.jacket.forEach((embroidery, index) => {
+          customizationContainer.innerHTML += `
+          <div class="embroidery-customization" data-index="${index}">
+            <h3>Embroidery ${index + 1}: ${embroidery.location}</h3>
+            <button class="remove-embroidery-button" data-index="${index}"><svg class="remove-emb"xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px" viewBox="0 0 256 256" id="Flat">
+  <path d="M202.82861,197.17188a3.99991,3.99991,0,1,1-5.65722,5.65624L128,133.65723,58.82861,202.82812a3.99991,3.99991,0,0,1-5.65722-5.65624L122.343,128,53.17139,58.82812a3.99991,3.99991,0,0,1,5.65722-5.65624L128,122.34277l69.17139-69.17089a3.99991,3.99991,0,0,1,5.65722,5.65624L133.657,128Z"/>
+</svg></button>
+            <div class="embroidery-color-and-text">
+              <div class="jacket-embroidery-choice">
+                <img loading="lazy" class="embroidery-image" src="./assets/rectangle_115.webp" alt="${
+                  embroidery.location
+                }">
+                <p>${embroidery.location}</p>
+              </div>
+              <div class="embroidery-color-and-text-input">
+                <div class="embroidery-color-picker">
+                  <label>Select Color:</label>
+                  <div id="embroidery-thread-colors-picker-jacket-${index}" class="color-picker-container">
+                    ${generateColorCirclesHTML(21)}
+                  </div>
+                </div>
+                <div class="embroidery-text-input">
+                  <label>Enter Text (max 20 characters):</label>
+                  <input
+                    type="text"
+                    id="embroideryTextInput${index}"
+                    maxlength="20"
+                    placeholder="Your text here"
+                    value="${embroidery.text}"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        });
+
+        userChoices.embroidery.jacket.forEach((embroidery, index) => {
+          const colorPickerContainer = document.getElementById(
+            `embroidery-thread-colors-picker-jacket-${index}`
+          );
+          if (colorPickerContainer) {
+            const colorCircles =
+              colorPickerContainer.querySelectorAll(".color-circle");
+            colorCircles.forEach((circle) => {
+              circle.addEventListener("click", () => {
+                colorCircles.forEach((c) => c.classList.remove("selected"));
+                circle.classList.add("selected");
+                userChoices.embroidery.jacket[index].color =
+                  circle.getAttribute("data-color");
+              });
+
+              if (
+                embroidery.color &&
+                embroidery.color === circle.getAttribute("data-color")
+              ) {
+                circle.classList.add("selected");
+              }
+            });
+          }
+
+          const textInput = document.getElementById(
+            `embroideryTextInput${index}`
+          );
+          if (textInput) {
+            textInput.addEventListener("input", () => {
+              userChoices.embroidery.jacket[index].text =
+                textInput.value.trim();
+            });
+          }
+
+          const removeButton = document.querySelector(
+            `.remove-embroidery-button[data-index="${index}"]`
+          );
+          if (removeButton) {
+            removeButton.addEventListener("click", () => {
+              userChoices.embroidery.jacket.splice(index, 1);
+              initializeStep(4);
+            });
+          }
+        });
+
+        break;
+
+      case 5:
+        document.querySelector(
+          "body > main > div > div.canvas-container"
+        ).style.display = "none";
+
+        stepTitle.innerHTML = `
+        <p>Please provide your measurements for the pants.</p>
+        <p>Enter your measurements in the fields provided. If you need assistance, refer to the diagram.</p>
+      `;
+        batchSelector.style.display = "none";
+        textureContainer.style.display = "flex";
+        textureContainer.style.padding = "0 20px";
+        textureContainer.style.justifyContent = "center";
+
+        textureContainer.innerHTML = `
+        <div id="pantsMeasurementWrapper">
+          <img loading="lazy" id="pantsMeasurementImage" src="assets/pants/pants.png" alt="Pants Diagram">
+          ${generatePantsMeasurementInputs()}
+        </div>
+      `;
+
+        const pantsMeasurementWrapper = document.getElementById(
+          "pantsMeasurementWrapper"
+        );
+        pantsMeasurementWrapper.style.position = "relative";
+        pantsMeasurementWrapper.style.display = "inline-block";
+
+        setupPantsMeasurementListeners();
+
+        document.getElementById("nextButton").textContent = "Finish";
+        break;
+
+      default:
+        canvas.style.display = "block";
+        console.log("Invalid step");
+        break;
+    }
+    wrapSidePanelContent(currentStep);
+  }
+
+  function setupPantsMeasurementListeners() {
+    const measurements = [
+      "Waist",
+      "Crotch Depth",
+      "Seat",
+      "Knee",
+      "Inseam",
+      "Hips",
+      "Thigh",
+      "Outseam",
+      "Ankle",
+    ];
+
+    measurements.forEach((measurement) => {
+      const inputField = document.getElementById(`${measurement}Input`);
+      inputField.addEventListener("input", () => {
+        userChoices.measurements[measurement] = inputField.value;
+      });
+    });
+  }
+
+  function generateColorCirclesHTML(numberOfColors) {
+    const colors = ["#000000", "#FFFFFF", "#7A1313"];
+    const selectedColors = colors.slice(0, numberOfColors);
+
+    return selectedColors
+      .map(
+        (color) => `
+      <div class="color-circle ${
+        userChoices.embroidery.threadColor === color ? "selected" : ""
+      }" 
+           data-color="${color}" 
+           style="background-color: ${color};">
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  function generatePantsMeasurementInputs() {
+    const measurements = [
+      "Waist",
+      "Crotch Depth",
+      "Seat",
+      "Knee",
+      "Inseam",
+      "Hips",
+      "Thigh",
+      "Outseam",
+      "Ankle",
+    ];
+
+    return measurements
+      .map(
+        (measurement) => `
+        <div class="measurement-input" id="${measurement.replace(
+          /\s/g,
+          ""
+        )}Measurement">
+          <label for="${measurement}Input">${measurement}</label>
+          <input type="number" id="${measurement}Input" />
+          <div class="line"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" fill="none">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 0.692308C2.39707 0.692308 0.692308 2.39707 0.692308 4.5C0.692308 6.60291 2.39707 8.30769 4.5 8.30769C6.60291 8.30769 8.30769 6.60291 8.30769 4.5C8.30769 2.39707 6.60291 0.692308 4.5 0.692308ZM0 4.5C0 2.01472 2.01472 0 4.5 0C6.98529 0 9 2.01472 9 4.5C9 6.98529 6.98529 9 4.5 9C2.01472 9 0 6.98529 0 4.5ZM4.5 4.15385C4.69117 4.15385 4.84615 4.30883 4.84615 4.5V6.11538C4.84615 6.30655 4.69117 6.46154 4.5 6.46154C4.30883 6.46154 4.15385 6.30655 4.15385 6.11538V4.5C4.15385 4.30883 4.30883 4.15385 4.5 4.15385ZM4.5 2.65385C4.24509 2.65385 4.03846 2.86049 4.03846 3.11538C4.03846 3.37028 4.24509 3.57692 4.5 3.57692H4.50462C4.75952 3.57692 4.96615 3.37028 4.96615 3.11538C4.96615 2.86049 4.75952 2.65385 4.50462 2.65385H4.5Z" fill="black"/>
+          </svg>
+        </div>
+      `
+      )
+      .join("");
+  }
+
+  function generatePartItems(parts) {
+    return parts
+      .map((part) => {
+        if (part.partName === "Pockets") {
+          const topPockets = part.options.filter((meshName) =>
+            ["4on2_pocket_4", "4on2_pocket_5", "4on2_pocket_6"].includes(
+              meshName
+            )
+          );
+          const bottomPockets = part.options.filter((meshName) =>
+            [
+              "4on2_pocket_1",
+              "4on2_pocket_2",
+              "4on2_pocket_3",
+              "4on2_pocket_7",
+              "4on2_pocket_8",
+            ].includes(meshName)
+          );
+
+          return `
+          <div class="part-item" data-part="${part.partName}">
+            ${part.partName}
+            <div class="part-options">
+              <!-- Top Pockets Section -->
+              <div class="sub-part top-pockets">
+                <h4>Top Pockets</h4>
+                ${topPockets
+                  .map(
+                    (meshName, index) =>
+                      `<button class="part-option" data-part-name="Pockets" data-mesh-name="${meshName}">
+                        Pockets Option ${index + 1}
+                      </button>`
+                  )
+                  .join("")}
+              </div>
+              <!-- Bottom Pockets Section -->
+              <div class="sub-part bottom-pockets">
+                <h4>Bottom Pockets</h4>
+                ${bottomPockets
+                  .map(
+                    (meshName, index) =>
+                      `<button class="part-option" data-part-name="Pockets" data-mesh-name="${meshName}">
+                        Pockets Option ${index + 1}
+                      </button>`
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </div>
+        `;
+        } else if (part.options && part.options.length > 1) {
+          return `
+          <div class="part-item" data-part="${part.partName}">
+            ${part.partName}
+            <div class="part-options">
+              ${part.options
+                .map(
+                  (optionMeshName, index) =>
+                    `<button class="part-option" data-part-name="${
+                      part.partName
+                    }" data-mesh-name="${optionMeshName}">
+                      ${part.partName} Option ${index + 1}
+                    </button>`
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+        } else {
+          return `<div class="part-item" data-part="${part.partName}">${part.partName}</div>`;
+        }
+      })
+      .join("");
+  }
+  function showFabricItems(categoryKey, subCategoryKey, folderPath, fileNames) {
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    const backButton = document.createElement("button");
+    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
+    backButton.classList.add("back-to-cat");
+    backButton.addEventListener("click", () => {
+      if (subCategoryKey) {
+        showSubCategories(categoryKey);
+      } else {
+        initializeTextureButtons();
+      }
+    });
+    textureContainer.appendChild(backButton);
+
+    const cardsWrapper = document.createElement("div");
+    cardsWrapper.className = "cards-wrapper";
+
+    fileNames.forEach((item, index) => {
+      const fabricCard = createFabricCard(categoryKey, item, index, folderPath);
+      cardsWrapper.appendChild(fabricCard);
+    });
+
+    textureContainer.appendChild(cardsWrapper);
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      initializeCardsSlider();
+    }
+  }
+
+  function createSubCategoryCard(
+    categoryKey,
+    subCategoryKey,
+    fileNames,
+    index
+  ) {
+    const cardContainer = document.createElement("div");
+    cardContainer.className = "card_cardContainer";
+    cardContainer.dataset.testId = subCategoryKey;
+    cardContainer.tabIndex = index + 1;
+    cardContainer.style.cssText =
+      "translate: none; rotate: none; scale: none; transform: translate(0px, 0px); touch-action: pan-y;";
+
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "card_cardImageContainer";
+    imageContainer.style.touchAction = "pan-y;";
+
+    const folderPath = `./assets/fabric_optimized/${categoryKey}/${subCategoryKey}/`;
+
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
+    const imagesToShow = fileNames.slice(0, 4);
+    imagesToShow.forEach((item) => {
+      const img = document.createElement("img");
+      img.className = "card_cardImage";
+      img.loading = "lazy";
+      img.src = optimizedFolderPath + item;
+      img.alt = item;
+      img.style.touchAction = "pan-y;";
+      imageContainer.appendChild(img);
+    });
+    const itemAmountContainer = document.createElement("div");
+    itemAmountContainer.className = "card_itemAmountContainer";
+    itemAmountContainer.dataset.testId = "item-amount";
+    itemAmountContainer.style.touchAction = "pan-y;";
+    itemAmountContainer.textContent = fileNames.length;
+    imageContainer.appendChild(itemAmountContainer);
+
+    cardContainer.appendChild(imageContainer);
+
+    const cardDetails = document.createElement("div");
+    cardDetails.className = "card_cardDetails";
+    cardDetails.style.touchAction = "pan-y;";
+    const cardText = document.createElement("p");
+    cardText.className = "card_cardText";
+    cardText.dataset.testId = "card-text";
+    cardText.style.touchAction = "pan-y;";
+    cardText.textContent = subCategoryKey;
+    cardDetails.appendChild(cardText);
+    cardContainer.appendChild(cardDetails);
+
+    const arrowIcon = document.createElement("div");
+    arrowIcon.className = "card_arrowIcon";
+    arrowIcon.style.touchAction = "pan-y;";
+    arrowIcon.innerHTML = `<svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30" style="touch-action: pan-y;">
+    <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+       c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394
+       c-5.857,5.858-5.857,15.355,0.001,21.213  
+       C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
+       l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
+       C255,161.018,253.42,157.202,250.606,154.389z" style="touch-action: pan-y;"></path>
+  </svg>`;
+    cardContainer.appendChild(arrowIcon);
+
+    cardContainer.addEventListener("click", () => {
+      showFabricItems(categoryKey, subCategoryKey, folderPath, fileNames);
+    });
+
+    return cardContainer;
+  }
+
+  function showSubCategories(categoryKey) {
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    const backButton = document.createElement("button");
+    backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+      </svg>`;
+    backButton.classList.add("back-to-cat");
+    backButton.addEventListener("click", () => {
+      initializeTextureButtons();
+    });
+    textureContainer.appendChild(backButton);
+
+    const categoryData = textures[categoryKey];
+
+    if (Array.isArray(categoryData)) {
+      const folderPath = `./assets/fabric_optimized/All Fabrics/`;
+      showFabricItems(categoryKey, null, folderPath, categoryData);
+    } else {
+      let cardsWrapper;
+
+      if (
+        window.matchMedia("(max-width: 1024.9px)").matches &&
+        (categoryKey === "Colour" || categoryKey === "Design")
+      ) {
+        const sliderContainer = document.createElement("div");
+        sliderContainer.classList.add("cards-wrapper");
+        cardsWrapper = document.createElement("div");
+        cardsWrapper.classList.add("cards-wrapper");
+        sliderContainer.appendChild(cardsWrapper);
+        textureContainer.appendChild(sliderContainer);
+      } else {
+        cardsWrapper = document.createElement("div");
+        cardsWrapper.className = "cards-wrapper";
+        textureContainer.appendChild(cardsWrapper);
+      }
+
+      Object.keys(categoryData).forEach((subCategoryKey, index) => {
+        const folderPath = `./assets/fabric_optimized/${categoryKey}/${subCategoryKey}/`;
+        const fileNames = categoryData[subCategoryKey];
+        const card = createSubCategoryCard(
+          categoryKey,
+          subCategoryKey,
+          fileNames,
+          index
+        );
+        cardsWrapper.appendChild(card);
+      });
+
+      if (
+        window.matchMedia("(max-width: 1024.9px)").matches &&
+        (categoryKey === "Colour" || categoryKey === "Design")
+      ) {
+        initializeCardsSlider();
+      }
+    }
+  }
+
+  function createTopLevelCategoryCard(categoryKey, index) {
+    const cardContainer = document.createElement("div");
+    cardContainer.className = "card_cardContainer";
+    cardContainer.dataset.testId = categoryKey;
+    cardContainer.tabIndex = index + 1;
+    cardContainer.style.cssText =
+      "translate: none; rotate: none; scale: none; transform: translate(0px, 0px); touch-action: pan-y;";
+
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "card_cardImageContainer";
+    imageContainer.style.touchAction = "pan-y;";
+
+    let images = [];
+    let count = 0;
+    const categoryData = textures[categoryKey];
+    if (Array.isArray(categoryData)) {
+      images = categoryData.slice(0, 4);
+      count = categoryData.length;
+    } else {
+      const subKeys = Object.keys(categoryData);
+      if (subKeys.length > 0) {
+        images = categoryData[subKeys[0]].slice(0, 4);
+        count = categoryData[subKeys[0]].length;
+      }
+    }
+
+    let folderPath = "";
+    if (categoryKey === "All Fabrics") {
+      folderPath = "./assets/fabric_optimized/All Fabrics/";
+    } else if (categoryKey === "Colour") {
+      folderPath = "./assets/fabric_optimized/Colour/Beige/";
+    } else if (categoryKey === "Design") {
+      folderPath = "./assets/fabric_optimized/Design/Birdseye/";
+    } else if (categoryKey === "Event") {
+      folderPath = "./assets/fabric_optimized/Event/Business/";
+    } else {
+      folderPath = "./assets/fabric_optimized/All Fabrics/";
+    }
+
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
+    images.forEach((imgName) => {
+      const img = document.createElement("img");
+      img.className = "card_cardImage";
+      img.loading = "lazy";
+
+      img.src = optimizedFolderPath + imgName;
+      img.alt = imgName;
+      img.style.touchAction = "pan-y;";
+      imageContainer.appendChild(img);
+    });
+
+    const itemAmountContainer = document.createElement("div");
+    itemAmountContainer.className = "card_itemAmountContainer";
+    itemAmountContainer.dataset.testId = "item-amount";
+    itemAmountContainer.style.touchAction = "pan-y;";
+    itemAmountContainer.textContent = count;
+    imageContainer.appendChild(itemAmountContainer);
+
+    cardContainer.appendChild(imageContainer);
+
+    const cardDetails = document.createElement("div");
+    cardDetails.className = "card_cardDetails";
+    cardDetails.style.touchAction = "pan-y;";
+    const cardText = document.createElement("p");
+    cardText.className = "card_cardText";
+    cardText.dataset.testId = "card-text";
+    cardText.style.touchAction = "pan-y;";
+    cardText.textContent = categoryKey;
+    cardDetails.appendChild(cardText);
+    cardContainer.appendChild(cardDetails);
+
+    const arrowIcon = document.createElement("div");
+    arrowIcon.className = "card_arrowIcon";
+    arrowIcon.style.touchAction = "pan-y;";
+    arrowIcon.innerHTML = `<svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 330 330" width="30" height="30" style="touch-action: pan-y;">
+    <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001  
+       c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394
+       c-5.857,5.858-5.857,15.355,0.001,21.213  
+       C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394  
+       l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606  
+       C255,161.018,253.42,157.202,250.606,154.389z" style="touch-action: pan-y;"></path>
+  </svg>`;
+    cardContainer.appendChild(arrowIcon);
+
+    cardContainer.addEventListener("click", () => {
+      showSubCategories(categoryKey);
+    });
+
+    return cardContainer;
+  }
+
+  function initializeTextureButtons() {
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    const cardsWrapper = document.createElement("div");
+    cardsWrapper.className = "cards-wrapper";
+
+    Object.keys(textures).forEach((categoryKey, index) => {
+      const card = createTopLevelCategoryCard(categoryKey, index);
+      cardsWrapper.appendChild(card);
+    });
+
+    textureContainer.appendChild(cardsWrapper);
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      initializeCardsSlider();
+    }
+
+    gsap.fromTo(
+      ".card_cardImage",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1 }
+    );
+  }
+
+  function createFabricCard(categoryKey, item, index, folderPath) {
+    const optimizedFolderPath = folderPath.replace(
+      "/fabric_optimized/",
+      "/fabric_optimized_2048/"
+    );
+
+    const cardContainer = document.createElement("div");
+    cardContainer.className = "card_cardContainer card_small";
+    cardContainer.dataset.testId = index;
+    cardContainer.tabIndex = index + 1;
+
+    cardContainer.setAttribute("data-original-url", folderPath + item);
+
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "card_cardImageContainer";
+
+    const img = document.createElement("img");
+    img.className = "card_cardImage";
+    img.loading = "lazy";
+
+    img.src = optimizedFolderPath + item;
+    img.alt = item;
+    imageContainer.appendChild(img);
+
+    const infoSpaceContainer = document.createElement("div");
+    infoSpaceContainer.className = "card_infoSpaceContainer card_dark";
+    infoSpaceContainer.dataset.testId = "info-btn";
+    infoSpaceContainer.innerHTML =
+      '<p class="susu-pcons" translate="no">info</p>';
+    imageContainer.appendChild(infoSpaceContainer);
+
+    const cardDetails = document.createElement("div");
+    cardDetails.className = "card_cardDetails card_hideMobileInfoText";
+    const cardText = document.createElement("div");
+    cardText.className = "card_cardText";
+    cardText.dataset.testId = "card-text";
+    cardText.textContent = getFabricName(item);
+
+    const cardSubText = document.createElement("div");
+    cardSubText.className = "card_cardSubText";
+    cardSubText.dataset.testId = "card-subtext";
+    cardSubText.textContent = getFabricPrice(item);
+
+    cardDetails.appendChild(cardText);
+    cardDetails.appendChild(cardSubText);
+
+    cardContainer.appendChild(imageContainer);
+    cardContainer.appendChild(cardDetails);
+
+    cardContainer.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectFabric(categoryKey, item, cardContainer, folderPath);
+    });
+
+    return cardContainer;
+  }
+
+  function getFabricName(filename) {
+    let baseName = filename.replace(/\.[^.]+$/, "");
+
+    return baseName.replace(/-\s*\$[\d.]+$/, "");
+  }
+
+  function selectFabric(categoryKey, item, cardElement, folderPath) {
+    console.log("Texture clicked:", item);
+
+    document.querySelectorAll(".card_small.selected").forEach((card) => {
+      card.classList.remove("selected");
+    });
+    cardElement.classList.add("selected");
+
+    const originalTextureUrl =
+      cardElement.getAttribute("data-original-url") || folderPath + item;
+
+    applyTexture(originalTextureUrl);
+    userChoices.texture = item;
+    console.log("userChoices.texture updated to:", userChoices.texture);
+  }
+
+  function applyTexture(url) {
+    if (!material) return;
+    // If the texture is already set, don't change anything.
+    if (material.diffuseTexture && material.diffuseTexture.name === url) {
+      return;
+    }
+
+    // Get the canvas element to fade everything (you could also target a container if desired)
+    const canvasEl = document.getElementById("renderCanvas");
+
+    // Fade out the canvas over 0.5 seconds.
+    gsap.to(canvasEl, {
+      opacity: 0,
+      duration: 0.5,
+      ease: "power2.out",
+      onComplete: () => {
+        // Load the new texture.
+        const newTexture = new BABYLON.Texture(
+          url,
+          scene,
+          false,
+          true,
+          BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
+          () => {
+            console.log(`Texture loaded: ${url}`);
+            hideLoader();
+            // Apply the new texture.
+            material.diffuseTexture = newTexture;
+            material.diffuseTexture.name = url;
+            newTexture.uScale = 5.0;
+            newTexture.vScale = 5.0;
+            material.backFaceCulling = false;
+            material.specularColor = new BABYLON.Color3(0, 0, 0);
+            material.ambientColor = new BABYLON.Color3(1, 1, 1);
+            // Fade the canvas back in over 0.5 seconds.
+            gsap.to(canvasEl, { opacity: 1, duration: 0.5, ease: "power2.in" });
+          },
+          (message, exception) => {
+            console.error(`Failed to load texture: ${url}`, message, exception);
+          }
+        );
+        console.log("Changing texture to:", url);
+      },
+    });
   }
 
   function showMobileCutOptions() {
     console.log("[showMobileCutOptions] Displaying cut options...");
+
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
+
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
         <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
@@ -1339,6 +2738,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showPantsDesignOptions();
     });
     textureContainer.appendChild(confirmButton);
+
     const cutOptions = [
       {
         src: "./assets/pants/cut/cut1.png",
@@ -1391,12 +2791,15 @@ document.addEventListener("DOMContentLoaded", function () {
         meshName: "cut10_mesh",
       },
     ];
+
     const mobileCutSlider = document.createElement("div");
     mobileCutSlider.id = "mobileCutSlider";
     mobileCutSlider.classList.add("cards-wrapper");
+
     const cardsWrapper = document.createElement("div");
     cardsWrapper.classList.add("cards-wrapper");
     mobileCutSlider.appendChild(cardsWrapper);
+
     cutOptions.forEach((item) => {
       const cutCard = document.createElement("div");
       cutCard.classList.add("card_cardContainer", "part-option");
@@ -1405,9 +2808,11 @@ document.addEventListener("DOMContentLoaded", function () {
       cutCard.tabIndex = 0;
       cutCard.style.touchAction = "pan-y";
       cutCard.style.cursor = "pointer";
+
       const imgWrapper = document.createElement("div");
       imgWrapper.classList.add("img-wrapper");
       imgWrapper.style.touchAction = "pan-y";
+
       const imgEl = document.createElement("img");
       imgEl.src = item.src;
       imgEl.alt = item.label;
@@ -1415,101 +2820,226 @@ document.addEventListener("DOMContentLoaded", function () {
       imgEl.style.width = "83px";
       imgEl.style.height = "174px";
       imgEl.style.objectFit = "contain";
+
       imgWrapper.appendChild(imgEl);
+
       const pEl = document.createElement("p");
       pEl.textContent = item.label;
       pEl.style.touchAction = "pan-y";
+
       cutCard.appendChild(imgWrapper);
       cutCard.appendChild(pEl);
+
       cutCard.addEventListener("click", () => {
         console.log("[showMobileCutOptions] Chosen cut:", item.label);
+
         cardsWrapper.querySelectorAll(".part-option").forEach((p) => {
           p.classList.remove("selected");
         });
+
         cutCard.classList.add("selected");
+
         userChoices.design.pants.cut = item.meshName;
+
         switchPartMesh("Cut", item.meshName);
       });
+
       cardsWrapper.appendChild(cutCard);
     });
+
     textureContainer.appendChild(mobileCutSlider);
+
     setupMobileSlider("#mobileCutSlider");
   }
 
-  function showMobilePleatOptions() {
-    console.log("[showMobilePleatOptions] Displaying pleat options...");
+  function setupAccordions() {
+    if (isAccordionSetup) return;
+    isAccordionSetup = true;
+
     const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    const confirmButton = document.createElement("button");
-    confirmButton.textContent = "Confirm ";
-    confirmButton.classList.add("back-to-cat");
-    confirmButton.addEventListener("click", () => {
-      console.log("[showMobilePleatOptions] Confirm clicked => returning");
-      showPantsDesignOptions();
-    });
-    textureContainer.appendChild(confirmButton);
-    const pleatOptions = [
-      { src: "./assets/pants/pleat/pleat1.png", label: "Pleat 1" },
-      { src: "./assets/pants/pleat/pleat2.png", label: "Pleat 2" },
-      { src: "./assets/pants/pleat/pleat3.png", label: "Pleat 3" },
-      { src: "./assets/pants/pleat/pleat4.png", label: "Pleat 4" },
-      { src: "./assets/pants/pleat/pleat5.png", label: "Pleat 5" },
-    ];
-    const mobilePleatSlider = document.createElement("div");
-    mobilePleatSlider.id = "mobilePleatSlider";
-    mobilePleatSlider.classList.add("cards-wrapper");
-    const cardsWrapper = document.createElement("div");
-    cardsWrapper.classList.add("cards-wrapper");
-    mobilePleatSlider.appendChild(cardsWrapper);
-    pleatOptions.forEach((item) => {
-      const pleatCard = document.createElement("div");
-      pleatCard.classList.add("card_cardContainer", "part-option");
-      pleatCard.setAttribute("data-part-name", "Pleat");
-      pleatCard.setAttribute("data-mesh-name", item.label);
-      pleatCard.tabIndex = 0;
-      pleatCard.style.touchAction = "pan-y";
-      pleatCard.style.cursor = "pointer";
-      const imgWrapper = document.createElement("div");
-      imgWrapper.classList.add("img-wrapper");
-      imgWrapper.style.touchAction = "pan-y";
-      const imgEl = document.createElement("img");
-      imgEl.src = item.src;
-      imgEl.alt = item.label;
-      imgEl.style.touchAction = "pan-y";
-      imgEl.style.width = "100%";
-      imgEl.style.height = "auto";
-      imgWrapper.appendChild(imgEl);
-      const pEl = document.createElement("p");
-      pEl.textContent = item.label;
-      pEl.style.touchAction = "pan-y";
-      pleatCard.appendChild(imgWrapper);
-      pleatCard.appendChild(pEl);
-      pleatCard.addEventListener("click", () => {
-        console.log("[showMobilePleatOptions] Chosen pleat:", item.label);
-        cardsWrapper.querySelectorAll(".part-option").forEach((p) => {
-          p.classList.remove("selected");
-        });
-        pleatCard.classList.add("selected");
-        userChoices.design.pants.pleat = item.label;
-        switchPartMesh("Pleat", item.label);
-      });
-      cardsWrapper.appendChild(pleatCard);
-    });
-    textureContainer.appendChild(mobilePleatSlider);
-    setupMobileSlider("#mobilePleatSlider");
+    textureContainer.addEventListener("click", accordionClickHandler);
   }
 
-  // ============================================================================
-  // 6. USER INTERACTION HANDLERS
-  // ============================================================================
+  function accordionClickHandler(e) {
+    const acc = e.target.closest(".accordion");
+    const subAcc = e.target.closest(".sub_accordion");
+
+    if (acc) {
+      console.log("[accordionClickHandler] Top-level accordion clicked:", acc);
+      acc.classList.toggle("active");
+
+      const span = acc.querySelector(".sign-acc");
+      const panel = acc.nextElementSibling;
+
+      if (panel.style.maxHeight && panel.style.maxHeight !== "0px") {
+        panel.style.maxHeight = "0px";
+        span.innerHTML = "+";
+        console.log("[accordionClickHandler] Collapsing panel");
+      } else {
+        panel.style.maxHeight = "300px";
+        span.innerHTML = "-";
+        console.log("[accordionClickHandler] Expanding panel");
+      }
+
+      document.querySelectorAll(".accordion").forEach((otherAcc) => {
+        if (otherAcc !== acc && otherAcc.classList.contains("active")) {
+          otherAcc.classList.remove("active");
+          const otherSpan = otherAcc.querySelector(".sign-acc");
+          const otherPanel = otherAcc.nextElementSibling;
+          if (otherPanel) {
+            otherPanel.style.maxHeight = "0px";
+            otherSpan.innerHTML = "+";
+            console.log(
+              `[accordionClickHandler] Closing other accordion: ${otherAcc.getAttribute(
+                "data-category"
+              )}`
+            );
+          }
+        }
+      });
+
+      highlightLayer.removeAllMeshes();
+
+      const category = acc.getAttribute("data-category");
+      console.log("[accordionClickHandler] Category is:", category);
+
+      if (category === "jacket") {
+        console.log("[accordionClickHandler] Loading Jacket options...");
+        loadJacketBasedOnUserChoices();
+
+        if (jacketMeshes.length > 0) {
+        } else {
+          console.warn("No jacket meshes available to zoom.");
+        }
+      } else if (category === "pants") {
+        console.log("[accordionClickHandler] Loading Pants options...");
+      } else if (category === "vest") {
+        console.log(
+          "[accordionClickHandler] Vest option clicked. (Example only)"
+        );
+        jacketMeshes.forEach((m) => m.setEnabled(false));
+        pantsMeshes.forEach((m) => m.setEnabled(false));
+        highlightLayer.removeAllMeshes();
+      } else {
+        console.log("[accordionClickHandler] Show all (fallback case).");
+        jacketMeshes.forEach((m) => m.setEnabled(true));
+        pantsMeshes.forEach((m) => m.setEnabled(true));
+        Object.keys(partOptionsMeshes).forEach((partName) => {
+          Object.keys(partOptionsMeshes[partName]).forEach((meshName) => {
+            const mesh = partOptionsMeshes[partName][meshName];
+            if (mesh) mesh.setEnabled(true);
+          });
+        });
+        highlightLayer.removeAllMeshes();
+      }
+    } else if (subAcc) {
+      console.log("[accordionClickHandler] Sub-accordion clicked:", subAcc);
+      subAcc.classList.toggle("active");
+
+      const span = subAcc.querySelector(".sign-acc");
+      const subPanel = subAcc.nextElementSibling;
+
+      if (subPanel.style.maxHeight && subPanel.style.maxHeight !== "0px") {
+        subPanel.style.maxHeight = "0px";
+        span.innerHTML = "+";
+        console.log("[accordionClickHandler] Collapsing sub-panel");
+      } else {
+        subPanel.style.maxHeight = subPanel.scrollHeight + "px";
+        span.innerHTML = "-";
+        console.log(
+          "[accordionClickHandler] Expanding sub-panel to:",
+          subPanel.style.maxHeight
+        );
+      }
+
+      const subCategory = subAcc.getAttribute("data-category");
+      console.log("[accordionClickHandler] Sub-category is:", subCategory);
+
+      if (
+        subCategory === "cut" &&
+        window.matchMedia("(max-width: 1024.9px)").matches
+      ) {
+        console.log(
+          "[accordionClickHandler] 'Cut' was clicked on MOBILE -> Show mobile cut function"
+        );
+        showMobileCutOptions();
+      }
+    }
+  }
+
+  function loadJacketBasedOnUserChoices() {
+    Object.keys(partOptionsMeshes).forEach((partName) => {
+      const selectedMeshName = userChoices.design.jacket[partName];
+      if (selectedMeshName) {
+        Object.keys(partOptionsMeshes[partName]).forEach((meshName) => {
+          const mesh = partOptionsMeshes[partName][meshName];
+          if (mesh) {
+            mesh.setEnabled(meshName === selectedMeshName);
+            if (meshName === selectedMeshName) {
+              mesh.renderingGroupId = 2;
+              currentPartMeshes[partName] = mesh;
+              highlightLayer.addMesh(mesh, BABYLON.Color3.White());
+            }
+          }
+        });
+      }
+    });
+
+    enableCameraControls();
+
+    Object.entries(userChoices.design.jacket).forEach(
+      ([partName, meshName]) => {
+        if (!meshName) return;
+
+        const btn = document.querySelector(
+          `.part-option[data-part-name="${partName}"][data-mesh-name="${meshName}"]`
+        );
+        if (btn) {
+          btn.classList.add(getSelectedClass(partName, meshName));
+        }
+      }
+    );
+
+    const topPocketName = userChoices.design.jacket["PocketsTop"];
+    if (topPocketName) {
+      const btnTop = document.querySelector(
+        `.part-option[data-part-name="Pockets"][data-mesh-name="${topPocketName}"]`
+      );
+      if (btnTop) {
+        btnTop.classList.add("selected-top-pocket");
+      }
+    }
+
+    const bottomPocketName = userChoices.design.jacket["PocketsBottom"];
+    if (bottomPocketName) {
+      const btnBottom = document.querySelector(
+        `.part-option[data-part-name="Pockets"][data-mesh-name="${bottomPocketName}"]`
+      );
+      if (btnBottom) {
+        btnBottom.classList.add("selected-bottom-pocket");
+      }
+    }
+
+    const singlePocket = userChoices.design.jacket["Pockets"];
+    if (singlePocket) {
+      Object.keys(partOptionsMeshes.Pockets).forEach((meshName) => {
+        partOptionsMeshes.Pockets[meshName].setEnabled(false);
+      });
+
+      const chosen = partOptionsMeshes.Pockets[singlePocket];
+      if (chosen) {
+        chosen.setEnabled(true);
+        currentPartMeshes["Pockets"] = chosen;
+        highlightLayer.addMesh(chosen, BABYLON.Color3.White());
+      }
+    }
+  }
 
   function setupPartSelection() {
     if (isPartSelectionSetup) return;
     isPartSelectionSetup = true;
     const textureContainer = document.getElementById("textureContainer");
-    textureContainer.addEventListener("click", () => {
-      partSelectionHandler;
-    });
+    textureContainer.addEventListener("click", partSelectionHandler);
   }
 
   function partSelectionHandler(e) {
@@ -1529,8 +3059,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (partName === "Pockets") {
       const selectedClass = getSelectedClass(partName, meshName);
+
       if (partOptionButton.classList.contains(selectedClass)) {
         partOptionButton.classList.remove(selectedClass);
+
         userChoices.design.jacket["Pockets"] = undefined;
         if (TOP_POCKETS.includes(meshName)) {
           userChoices.design.jacket["PocketsTop"] = undefined;
@@ -1538,10 +3070,13 @@ document.addEventListener("DOMContentLoaded", function () {
           userChoices.design.jacket["PocketsBottom"] = undefined;
         }
         disablePocketMesh(meshName);
+
         return;
       }
     }
+
     switchPartMesh(partName, meshName);
+
     if (partName === "Pockets") {
       const isTopPocket = TOP_POCKETS.includes(meshName);
       const isBottomPocket = BOTTOM_POCKETS.includes(meshName);
@@ -1576,6 +3111,7 @@ document.addEventListener("DOMContentLoaded", function () {
           );
         });
     }
+
     partOptionButton.classList.add(getSelectedClass(partName, meshName));
     if (partName === "Back") {
       resetCameraBack();
@@ -1602,11 +3138,368 @@ document.addEventListener("DOMContentLoaded", function () {
     "4on2_pocket_7",
     "4on2_pocket_8",
   ];
+  function renderMobilePocketsOptions(mode) {
+    const pocketsDesignOptions = [
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Single Pocket",
+        meshName: "4on2_pocket_1",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Double Pocket",
+        meshName: "4on2_pocket_2",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Patch Pocket",
+        meshName: "4on2_pocket_3",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Flap Pocket",
+        meshName: "4on2_pocket_4",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Ticket Pocket",
+        meshName: "4on2_pocket_5",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Slash Pocket",
+        meshName: "4on2_pocket_6",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Welt Pocket",
+        meshName: "4on2_pocket_7",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Jetted Pocket",
+        meshName: "4on2_pocket_8",
+      },
+    ];
+
+    let filteredOptions;
+    if (mode === "top") {
+      filteredOptions = pocketsDesignOptions.filter((opt) =>
+        TOP_POCKETS.includes(opt.meshName)
+      );
+    } else if (mode === "bottom") {
+      filteredOptions = pocketsDesignOptions.filter((opt) =>
+        BOTTOM_POCKETS.includes(opt.meshName)
+      );
+    }
+
+    if (mode === "top") {
+      const container = document.getElementById("mobilePocketsContainer");
+      container.classList.add("cards-wrapper");
+      if (!container) return;
+      container.innerHTML = "";
+      filteredOptions.forEach((item) => {
+        const pocketCard = document.createElement("div");
+        pocketCard.classList.add("part-option", "card_cardContainer");
+        pocketCard.setAttribute("data-part-name", "Pockets");
+        pocketCard.setAttribute("data-mesh-name", item.meshName);
+        pocketCard.style.touchAction = "pan-y";
+        pocketCard.style.cursor = "pointer";
+
+        if (userChoices.design.jacket["PocketsTop"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-top-pocket");
+        }
+
+        const imgWrapper = document.createElement("div");
+        imgWrapper.classList.add("img-wrapper");
+        imgWrapper.style.touchAction = "pan-y";
+
+        const imgEl = document.createElement("img");
+        imgEl.src = item.src;
+        imgEl.alt = item.label;
+        imgEl.style.touchAction = "pan-y";
+        imgEl.style.width = "100%";
+        imgEl.style.height = "auto";
+
+        imgWrapper.appendChild(imgEl);
+        const pEl = document.createElement("p");
+        pEl.textContent = item.label;
+        pEl.style.touchAction = "pan-y";
+
+        pocketCard.appendChild(imgWrapper);
+        pocketCard.appendChild(pEl);
+
+        pocketCard.addEventListener("click", () => {
+          console.log(
+            "[renderMobilePocketsOptions] Chosen top pocket option:",
+            item.label
+          );
+          container.querySelectorAll(".part-option").forEach((p) => {
+            p.classList.remove("selected", "selected-top-pocket");
+          });
+          pocketCard.classList.add("selected", "selected-top-pocket");
+          userChoices.design.jacket["PocketsTop"] = item.meshName;
+          switchPartMesh("Pockets", item.meshName, "top");
+
+          resetCamera();
+        });
+
+        container.appendChild(pocketCard);
+      });
+    } else if (mode === "bottom") {
+      let sliderContainer = document.getElementById("mobilePocketsSlider");
+      if (!sliderContainer) {
+        sliderContainer = document.createElement("div");
+        sliderContainer.id = "mobilePocketsSlider";
+        sliderContainer.classList.add("cards-wrapper");
+        const parent = document.getElementById("mobilePocketsContainer");
+        if (parent) {
+          parent.innerHTML = "";
+          parent.appendChild(sliderContainer);
+        }
+      } else {
+        sliderContainer.innerHTML = "";
+      }
+      const sliderWrapper = document.createElement("div");
+      sliderWrapper.classList.add("cards-wrapper");
+      sliderWrapper.id = "mobilePocketsSliderWrapper";
+      sliderContainer.appendChild(sliderWrapper);
+      filteredOptions.forEach((item) => {
+        const pocketCard = document.createElement("div");
+        pocketCard.classList.add("part-option", "card_cardContainer");
+        pocketCard.setAttribute("data-part-name", "Pockets");
+        pocketCard.setAttribute("data-mesh-name", item.meshName);
+        pocketCard.style.touchAction = "pan-y";
+        pocketCard.style.cursor = "pointer";
+
+        if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-bottom-pocket");
+        }
+
+        const imgWrapper = document.createElement("div");
+        imgWrapper.classList.add("img-wrapper");
+        imgWrapper.style.touchAction = "pan-y";
+
+        const imgEl = document.createElement("img");
+        imgEl.src = item.src;
+        imgEl.alt = item.label;
+        imgEl.style.touchAction = "pan-y";
+        imgEl.style.width = "100%";
+        imgEl.style.height = "auto";
+
+        imgWrapper.appendChild(imgEl);
+        const pEl = document.createElement("p");
+        pEl.textContent = item.label;
+        pEl.style.touchAction = "pan-y";
+
+        pocketCard.appendChild(imgWrapper);
+        pocketCard.appendChild(pEl);
+
+        pocketCard.addEventListener("click", () => {
+          console.log(
+            "[renderMobilePocketsOptions] Chosen bottom pocket option:",
+            item.label
+          );
+          document
+            .querySelectorAll("#mobilePocketsSlider .part-option")
+            .forEach((p) => {
+              p.classList.remove("selected", "selected-bottom-pocket");
+            });
+
+          pocketCard.classList.add("selected", "selected-bottom-pocket");
+          userChoices.design.jacket["PocketsBottom"] = item.meshName;
+          switchPartMesh("Pockets", item.meshName, "bottom");
+          resetCamera();
+        });
+
+        sliderWrapper.appendChild(pocketCard);
+      });
+      sliderWrapper.removeAttribute("data-sliderInitialized");
+      setupMobileSlider("#mobilePocketsSlider");
+    }
+  }
+
+  function disablePocketMesh(meshName) {
+    const btn = document.querySelector(
+      `.part-option[data-mesh-name="${meshName}"]`
+    );
+    if (btn) {
+      btn.classList.remove(
+        "selected-top-pocket",
+        "selected-bottom-pocket",
+        "selected-pockets",
+        "selected-back",
+        "selected-lapel"
+      );
+    }
+
+    const mesh = partOptionsMeshes["Pockets"][meshName];
+    if (mesh) {
+      mesh.setEnabled(false);
+    }
+  }
+
+  function enablePocketMesh(meshName) {
+    const mesh = partOptionsMeshes["Pockets"][meshName];
+    if (mesh) {
+      mesh.setEnabled(true);
+      mesh.renderingGroupId = 2;
+      highlightLayer.removeAllMeshes();
+      highlightLayer.addMesh(mesh, BABYLON.Color3.White());
+    }
+
+    const btn = document.querySelector(
+      `.part-option[data-mesh-name="${meshName}"]`
+    );
+    if (btn) {
+      let selectedClass = "selected-pockets";
+      if (TOP_POCKETS.includes(meshName)) {
+        selectedClass = "selected-top-pocket";
+      } else if (BOTTOM_POCKETS.includes(meshName)) {
+        selectedClass = "selected-bottom-pocket";
+      }
+
+      btn.classList.remove(
+        "selected-back",
+        "selected-lapel",
+        "selected-top-pocket",
+        "selected-bottom-pocket"
+      );
+      btn.classList.add(selectedClass);
+    }
+  }
+  function switchPartMesh(partName, meshName, mobileSelection) {
+    if (!partOptionsMeshes[partName]) {
+      console.warn(
+        `switchPartMesh: No mesh options available for part "${partName}".`
+      );
+      return;
+    }
+
+    if (partName !== "Pockets") {
+      Object.keys(partOptionsMeshes[partName]).forEach((name) => {
+        const mesh = partOptionsMeshes[partName][name];
+        if (mesh) mesh.setEnabled(false);
+      });
+      const selectedMesh = partOptionsMeshes[partName][meshName];
+      if (selectedMesh) {
+        selectedMesh.setEnabled(true);
+        selectedMesh.renderingGroupId = 2;
+        currentPartMeshes[partName] = selectedMesh;
+        userChoices.design.jacket[partName] = meshName;
+
+        Object.keys(partOptionsMeshes[partName]).forEach((name) => {
+          const mesh = partOptionsMeshes[partName][name];
+          if (mesh) highlightLayer.removeMesh(mesh);
+        });
+        highlightLayer.addMesh(selectedMesh, BABYLON.Color3.White());
+      } else {
+        console.warn(
+          `switchPartMesh: No mesh found for "${meshName}" in part "${partName}".`
+        );
+      }
+      const btn = document.querySelector(
+        `.part-option[data-mesh-name="${meshName}"]`
+      );
+      if (btn) {
+        btn.classList.remove(
+          "selected-back",
+          "selected-lapel",
+          "selected-top-pocket",
+          "selected-bottom-pocket"
+        );
+        btn.classList.add(getSelectedClass(partName, meshName));
+      }
+      return;
+    }
+
+    if (window.matchMedia("(max-width: 1024.9px)").matches) {
+      if (mobileSelection === "top") {
+        TOP_POCKETS.forEach((pName) => {
+          const mesh = partOptionsMeshes.Pockets[pName];
+          if (mesh) {
+            mesh.setEnabled(false);
+            highlightLayer.removeMesh(mesh);
+          }
+        });
+        const chosenPocket = partOptionsMeshes.Pockets[meshName];
+        if (chosenPocket) {
+          chosenPocket.setEnabled(true);
+          chosenPocket.renderingGroupId = 2;
+          currentPartMeshes["PocketsTop"] = chosenPocket;
+          userChoices.design.jacket["PocketsTop"] = meshName;
+          TOP_POCKETS.forEach((pName) => {
+            const m = partOptionsMeshes.Pockets[pName];
+            if (m) highlightLayer.removeMesh(m);
+          });
+          highlightLayer.addMesh(chosenPocket, BABYLON.Color3.White());
+        } else {
+          console.warn(
+            `switchPartMesh: No top pocket mesh found for "${meshName}".`
+          );
+        }
+      } else if (mobileSelection === "bottom") {
+        BOTTOM_POCKETS.forEach((pName) => {
+          const mesh = partOptionsMeshes.Pockets[pName];
+          if (mesh) {
+            mesh.setEnabled(false);
+            highlightLayer.removeMesh(mesh);
+          }
+        });
+        const chosenPocket = partOptionsMeshes.Pockets[meshName];
+        if (chosenPocket) {
+          chosenPocket.setEnabled(true);
+          chosenPocket.renderingGroupId = 2;
+          currentPartMeshes["PocketsBottom"] = chosenPocket;
+          userChoices.design.jacket["PocketsBottom"] = meshName;
+          BOTTOM_POCKETS.forEach((pName) => {
+            const m = partOptionsMeshes.Pockets[pName];
+            if (m) highlightLayer.removeMesh(m);
+          });
+          highlightLayer.addMesh(chosenPocket, BABYLON.Color3.White());
+        } else {
+          console.warn(
+            `switchPartMesh: No bottom pocket mesh found for "${meshName}".`
+          );
+        }
+      } else {
+        console.warn(
+          "switchPartMesh (mobile): No mobileSelection provided for Pockets."
+        );
+      }
+    } else {
+      const isTop = TOP_POCKETS.includes(meshName);
+      const isBottom = BOTTOM_POCKETS.includes(meshName);
+      if (isTop) {
+        if (userChoices.design.jacket["PocketsTop"] === meshName) {
+          userChoices.design.jacket["PocketsTop"] = undefined;
+          disablePocketMesh(meshName);
+          highlightLayer.removeMesh(partOptionsMeshes.Pockets[meshName]);
+        } else {
+          TOP_POCKETS.forEach((pName) => disablePocketMesh(pName));
+          enablePocketMesh(meshName);
+          userChoices.design.jacket["PocketsTop"] = meshName;
+        }
+      } else if (isBottom) {
+        if (userChoices.design.jacket["PocketsBottom"] === meshName) {
+          userChoices.design.jacket["PocketsBottom"] = undefined;
+          disablePocketMesh(meshName);
+          highlightLayer.removeMesh(partOptionsMeshes.Pockets[meshName]);
+        } else {
+          BOTTOM_POCKETS.forEach((pName) => disablePocketMesh(pName));
+          enablePocketMesh(meshName);
+          userChoices.design.jacket["PocketsBottom"] = meshName;
+        }
+      }
+    }
+  }
 
   function setupPantsItemSelection() {
     if (isPantsItemSelectionSetup) return;
     isPantsItemSelectionSetup = true;
+
     const textureContainer = document.getElementById("textureContainer");
+
     textureContainer.addEventListener("click", pantsItemSelectionHandler);
   }
 
@@ -1615,6 +3508,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupEmbroideryChoiceListener() {
     if (isEmbroideryChoiceListenerSetup) return;
     isEmbroideryChoiceListenerSetup = true;
+
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.addEventListener("click", embroideryChoiceHandler);
   }
@@ -1622,7 +3516,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function embroideryChoiceHandler(event) {
     const jacketChoice = event.target.closest(".jacket-embroidery-choice");
     if (!jacketChoice) return;
+
     const selectedLocation = jacketChoice.querySelector("p").innerText.trim();
+
     if (selectedLocation === "No Embroidery") {
       userChoices.embroidery.jacket = [];
       document
@@ -1644,6 +3540,7 @@ document.addEventListener("DOMContentLoaded", function () {
         userChoices.embroidery.jacket.splice(index, 1);
         jacketChoice.classList.remove("selected");
       }
+
       if (userChoices.embroidery.jacket.length > 0) {
         const noEmb = document.querySelector(
           ".jacket-embroidery-choice.no-embroidery"
@@ -1656,88 +3553,229 @@ document.addEventListener("DOMContentLoaded", function () {
         if (noEmb) noEmb.classList.add("selected");
       }
     }
+
     userChoices.embroidery.hasEmbroidery =
       userChoices.embroidery.jacket.length > 0;
+
     const charPanel = document.querySelector(".characters-inputs");
     if (charPanel && charPanel.style.display !== "none") {
       renderCharactersPanel();
+
       charPanel.style.display = "block";
     }
   }
 
-  function renderCharactersPanel() {
-    const oldPanel = document.querySelector(".characters-inputs");
-    if (oldPanel) oldPanel.remove();
-    if (userChoices.embroidery.jacket.length === 0) return;
-    if (!embroideryContainer) {
-      embroideryContainer = document.getElementById(
-        "embroideryLocationsContainer"
-      );
-      if (!embroideryContainer) {
-        console.error(
-          "Element with ID 'embroideryLocationsContainer' not found."
-        );
-        return;
+  function rotateMeshes(angle) {
+    const totalRotation = parentNode.rotation.y + angle;
+    const animation = new BABYLON.Animation(
+      "rotateAnimation",
+      "rotation.y",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+    );
+    const keys = [
+      { frame: 0, value: parentNode.rotation.y },
+      { frame: 120, value: totalRotation },
+    ];
+    animation.setKeys(keys);
+
+    parentNode.animations = [];
+    parentNode.animations.push(animation);
+    scene.beginAnimation(parentNode, 0, 120, false, 1, () => {});
+
+    parentNode.rotation.y = totalRotation;
+    console.log(`Model rotated to Y=${totalRotation}`);
+  }
+
+  document.getElementById("backButton").addEventListener("click", function () {
+    resetCamera();
+    enableCameraControls();
+    if (step > 1) {
+      if (step === 5) {
+        if (userChoices.embroidery.jacket.length === 0) {
+          step = 3;
+        } else {
+          step = 4;
+        }
+      } else {
+        step--;
+      }
+      transitionToStep(step);
+      enableCameraControls();
+    }
+    document.querySelector(
+      "body > main > div > div.canvas-container"
+    ).style.display = "block";
+  });
+  function getFabricName(filename) {
+    let baseName = filename.replace(/\.[^.]+$/, "");
+    return baseName.replace(/-\s*\$[\d.]+$/, "");
+  }
+
+  document.getElementById("nextButton").addEventListener("click", function () {
+    enableCameraControls();
+    resetCamera();
+    let selectedChoice = null;
+
+    if (step === 1) {
+      if (userChoices.texture) {
+        const cleanedName = getFabricName(userChoices.texture);
+        selectedChoice = { texture: cleanedName };
+        userChoices.texture = cleanedName;
+      } else {
+        selectedChoice = { texture: "E5102-38.webp" };
+        userChoices.texture = "E5102-38.webp";
+      }
+    } else if (step === 2) {
+      selectedChoice = {
+        design: userChoices.design,
+      };
+    } else if (step === 3) {
+      selectedChoice = {
+        jacketEmbroidery: userChoices.embroidery.jacket,
+      };
+    } else if (step === 4) {
+      selectedChoice = {
+        jacketEmbroideryCustomizations: userChoices.embroidery.jacket,
+      };
+    } else if (step === 5) {
+      if (validateMeasurements()) {
+        step++;
+        transitionToStep(step);
+      } else {
+        alert("Please fill in all measurements before proceeding.");
+      }
+      return;
+    }
+
+    console.log("Current Step: ", step);
+    console.log("Selected Choice: ", selectedChoice);
+    console.log("User Choices: ", userChoices);
+
+    if (step < 5) {
+      if (step === 3) {
+        if (userChoices.embroidery.jacket.length === 0) {
+          step = 5;
+        } else {
+          step++;
+        }
+      } else {
+        step++;
+      }
+
+      transitionToStep(step);
+    } else if (step === 5) {
+    } else {
+      finalizeConfiguration();
+    }
+  });
+
+  function validateMeasurements() {
+    const requiredMeasurements = [
+      "Waist",
+      "Crotch Depth",
+      "Seat",
+      "Knee",
+      "Inseam",
+      "Hips",
+      "Thigh",
+      "Outseam",
+      "Ankle",
+    ];
+
+    for (let measurement of requiredMeasurements) {
+      if (
+        !userChoices.measurements ||
+        !userChoices.measurements[measurement] ||
+        userChoices.measurements[measurement] === ""
+      ) {
+        return false;
       }
     }
-    const newPanel = document.createElement("div");
-    newPanel.classList.add("characters-inputs");
-    let html = `<h3 class="embroidery-text">Embroidery Text:</h3>`;
-    userChoices.embroidery.jacket.forEach((emb, i) => {
-      html += `
-      <div class="embroidery-input-group">
-        <input class="embroidery-input" placeholder="${
-          emb.location
-        } Enter your initials" type="text" id="embroideryTextInput${i}" maxlength="20" value="${
-        emb.text || ""
-      }"/>
-      </div>
-    `;
+    return true;
+  }
+
+  function showMobilePleatOptions() {
+    console.log("[showMobilePleatOptions] Displaying pleat options...");
+
+    const textureContainer = document.getElementById("textureContainer");
+    textureContainer.innerHTML = "";
+
+    const confirmButton = document.createElement("button");
+    confirmButton.textContent = "Confirm ";
+    confirmButton.classList.add("back-to-cat");
+    confirmButton.addEventListener("click", () => {
+      console.log("[showMobilePleatOptions] Confirm clicked => returning");
+      showPantsDesignOptions();
     });
-    newPanel.innerHTML = html;
-    embroideryContainer.appendChild(newPanel);
-    userChoices.embroidery.jacket.forEach((emb, i) => {
-      const inputField = document.getElementById(`embroideryTextInput${i}`);
-      if (inputField) {
-        inputField.addEventListener("input", () => {
-          emb.text = inputField.value.trim();
+    textureContainer.appendChild(confirmButton);
+
+    const pleatOptions = [
+      { src: "./assets/pants/pleat/pleat1.png", label: "Pleat 1" },
+      { src: "./assets/pants/pleat/pleat2.png", label: "Pleat 2" },
+      { src: "./assets/pants/pleat/pleat3.png", label: "Pleat 3" },
+      { src: "./assets/pants/pleat/pleat4.png", label: "Pleat 4" },
+      { src: "./assets/pants/pleat/pleat5.png", label: "Pleat 5" },
+    ];
+
+    const mobilePleatSlider = document.createElement("div");
+    mobilePleatSlider.id = "mobilePleatSlider";
+    mobilePleatSlider.classList.add("cards-wrapper");
+
+    const cardsWrapper = document.createElement("div");
+    cardsWrapper.classList.add("cards-wrapper");
+    mobilePleatSlider.appendChild(cardsWrapper);
+
+    pleatOptions.forEach((item) => {
+      const pleatCard = document.createElement("div");
+      pleatCard.classList.add("card_cardContainer", "part-option");
+      pleatCard.setAttribute("data-part-name", "Pleat");
+      pleatCard.setAttribute("data-mesh-name", item.label);
+      pleatCard.tabIndex = 0;
+      pleatCard.style.touchAction = "pan-y";
+      pleatCard.style.cursor = "pointer";
+
+      const imgWrapper = document.createElement("div");
+      imgWrapper.classList.add("img-wrapper");
+      imgWrapper.style.touchAction = "pan-y";
+
+      const imgEl = document.createElement("img");
+      imgEl.src = item.src;
+      imgEl.alt = item.label;
+      imgEl.style.touchAction = "pan-y";
+      imgEl.style.width = "100%";
+      imgEl.style.height = "auto";
+
+      imgWrapper.appendChild(imgEl);
+
+      const pEl = document.createElement("p");
+      pEl.textContent = item.label;
+      pEl.style.touchAction = "pan-y";
+
+      pleatCard.appendChild(imgWrapper);
+      pleatCard.appendChild(pEl);
+
+      pleatCard.addEventListener("click", () => {
+        console.log("[showMobilePleatOptions] Chosen pleat:", item.label);
+
+        cardsWrapper.querySelectorAll(".part-option").forEach((p) => {
+          p.classList.remove("selected");
         });
-      }
-    });
-  }
 
-  // ============================================================================
-  // 7. ADDITIONAL HELPERS / MISCELLANEOUS FUNCTIONS
-  // ============================================================================
+        pleatCard.classList.add("selected");
 
-  function enableCameraControls() {
-    if (!camera.inputs.attached.keyboard) {
-      camera.attachControl(canvas, true);
-    }
-    console.log("Camera controls enabled.");
-  }
+        userChoices.design.pants.pleat = item.label;
 
-  function setVisibleForAllMeshes(jacketVisible, pantsVisible) {
-    jacketMeshes.forEach((mesh) => mesh.setEnabled(jacketVisible));
-    pantsMeshes.forEach((mesh) => mesh.setEnabled(pantsVisible));
-  }
-  setVisibleForAllMeshes(true, true);
-
-  function initializeCardsSlider() {
-    const cardsWrappers = document.querySelectorAll(".cards-wrapper");
-    cardsWrappers.forEach((cardsWrapper) => {
-      if (cardsWrapper.dataset.sliderInitialized) return;
-      const cards = gsap.utils.toArray(".card_cardContainer", cardsWrapper);
-      const loop = horizontalLoop(cards, {
-        paused: true,
-        draggable: true,
-        speed: 2,
-        snap: 1,
+        switchPartMesh("Pleat", item.label);
       });
-      loop.progress(0, false);
-      gsap.set(cardsWrapper, { x: 0 });
-      cardsWrapper.dataset.sliderInitialized = "true";
+
+      cardsWrapper.appendChild(pleatCard);
     });
+
+    textureContainer.appendChild(mobilePleatSlider);
+
+    setupMobileSlider("#mobilePleatSlider");
   }
 
   function horizontalLoop(items, config) {
@@ -1781,7 +3819,9 @@ document.addEventListener("DOMContentLoaded", function () {
       item,
       i;
     populateWidths();
-    gsap.set(items, { xPercent: (i) => xPercents[i] });
+    gsap.set(items, {
+      xPercent: (i) => xPercents[i],
+    });
     gsap.set(items, { x: 0 });
     totalWidth = getTotalWidth();
     for (i = 0; i < length; i++) {
@@ -1894,6 +3934,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function finalizeConfiguration() {
     let summary =
       "Configuration Complete! Thank you for customizing your suit.\n\n";
+
     summary += `Texture: ${userChoices.texture}\n`;
     summary += "Design Selections:\n";
     for (let part in userChoices.design.jacket) {
@@ -1902,6 +3943,7 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let part in userChoices.design.pants) {
       summary += `  ${part}: ${userChoices.design.pants[part]}\n`;
     }
+
     if (
       userChoices.embroidery.hasEmbroidery &&
       userChoices.embroidery.jacket.length > 0
@@ -1916,37 +3958,27 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       summary += "No Embroidery Selected.\n";
     }
+
     if (userChoices.embroidery.threadColor) {
       summary += `Thread Color (Mobile): ${userChoices.embroidery.threadColor}\n`;
     }
+
     if (userChoices.measurements) {
       summary += "Measurements:\n";
       for (let measurement in userChoices.measurements) {
         summary += `  ${measurement}: ${userChoices.measurements[measurement]}\n`;
       }
     }
+
     alert(summary);
     EmailSender.sendUserChoicesEmail(userChoices);
     window.parent.postMessage({ type: "userChoices", data: userChoices }, "*");
   }
 
-  // ============================================================================
-  // 8. EVENT HANDLER BINDINGS & INITIALIZATION
-  // ============================================================================
-
-  // Usage of observeAddedNodes for new images:
-  const container = document.getElementById("textureContainer");
-  if (container) {
-    observeAddedNodes(container, animateNewImages);
-  }
-  console.log("cards entrance update");
-  console.log("cards entrance update");
-
   document
     .getElementById("textureContainer")
     .addEventListener("click", function (e) {
       if (e.target.classList.contains("card_cardImage")) {
-        // Do nothing for card image click here.
       } else if (e.target.closest(".pants-item img")) {
         document
           .querySelectorAll(".pants-item img")
@@ -1957,907 +3989,210 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Back Button Event
-  document.getElementById("backButton").addEventListener("click", function () {
-    resetCamera();
-    enableCameraControls();
-    if (step > 1) {
-      if (step === 5) {
-        if (userChoices.embroidery.jacket.length === 0) {
-          step = 3;
-        } else {
-          step = 4;
-        }
-      } else {
-        step--;
-      }
-      transitionToStep(step);
-      enableCameraControls();
-    }
-    document.querySelector(
-      "body > main > div > div.canvas-container"
-    ).style.display = "block";
-  });
-
-  // Next Button Event
-  document.getElementById("nextButton").addEventListener("click", function () {
-    enableCameraControls();
-    resetCamera();
-    let selectedChoice = null;
-    if (step === 1) {
-      if (userChoices.texture) {
-        const cleanedName = getFabricName(userChoices.texture);
-        selectedChoice = { texture: cleanedName };
-        userChoices.texture = cleanedName;
-      } else {
-        selectedChoice = { texture: "E5102-38.webp" };
-        userChoices.texture = "E5102-38.webp";
-      }
-    } else if (step === 2) {
-      selectedChoice = { design: userChoices.design };
-    } else if (step === 3) {
-      selectedChoice = { jacketEmbroidery: userChoices.embroidery.jacket };
-    } else if (step === 4) {
-      selectedChoice = {
-        jacketEmbroideryCustomizations: userChoices.embroidery.jacket,
-      };
-    } else if (step === 5) {
-      if (validateMeasurements()) {
-        step++;
-        transitionToStep(step);
-      } else {
-        alert("Please fill in all measurements before proceeding.");
-      }
-      return;
-    }
-    console.log("Current Step: ", step);
-    console.log("Selected Choice: ", selectedChoice);
-    console.log("User Choices: ", userChoices);
-    if (step < 5) {
-      if (step === 3) {
-        if (userChoices.embroidery.jacket.length === 0) {
-          step = 5;
-        } else {
-          step++;
-        }
-      } else {
-        step++;
-      }
-      transitionToStep(step);
-    } else if (step === 5) {
-    } else {
-      finalizeConfiguration();
-    }
-  });
-
-  function validateMeasurements() {
-    const requiredMeasurements = [
-      "Waist",
-      "Crotch Depth",
-      "Seat",
-      "Knee",
-      "Inseam",
-      "Hips",
-      "Thigh",
-      "Outseam",
-      "Ankle",
-    ];
-    for (let measurement of requiredMeasurements) {
-      if (
-        !userChoices.measurements ||
-        !userChoices.measurements[measurement] ||
-        userChoices.measurements[measurement] === ""
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  // Setup Pants Measurement Listeners
-  function setupPantsMeasurementListeners() {
-    const measurements = [
-      "Waist",
-      "Crotch Depth",
-      "Seat",
-      "Knee",
-      "Inseam",
-      "Hips",
-      "Thigh",
-      "Outseam",
-      "Ankle",
-    ];
-    measurements.forEach((measurement) => {
-      const inputField = document.getElementById(`${measurement}Input`);
-      inputField.addEventListener("input", () => {
-        userChoices.measurements[measurement] = inputField.value;
-      });
-    });
-  }
-
-  // Generate Pants Measurement Inputs
-  function generatePantsMeasurementInputs() {
-    const measurements = [
-      "Waist",
-      "Crotch Depth",
-      "Seat",
-      "Knee",
-      "Inseam",
-      "Hips",
-      "Thigh",
-      "Outseam",
-      "Ankle",
-    ];
-    return measurements
-      .map(
-        (measurement) => `
-        <div class="measurement-input" id="${measurement.replace(
-          /\s/g,
-          ""
-        )}Measurement">
-          <label for="${measurement}Input">${measurement}</label>
-          <input type="number" id="${measurement}Input" />
-          <div class="line"></div>
-          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" fill="none">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 0.692308C2.39707 0.692308 0.692308 2.39707 0.692308 4.5C0.692308 6.60291 2.39707 8.30769 4.5 8.30769C6.60291 8.30769 8.30769 6.60291 8.30769 4.5C8.30769 2.39707 6.60291 0.692308 4.5 0.692308ZM0 4.5C0 2.01472 2.01472 0 4.5 0C6.98529 0 9 2.01472 9 4.5C9 6.98529 6.98529 9 4.5 9C2.01472 9 0 6.98529 0 4.5ZM4.5 4.15385C4.69117 4.15385 4.84615 4.30883 4.84615 4.5V6.11538C4.84615 6.30655 4.69117 6.46154 4.5 6.46154C4.30883 6.46154 4.15385 6.30655 4.15385 6.11538V4.5C4.15385 4.30883 4.30883 4.15385 4.5 4.15385ZM4.5 2.65385C4.24509 2.65385 4.03846 2.86049 4.03846 3.11538C4.03846 3.37028 4.24509 3.57692 4.5 3.57692H4.50462C4.75952 3.57692 4.96615 3.37028 4.96615 3.11538C4.96615 2.86049 4.75952 2.65385 4.50462 2.65385H4.5Z" fill="black"/>
-          </svg>
-        </div>
-      `
-      )
-      .join("");
-  }
-
-  // ============================================================================
-  // 9. OTHER UI FUNCTIONS (Jacket/Pants Design Options, Embroidery, etc.)
-  // ============================================================================
-
-  function showJacketDesignOptions() {
-    const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    createBackButton();
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      const jacketParts = ["Back", "Lapels", "Pockets"];
-      let contentHTML = "";
-      jacketParts.forEach((part) => {
-        contentHTML += createMobileJacketPartCard(part);
-      });
-      textureContainer.innerHTML += `
-      <div class="cards-wrapper design-options">
-        ${contentHTML}
-      </div>
-    `;
-      const jacketPartCards = textureContainer.querySelectorAll(
-        ".design-options .card_cardContainer"
-      );
-      jacketPartCards.forEach((card) => {
-        card.addEventListener("click", () => {
-          const partName = card.getAttribute("data-test-id");
-          console.log(`Clicked on jacket part: ${partName}`);
-          if (partName === "Back") {
-            showMobileBackOptions();
-          } else if (partName === "Lapels") {
-            showMobileLapelsOptions();
-          } else if (partName === "Pockets") {
-            showMobilePocketsOptions();
-          }
+  function buildImageUrls(jsonData) {
+    const urls = [];
+    for (let category in jsonData) {
+      const value = jsonData[category];
+      if (Array.isArray(value)) {
+        value.forEach((fileName) => {
+          urls.push(`./assets/fabric_optimized/${category}/${fileName}`);
         });
-      });
-    } else {
-      const jacketParts = ["Back", "Lapels", "Pockets"];
-      let contentHTML = "";
-      jacketParts.forEach((part) => {
-        contentHTML += createMobileJacketPartCard(part);
-      });
-      textureContainer.innerHTML += `
-      <div class="controls">
-        <button class="prevButton">Prev</button>
-        <button class="nextButton">Next</button>
-      </div>
-      <div class="cards-wrapper design-options">
-        ${contentHTML}
-      </div>
-    `;
-      const jacketPartCards = textureContainer.querySelectorAll(
-        ".design-options .card_cardContainer"
-      );
-      jacketPartCards.forEach((card) => {
-        card.addEventListener("click", () => {
-          const partName = card.getAttribute("data-test-id");
-          console.log(`Clicked on jacket part: ${partName}`);
-          if (partName === "Back") {
-            showMobileBackOptions();
-          } else if (partName === "Lapels") {
-            showMobileLapelsOptions();
-          } else if (partName === "Pockets") {
-            showMobilePocketsOptions();
-          }
-        });
-      });
-    }
-  }
-
-  function showPantsDesignOptions() {
-    const textureContainer = document.getElementById("textureContainer");
-    textureContainer.innerHTML = "";
-    createBackButton();
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      const pantsParts = ["Cut", "Pleat"];
-      let contentHTML = "";
-      pantsParts.forEach((part) => {
-        contentHTML += createMobileJacketPartCard(part);
-      });
-      textureContainer.innerHTML += `
-      <div class="design-options">${contentHTML}</div>
-    `;
-      const sliderItems = document.querySelectorAll(
-        ".design-options .card_cardContainer"
-      );
-      sliderItems.forEach((item) => {
-        item.addEventListener("click", () => {
-          const clickedPart = item.getAttribute("data-test-id");
-          console.log("Clicked Pants Part (mobile):", clickedPart);
-          if (clickedPart === "Cut") {
-            showMobileCutOptions();
-          } else if (clickedPart === "Pleat") {
-            showMobilePleatOptions();
-          }
-        });
-      });
-    } else {
-      textureContainer.innerHTML += `
-      <button class="accordion" data-category="pants">
-        Pants <span class="sign-acc">+</span>
-      </button>
-      <div class="panel" style="max-height: 0px;">
-        <button class="sub_accordion" data-category="cut">
-          Cut <span class="sign-acc">+</span>
-        </button>
-        <div class="sub_panel">
-          <!-- your existing "cut" content -->
-        </div>
-        <button class="sub_accordion" data-category="pleat">
-          Pleat <span class="sign-acc">+</span>
-        </button>
-        <div class="sub_panel">
-          <!-- etc. -->
-        </div>
-      </div>
-    `;
-      setupPartHoverHighlight();
-    }
-  }
-
-  function setupPartHoverHighlight() {
-    const partOptionButtons = document.querySelectorAll(".part-option");
-    const partItems = document.querySelectorAll(".part-item");
-    partOptionButtons.forEach((button) => {
-      button.addEventListener("mouseenter", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      button.addEventListener("mouseleave", function () {
-        const partName = this.getAttribute("data-part-name");
-        const meshName = this.getAttribute("data-mesh-name");
-        const mesh = partOptionsMeshes[partName][meshName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
-    });
-    partItems.forEach((item) => {
-      item.addEventListener("mouseenter", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.addMesh(mesh, BABYLON.Color3.White());
-        }
-      });
-      item.addEventListener("mouseleave", function () {
-        const partName = this.getAttribute("data-part");
-        const mesh = currentPartMeshes[partName];
-        if (mesh) {
-          highlightLayer.removeMesh(mesh);
-        }
-      });
-    });
-  }
-
-  function showMobileEmbroideryButtons() {
-    const locationButton = document.getElementById("locationButton");
-    const colorButton = document.getElementById("colorButton");
-    const charactersButton = document.getElementById("charactersButton");
-    const embroideryChoices = document.getElementById("embroideryChoices");
-    const allButtons = [locationButton, colorButton, charactersButton];
-    function activateButton(clickedButton) {
-      allButtons.forEach((btn) => btn?.classList.remove("active"));
-      clickedButton.classList.add("active");
-    }
-    if (locationButton) {
-      locationButton.addEventListener("click", () => {
-        activateButton(locationButton);
-        const colorChoices = document.getElementById("colorChoices");
-        const charactersPanel = document.querySelector(".characters-inputs");
-        if (embroideryChoices) embroideryChoices.classList.remove("hidden");
-        if (colorChoices) colorChoices.classList.add("hidden");
-        if (charactersPanel) charactersPanel.style.display = "none";
-        event.stopPropagation();
-      });
-    }
-    if (colorButton) {
-      colorButton.addEventListener("click", () => {
-        activateButton(colorButton);
-        const colorChoices = document.getElementById("colorChoices");
-        const charactersPanel = document.querySelector(".characters-inputs");
-        if (embroideryChoices) embroideryChoices.classList.add("hidden");
-        if (colorChoices) colorChoices.classList.remove("hidden");
-        if (charactersPanel) charactersPanel.style.display = "none";
-        event.stopPropagation();
-      });
-    }
-    if (charactersButton) {
-      charactersButton.addEventListener("click", () => {
-        activateButton(charactersButton);
-        if (embroideryChoices) embroideryChoices.classList.add("hidden");
-        const colorChoices = document.getElementById("colorChoices");
-        if (colorChoices) colorChoices.classList.add("hidden");
-        const chosenLocations = userChoices.embroidery.jacket;
-        if (chosenLocations.length === 0) {
-          alert("No embroidery locations chosen.");
-          return;
-        }
-        renderCharactersPanel();
-        const panel = document.querySelector(".characters-inputs");
-        if (panel) {
-          panel.style.display = "block";
-        }
-        event.stopPropagation();
-      });
-    }
-    const colorChoices = document.getElementById("colorChoices");
-    if (colorChoices) {
-      const colorOptions = colorChoices.querySelectorAll(".color-option");
-      colorOptions.forEach((option) => {
-        option.addEventListener("click", (e) => {
-          colorOptions.forEach((opt) => opt.classList.remove("selected"));
-          option.classList.add("selected");
-          const chosenColor = option.getAttribute("data-color");
-          userChoices.embroidery.threadColor = chosenColor;
-          if (
-            userChoices.embroidery.jacket &&
-            userChoices.embroidery.jacket.length > 0
-          ) {
-            userChoices.embroidery.jacket.forEach((emb) => {
-              emb.color = chosenColor;
-            });
-          }
-          console.log("Mobile embroidery thread color selected:", chosenColor);
-          e.stopPropagation();
-        });
-      });
-    }
-    if (!window.matchMedia("(max-width: 1024.9px)").matches) {
-      document.addEventListener("click", (evt) => {
-        let embroideryContainer = document.getElementById(
-          "embroideryLocationsContainer"
-        );
-        if (!embroideryContainer) {
-          console.error(
-            "Element with ID 'embroideryLocationsContainer' not found."
-          );
-          return;
-        }
-        const clickedInsideContainer =
-          embroideryContainer.contains(evt.target) ||
-          (locationButton && locationButton.contains(evt.target)) ||
-          (colorButton && colorButton.contains(evt.target)) ||
-          (charactersButton && charactersButton.contains(evt.target));
-        if (!clickedInsideContainer) {
-          embroideryChoices.classList.add("hidden");
-          const colorChoices = document.getElementById("colorChoices");
-          if (colorChoices) colorChoices.classList.add("hidden");
-        }
-      });
-    }
-  }
-
-  function updateStepClass(currentStep) {
-    const isMobile = window.matchMedia("(max-width: 1024.9px)").matches;
-    if (!isMobile) return;
-    const textureContainer = document.getElementById("textureContainer");
-    if (!textureContainer) {
-      console.error("Element with ID 'textureContainer' not found.");
-      return;
-    }
-    const stepClasses = ["step-1", "step-2", "step-3", "step-4", "step-5"];
-    textureContainer.classList.remove(...stepClasses);
-    if (currentStep >= 1 && currentStep <= 5) {
-      textureContainer.classList.add(`step-${currentStep}`);
-      console.log(`Added class: step-${currentStep}`);
-    } else {
-      console.warn(
-        `Invalid step number: ${currentStep}. Must be between 1 and 5.`
-      );
-    }
-  }
-
-  function wrapSidePanelContent(step) {
-    const sidePanel = document.getElementById("sidePanel");
-    if (!sidePanel) return;
-    const existingWrapper = sidePanel.querySelector(".widescreen-step");
-    if (existingWrapper) {
-      while (existingWrapper.firstChild) {
-        sidePanel.insertBefore(existingWrapper.firstChild, existingWrapper);
-      }
-      existingWrapper.remove();
-    }
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
-      Array.from(sidePanel.children).forEach((child) => {
-        if (!child.classList.contains("next-back-btns")) {
-          wrapper.appendChild(child);
-        }
-      });
-      sidePanel.insertBefore(wrapper, sidePanel.firstChild);
-    } else {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add(`step-${step}-ws`, "widescreen-step");
-      while (sidePanel.firstChild) {
-        wrapper.appendChild(sidePanel.firstChild);
-      }
-      sidePanel.appendChild(wrapper);
-    }
-  }
-
-  function transitionToStep(newStep) {
-    const sidePanel = document.getElementById("sidePanel");
-    if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      const currentWrapper = sidePanel.querySelector(".widescreen-step");
-      if (currentWrapper) {
-        gsap.to(currentWrapper, {
-          y: window.innerHeight,
-          duration: 0.5,
-          ease: "power2.in",
-          onComplete: () => {
-            initializeStep(newStep);
-            const newWrapper = sidePanel.querySelector(".widescreen-step");
-            if (newWrapper) {
-              gsap.set(newWrapper, { y: -window.innerHeight });
-              gsap.to(newWrapper, {
-                y: 0,
-                duration: 0.8,
-                ease: "power2.out",
-              });
-            }
-          },
-        });
-      } else {
-        initializeStep(newStep);
-      }
-    } else {
-      const currentWrapper = sidePanel.querySelector(".widescreen-step");
-      if (currentWrapper) {
-        gsap.to(currentWrapper, {
-          x: window.innerWidth,
-          duration: 0.5,
-          ease: "power2.in",
-          onComplete: () => {
-            initializeStep(newStep);
-            const newWrapper = sidePanel.querySelector(".widescreen-step");
-            if (newWrapper) {
-              gsap.set(newWrapper, { x: window.innerWidth });
-              gsap.to(newWrapper, {
-                x: 0,
-                duration: 0.8,
-                ease: "power2.out",
-              });
-            }
-          },
-        });
-      } else {
-        initializeStep(newStep);
-      }
-    }
-  }
-
-  function initializeStep(currentStep) {
-    updateStepClass(currentStep);
-    const stepTitle = document.getElementById("stepTitle");
-    const textureContainer = document.getElementById("textureContainer");
-    const batchSelector = document.getElementById("batchSelector");
-    const existingBackButton = document.querySelector(
-      "#sidePanel .back-button"
-    );
-    if (existingBackButton) {
-      existingBackButton.remove();
-      console.log("[initializeStep] Existing back button removed.");
-    }
-    stepTitle.innerHTML = "";
-    switch (step) {
-      case 1:
-        stepTitle.innerHTML = `
-        <p>Here we’ve curated a selection of fabrics that best suits you.</p>
-        <p>Please choose your preferred fabric group from the options below to proceed to the next step.</p>
-      `;
-        batchSelector.style.display = "none";
-        loadJacketBasedOnUserChoices();
-        initializeTextureButtons();
-        textureContainer.style.display = "flex";
-        break;
-      case 2:
-        stepTitle.innerHTML = `
-          <p>Great choice!</br>Now, let’s move on to designing your garment.</p>
-        `;
-        batchSelector.style.display = "none";
-        textureContainer.style.display = "flex";
-        textureContainer.classList.add("texture-container");
-        if (window.matchMedia("(max-width: 1024.9px)").matches) {
-          stepTitle.innerHTML += `<p>Please choose which garment to design first:</p>`;
-          textureContainer.innerHTML = `
-            <div id="chooseGarmentContainer" style="display: flex; gap: 20px;">
-              <div class="card_cardContainer" data-test-id="chooseJacket" tabindex="0">
-                <div class="card_cardImageContainer">
-                  <img loading="lazy" class="card_cardImage"  src="./assets/jacketandpants/jacket.png" alt="Jacket">
-                  <div class="card_itemAmountContainer" data-test-id="item-amount">Jacket</div>
-                </div>
-                <div class="card_cardDetails">
-                  <p class="card_cardText" data-test-id="card-text">Design Jacket</p>
-                </div>
-              </div>
-              <div class="card_cardContainer" data-test-id="choosePants" tabindex="0">
-                <div class="card_cardImageContainer">
-                  <img loading="lazy" class="card_cardImage"  src="assets/jacketandpants/pant.png" alt="Pants">
-                  <div class="card_itemAmountContainer" data-test-id="item-amount">Pants</div>
-                </div>
-                <div class="card_cardDetails">
-                  <p class="card_cardText" data-test-id="card-text">Design Pants</p>
-                </div>
-              </div>
-            </div>
-          `;
-          const chooseJacketCard = document.querySelector(
-            '[data-test-id="chooseJacket"]'
-          );
-          const choosePantsCard = document.querySelector(
-            '[data-test-id="choosePants"]'
-          );
-          if (chooseJacketCard) {
-            chooseJacketCard.addEventListener("click", () => {
-              showJacketDesignOptions();
-            });
-          }
-          if (choosePantsCard) {
-            choosePantsCard.addEventListener("click", () => {
-              showPantsDesignOptions();
-            });
-          }
-        } else {
-          stepTitle.innerHTML += `<p>Choose from the available options for each key design feature. Let’s start creating your perfect look!</p>`;
-          textureContainer.innerHTML = `
-            <button class="accordion" data-category="jacket">
-              Jacket <span class="sign-acc">+</span>
-            </button>
-            <div class="panel" style="max-height: 0px;">
-              ${generatePartItems([
-                { partName: "Back", options: partOptions["Back"] },
-                { partName: "Lapels", options: partOptions["Lapels"] },
-                { partName: "Pockets", options: partOptions["Pockets"] },
-              ])}
-            </div>
-            <button class="accordion" data-category="pants">
-              Pants <span class="sign-acc">+</span>
-            </button>
-            <div class="panel" style="max-height: 0px;">
-              <button class="sub_accordion" data-category="cut">
-                Cut <span class="sign-acc">+</span>
-              </button>
-              <div class="sub_panel">
-                <!-- 8 images for Cut -->
-                <div id="pantsCutContainer" style="display: flex; flex-wrap: wrap;">
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut1.png" alt="Extra Slim">
-                    <p>Extra Slim</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut2.png" alt="Slim">
-                    <p>Slim</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut3.png" alt="Straight">
-                    <p>Straight</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut4.png" alt="Classic">
-                    <p>Classic</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut5.png" alt="Relaxed Fit">
-                    <p>Relaxed Fit</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut6.png" alt="Tapered Leg">
-                    <p>Tapered Leg</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut7.png" alt="Flat Front">
-                    <p>Flat Front</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut8.png" alt="Pleated Front">
-                    <p>Pleated Front</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut9.png" alt="High waist">
-                    <p>High waist</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/cut/cut10.png" alt="Low rise">
-                    <p>Low rise</p>
-                  </div>
-                </div>
-              </div>
-              <button class="sub_accordion" data-category="pleat">
-                Pleat <span class="sign-acc">+</span>
-              </button>
-              <div class="sub_panel">
-                 <div id="pantsCutContainer" style="display: flex; flex-wrap: wrap;">
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/pleat/pleat1.png" alt="pleat">
-                    <p>pleat</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/pleat/pleat2.png" alt="pleat">
-                    <p>pleat</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/pleat/pleat3.png" alt="pleat">
-                    <p>pleat</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/pleat/pleat4.png" alt="pleat">
-                    <p>pleat</p>
-                  </div>
-                  <div class="pants-item">
-                    <img loading="lazy" src="./assets/pants/pleat/pleat5.png" alt="pleat">
-                    <p>pleat</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-          setupPartHoverHighlight();
-        }
-        break;
-      case 3:
-        stepTitle.innerHTML = `
-        <p>Now it’s time to add a personal touch to your garment!</p>
-        <p>You can customize your suit with embroidery. Please select your preferred locations for the embroidery or choose "No Embroidery" to skip.</p>
-      `;
-        const isMobile = window.matchMedia("(max-width: 1024.9px)").matches;
-        let embroideryHTML = `
-        <h2 class="text-step3">Jacket Embroidery Locations</h2>
-        <div id="embroideryLocationsContainer">
-          <!-- Embroidery Choices -->
-          <div class="choice-container-step3" id="embroideryChoices">
-            <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/behind-your-lapel.png" alt="Inner right chest pocket"/>
-              <p>Inner right chest pocket</p>
-            </div>
-            <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/inner-left-embroidery.png" alt="Inner left chest pocket"/>
-              <p>Inner left chest pocket</p>
-            </div>
-            <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/inner-right-embroidery.png" alt="Under the collar flap"/>
-              <p>Under the collar flap</p>
-            </div>
-            <!-- "No Embroidery" Option -->
-            <div class="jacket-embroidery-choice no-embroidery">
-              <img loading="lazy" src="./assets/rectangle_115.webp" alt="No Embroidery"/>
-              <p>No Embroidery</p>
-            </div>
-          </div>
-      `;
-        if (isMobile) {
-          embroideryHTML += `
-          <!-- Color Choices (created only on mobile) -->
-          <div class="color-options hidden" id="colorChoices">
-          <span class="mobile-colors">
-            <button class="color-option" data-color="#FF0000" style="background-color: #7A1313;"></button>
-          </span>
-          <span class="mobile-colors">
-            <button class="color-option" data-color="#00FF00" style="background-color: #000000;"></button>
-          </span>
-          <span class="mobile-colors">
-            <button class="color-option" data-color="#0000FF" style="background-color: #FFFFFF;"></button>
-          </span>
-          </div>
-        `;
-        }
-        embroideryHTML += `</div>`;
-        if (isMobile) {
-          embroideryHTML += `
-          <div class="mobile-embroidery-buttons">
-            <button id="locationButton" class="embroidery-button">Location</button>
-            <button id="colorButton" class="embroidery-button">Color</button>
-            <button id="charactersButton" class="embroidery-button">Characters</button>
-          </div>
-        `;
-        }
-        textureContainer.innerHTML = embroideryHTML;
-        if (userChoices.embroidery.jacket.length > 0) {
-          userChoices.embroidery.jacket.forEach((embroidery) => {
-            const choiceEl = Array.from(
-              document.querySelectorAll(".jacket-embroidery-choice")
-            ).find(
-              (el) =>
-                el.querySelector("p").innerText.trim() === embroidery.location
+      } else if (typeof value === "object") {
+        for (let subCategory in value) {
+          value[subCategory].forEach((fileName) => {
+            urls.push(
+              `./assets/fabric_optimized/${category}/${subCategory}/${fileName}`
             );
-            if (choiceEl) {
-              choiceEl.classList.add("selected");
-            }
           });
-        } else {
-          const noEmbroideryEl = document.querySelector(
-            ".jacket-embroidery-choice.no-embroidery"
-          );
-          if (noEmbroideryEl) {
-            noEmbroideryEl.classList.add("selected");
-          }
         }
-        if (window.matchMedia("(max-width: 1024.9px)").matches) {
-          setupMobileEmbroideryButtons();
-        }
-        loadJacketBasedOnUserChoices(false);
-        pantsMeshes.forEach((mesh) => mesh.setEnabled(true));
-        highlightLayer.removeAllMeshes();
-        break;
-      case 4:
-        if (window.matchMedia("(max-width: 1024.9px)").matches) {
-          step = 5;
-          transitionToStep(step);
-          return;
-        }
-        if (
-          !userChoices.embroidery.jacket ||
-          userChoices.embroidery.jacket.length === 0
-        ) {
-          step = 5;
-          transitionToStep(step);
-          return;
-        }
-        stepTitle.innerHTML = `
-        <p>Customize your jacket embroidery!</p>
-        <p>Please enter your desired text and select your preferred color for each embroidery location.</p>
-      `;
-        batchSelector.style.display = "none";
-        textureContainer.style.display = "flex";
-        textureContainer.style.padding = "0 20px";
-        textureContainer.style.justifyContent = "start";
-        textureContainer.innerHTML = `
-        <h2 class="text-step3 step4 embroidery">Jacket Embroidery Customization</h2>
-        <div id="embroideryCustomizationContainer"></div>
-      `;
-        const customizationContainer = document.getElementById(
-          "embroideryCustomizationContainer"
-        );
-        userChoices.embroidery.jacket.forEach((embroidery, index) => {
-          customizationContainer.innerHTML += `
-          <div class="embroidery-customization" data-index="${index}">
-            <h3>Embroidery ${index + 1}: ${embroidery.location}</h3>
-            <button class="remove-embroidery-button" data-index="${index}"><svg class="remove-emb" xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px" viewBox="0 0 256 256" id="Flat">
-  <path d="M202.82861,197.17188a3.99991,3.99991,0,1,1-5.65722,5.65624L128,133.65723,58.82861,202.82812a3.99991,3.99991,0,0,1-5.65722-5.65624L122.343,128,53.17139,58.82812a3.99991,3.99991,0,0,1,5.65722-5.65624L128,122.34277l69.17139-69.17089a3.99991,3.99991,0,0,1,5.65722,5.65624L133.657,128Z"/>
-</svg></button>
-            <div class="embroidery-color-and-text">
-              <div class="jacket-embroidery-choice">
-                <img loading="lazy" class="embroidery-image" src="./assets/rectangle_115.webp" alt="${
-                  embroidery.location
-                }">
-                <p>${embroidery.location}</p>
-              </div>
-              <div class="embroidery-color-and-text-input">
-                <div class="embroidery-color-picker">
-                  <label>Select Color:</label>
-                  <div id="embroidery-thread-colors-picker-jacket-${index}" class="color-picker-container">
-                    ${generateColorCirclesHTML(21)}
-                  </div>
-                </div>
-                <div class="embroidery-text-input">
-                  <label>Enter Text (max 20 characters):</label>
-                  <input type="text" id="embroideryTextInput${index}" maxlength="20" placeholder="Your text here" value="${
-            embroidery.text
-          }"/>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        });
-        userChoices.embroidery.jacket.forEach((embroidery, index) => {
-          const colorPickerContainer = document.getElementById(
-            `embroidery-thread-colors-picker-jacket-${index}`
-          );
-          if (colorPickerContainer) {
-            const colorCircles =
-              colorPickerContainer.querySelectorAll(".color-circle");
-            colorCircles.forEach((circle) => {
-              circle.addEventListener("click", () => {
-                colorCircles.forEach((c) => c.classList.remove("selected"));
-                circle.classList.add("selected");
-                userChoices.embroidery.jacket[index].color =
-                  circle.getAttribute("data-color");
-              });
-              if (
-                embroidery.color &&
-                embroidery.color === circle.getAttribute("data-color")
-              ) {
-                circle.classList.add("selected");
-              }
-            });
-          }
-          const textInput = document.getElementById(
-            `embroideryTextInput${index}`
-          );
-          if (textInput) {
-            textInput.addEventListener("input", () => {
-              userChoices.embroidery.jacket[index].text =
-                textInput.value.trim();
-            });
-          }
-          const removeButton = document.querySelector(
-            `.remove-embroidery-button[data-index="${index}"]`
-          );
-          if (removeButton) {
-            removeButton.addEventListener("click", () => {
-              userChoices.embroidery.jacket.splice(index, 1);
-              initializeStep(4);
-            });
-          }
-        });
-        break;
-      case 5:
-        document.querySelector(
-          "body > main > div > div.canvas-container"
-        ).style.display = "none";
-        stepTitle.innerHTML = `
-        <p>Please provide your measurements for the pants.</p>
-        <p>Enter your measurements in the fields provided. If you need assistance, refer to the diagram.</p>
-      `;
-        batchSelector.style.display = "none";
-        textureContainer.style.display = "flex";
-        textureContainer.style.padding = "0 20px";
-        textureContainer.style.justifyContent = "center";
-        textureContainer.innerHTML = `
-        <div id="pantsMeasurementWrapper">
-          <img loading="lazy" id="pantsMeasurementImage" src="assets/pants/pants.png" alt="Pants Diagram">
-          ${generatePantsMeasurementInputs()}
-        </div>
-      `;
-        const pantsMeasurementWrapper = document.getElementById(
-          "pantsMeasurementWrapper"
-        );
-        pantsMeasurementWrapper.style.position = "relative";
-        pantsMeasurementWrapper.style.display = "inline-block";
-        setupPantsMeasurementListeners();
-        document.getElementById("nextButton").textContent = "Finish";
-        break;
-      default:
-        canvas.style.display = "block";
-        console.log("Invalid step");
-        break;
+      }
     }
-    wrapSidePanelContent(currentStep);
+    return urls;
+  }
+  function duplicateSliderItems(containerSelector, times = 1) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const items = Array.from(container.children);
+
+    for (let i = 0; i < times; i++) {
+      items.forEach((item) => {
+        const clone = item.cloneNode(true);
+        container.appendChild(clone);
+      });
+    }
   }
 
-  // ============================================================================
-  // 10. FINAL INITIALIZATION & EVENT BINDINGS
-  // ============================================================================
+  function preloadImages(urls) {
+    return new Promise((resolve) => {
+      let loadedCount = 0;
+      const total = urls.length;
+      urls.forEach((url) => {
+        const img = new Image();
+        img.onload = img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === total) {
+            resolve();
+          }
+        };
+        img.src = url;
+      });
+    });
+  }
+  fetch("textures.json")
+    .then((response) => response.json())
+    .then((data) => {
+      textures = data;
 
-  // Arrow and reset camera buttons
+      const urlsToPreload = buildImageUrls(textures);
+      console.log(`Preloading ${urlsToPreload.length} images...`);
+
+      setupAccordions();
+      setupPartSelection();
+      setupPantsItemSelection();
+      setupEmbroideryChoiceListener();
+      initializeCardsSlider();
+    })
+    .catch((error) => console.error("Error loading textures.json:", error));
+
+  function setVisibleForAllMeshes(jacketVisible, pantsVisible) {
+    jacketMeshes.forEach((mesh) => mesh.setEnabled(jacketVisible));
+    pantsMeshes.forEach((mesh) => mesh.setEnabled(pantsVisible));
+  }
+  setVisibleForAllMeshes(true, true);
+  function enableCameraControls() {
+    if (!camera.inputs.attached.keyboard) {
+      camera.attachControl(canvas, true);
+    }
+    console.log("Camera controls enabled.");
+  }
+  function initializeCardsSlider() {
+    // Get all elements with the "cards-wrapper" class.
+    const cardsWrappers = document.querySelectorAll(".cards-wrapper");
+    const screenWidth = window.innerWidth;
+
+    cardsWrappers.forEach((wrapper) => {
+      // Force Flickity on the mobilePocketsSliderWrapper
+      if (wrapper.id === "mobilePocketsSliderWrapper") {
+        // If Flickity isn’t already initialized on this wrapper, create a new Flickity instance.
+        if (!wrapper.classList.contains("flickity-enabled")) {
+          new Flickity(wrapper, {
+            cellAlign: "left",
+            contain: true,
+            draggable: true,
+            prevNextButtons: false,
+            pageDots: false,
+          });
+        }
+        return; // Skip further checks for this wrapper.
+      }
+
+      // For screens 400px or less: always initialize Flickity.
+      if (screenWidth <= 400) {
+        if (!wrapper.classList.contains("flickity-enabled")) {
+          new Flickity(wrapper, {
+            cellAlign: "left",
+            contain: true,
+            draggable: true,
+            prevNextButtons: false,
+            pageDots: false,
+          });
+        }
+        return;
+      }
+
+      // For screens wider than 400px, check the container’s content width.
+      const contentWidth = wrapper.scrollWidth;
+
+      // If the content is too small, then destroy Flickity (if it exists).
+      if (contentWidth <= screenWidth - 30) {
+        if (wrapper.classList.contains("flickity-enabled")) {
+          Flickity.data(wrapper).destroy();
+        }
+        return;
+      }
+
+      // If the content is wide enough, initialize Flickity (if not already done).
+      if (contentWidth >= screenWidth - 100) {
+        if (!wrapper.classList.contains("flickity-enabled")) {
+          new Flickity(wrapper, {
+            cellAlign: "left",
+            contain: true,
+            draggable: true,
+            prevNextButtons: false,
+            pageDots: false,
+          });
+        }
+      }
+    });
+  }
+
+  function renderCharactersPanel() {
+    const oldPanel = document.querySelector(".characters-inputs");
+    if (oldPanel) oldPanel.remove();
+
+    if (userChoices.embroidery.jacket.length === 0) return;
+
+    if (!embroideryContainer) {
+      embroideryContainer = document.getElementById(
+        "embroideryLocationsContainer"
+      );
+      if (!embroideryContainer) {
+        console.error(
+          "Element with ID 'embroideryLocationsContainer' not found."
+        );
+        return;
+      }
+    }
+
+    const newPanel = document.createElement("div");
+    newPanel.classList.add("characters-inputs");
+
+    let html = `<h3 class="embroidery-text">Embroidery Text:</h3>`;
+    userChoices.embroidery.jacket.forEach((emb, i) => {
+      html += `
+      <div class="embroidery-input-group">
+        <input
+          class="embroidery-input"
+          placeholder="${emb.location} Enter your initials"
+          type="text"
+          id="embroideryTextInput${i}"
+          maxlength="20"
+          value="${emb.text || ""}"
+        />
+      </div>
+    `;
+    });
+
+    newPanel.innerHTML = html;
+    embroideryContainer.appendChild(newPanel);
+
+    userChoices.embroidery.jacket.forEach((emb, i) => {
+      const inputField = document.getElementById(`embroideryTextInput${i}`);
+      if (inputField) {
+        inputField.addEventListener("input", () => {
+          emb.text = inputField.value.trim();
+        });
+      }
+    });
+  }
+  function getSelectedClass(partName, meshName) {
+    switch (partName) {
+      case "Back":
+        return "selected-back";
+      case "Lapels":
+        return "selected-lapel";
+      case "Pockets":
+        if (TOP_POCKETS.includes(meshName)) {
+          return "selected-top-pocket";
+        } else if (BOTTOM_POCKETS.includes(meshName)) {
+          return "selected-bottom-pocket";
+        }
+        return "selected-pockets";
+      default:
+        return "selected";
+    }
+  }
   const arrowEl = document.getElementById("arrow");
   if (arrowEl) {
     arrowEl.addEventListener("click", () => {
@@ -2869,39 +4204,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("resetCameraButton")
     .addEventListener("click", resetCamera);
-
-  // Fetch textures.json, preload images, and initialize UI event handlers
-  fetch("textures.json")
-    .then((response) => response.json())
-    .then((data) => {
-      textures = data;
-      const urlsToPreload = buildImageUrls(textures);
-      console.log(`Preloading ${urlsToPreload.length} images...`);
-      preloadImages(urlsToPreload).then(() => {
-        setupAccordions();
-        setupPartSelection();
-        setupPantsItemSelection();
-        setupEmbroideryChoiceListener();
-      });
-    })
-    .catch((error) => console.error("Error loading textures.json:", error));
-
-  // Set meshes visibility
-  function setVisibleForAllMeshes(jacketVisible, pantsVisible) {
-    jacketMeshes.forEach((mesh) => mesh.setEnabled(jacketVisible));
-    pantsMeshes.forEach((mesh) => mesh.setEnabled(pantsVisible));
-  }
-  setVisibleForAllMeshes(true, true);
-
-  // Enable camera controls
-  function enableCameraControls() {
-    if (!camera.inputs.attached.keyboard) {
-      camera.attachControl(canvas, true);
-    }
-    console.log("Camera controls enabled.");
-  }
-
-  // ============================================================================
-  // END OF DOCUMENT READY
-  // ============================================================================
+  initializeCardsSlider();
+  window.addEventListener("resize", initializeCardsSlider);
 });

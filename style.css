@@ -836,6 +836,9 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     position: relative;
     z-index: 9999;
   }
+  .flickity-slider {
+    width: fit-content;
+  }
   #mobileBackSlider.cards-wrapper,
   #mobileLapelsSlider .cards-wrapper {
     justify-content: center;
@@ -870,7 +873,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     max-width: 135px;
   }
   #textureContainer.step-1 {
-    align-items: start;
+    align-items: center;
     padding: 10px 20px;
   }
   #sidePanel:has([data-test-id="Beige"]),
@@ -929,6 +932,16 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   .text-container > p {
     font-size: 11px;
   }
+  .flickity-viewport {
+    /* Set a minimum height so your slider cells are visible */
+    min-height: 150px;
+    width: 100%;
+  }
+  .slider-outer {
+    overflow: hidden;
+    position: relative;
+  }
+
   .text-container > p {
     max-width: 250px;
     margin: 0 auto;
@@ -944,7 +957,9 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     justify-content: center;
     gap: 20px;
   }
-  #mobileBackSlider.cards-wrapper,
+  #mobileBackSlider {
+    justify-content: center;
+  }
   #mobileLapelsSlider.cards-wrapper {
     justify-content: space-around;
     align-items: center;
@@ -968,8 +983,8 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     top: 80%;
   }
   #mobilePocketsContainer .part-option.card_cardContainer {
-    width: 30%;
-    max-width: 130px;
+    width: 100%;
+    max-width: 135px;
   }
   #sidePanel:has(#mobileCutSlider) .text-container,
   #sidePanel:has(.design-options) .text-container,
