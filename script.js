@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function createMobileJacketPartCard(partName) {
     if (partName === "Back") {
       return `
-    <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+    <div class="card_cardContainer" data-test-id="${partName}" >
       <div class="card_cardImageContainer">
         <!-- Back Design Images (Assuming 4 options) -->
         <img loading="lazy" class="card_cardImage image-jacket-back"  src="./assets/jacket/back/jacketback.png" alt="Classic Back">
@@ -759,7 +759,7 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
     } else if (partName === "Lapels") {
       return `
-    <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+    <div class="card_cardContainer" data-test-id="${partName}" >
       <div class="card_cardImageContainer">
         <!-- Lapel Design Images (Assuming 3 options) -->
         <img loading="lazy" class="card_cardImage image-jacket-lapels"  src="./assets/jacket/lapel/jacketlapel.png" alt="Classic Lapel">
@@ -791,7 +791,7 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
     } else if (partName === "Pockets") {
       return `
-    <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+    <div class="card_cardContainer" data-test-id="${partName}" >
       <div class="card_cardImageContainer">
         <!-- Pockets Design Images (Assuming 4 options) -->
         <img loading="lazy" class="card_cardImage image-jacket-pockets"  src="./assets/jacket/pockets/jacketpockets.png" alt="Single Pocket">
@@ -825,7 +825,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (partName === "Cut") {
       return `
-    <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+    <div class="card_cardContainer" data-test-id="${partName}" >
       <div class="card_cardImageContainer">
         <!-- 4 CUT IMAGES -->
         <img loading="lazy" class="card_cardImage image-pants-cut"  src="./assets/pants/cut/cut1.png" alt="Extra Slim">
@@ -861,7 +861,7 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
     } else if (partName === "Pleat") {
       return `
-    <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+    <div class="card_cardContainer" data-test-id="${partName}" >
       <div class="card_cardImageContainer">
         <!-- 5 PLEAT IMAGES -->
         <img loading="lazy" class="card_cardImage image-pants-pleat"  src="./assets/pants/pleat/pleat1.png" alt="Pleat 1">
@@ -899,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     return `
-  <div class="card_cardContainer" data-test-id="${partName}" tabindex="0">
+  <div class="card_cardContainer" data-test-id="${partName}" >
     <div class="card_cardImageContainer">
       <!-- Default Images -->
       <img loading="lazy" class="card_cardImage"  src="./assets/fabric_optimized_2048/business/E5101-38.webp" alt="E5101-38">
@@ -1781,7 +1781,7 @@ document.addEventListener("DOMContentLoaded", function () {
           `;
           textureContainer.innerHTML = `
   <div id="chooseGarmentContainer" class="cards-wrapper" style="display: flex; gap: 20px; overflow-x: auto;">
-              <div class="card_cardContainer" data-test-id="chooseJacket" tabindex="0">
+              <div class="card_cardContainer" data-test-id="chooseJacket" >
                 <div class="card_cardImageContainer">
                   <img loading="lazy" class="card_cardImage"  src="./assets/jacketandpants/jacket.png" alt="Jacket">
                   <div class="card_itemAmountContainer" data-test-id="item-amount">Jacket</div>
@@ -1790,7 +1790,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   <p class="card_cardText" data-test-id="card-text">Design Jacket</p>
                 </div>
               </div>
-              <div class="card_cardContainer" data-test-id="choosePants" tabindex="0">
+              <div class="card_cardContainer" data-test-id="choosePants" >
                 <div class="card_cardImageContainer">
                   <img loading="lazy" class="card_cardImage"  src="assets/jacketandpants/pant.png" alt="Pants">
                   <div class="card_itemAmountContainer" data-test-id="item-amount">Pants</div>
@@ -2674,10 +2674,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
     console.log("Texture clicked:", item);
-
-    document.querySelectorAll(".card_small.selected").forEach((card) => {
-      card.classList.remove("selected");
-    });
+    // Remove any previously selected cards (if you need to handle it in this function too)
+    // document.querySelectorAll(".card_cardContainer.selected").forEach(card => card.classList.remove("selected"));
     cardElement.classList.add("selected");
 
     const originalTextureUrl =
@@ -4211,4 +4209,4 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeCardsSlider();
   window.addEventListener("resize", initializeCardsSlider);
 });
-console.log("good but slider slight weird behavior");
+console.log("sliders good");
