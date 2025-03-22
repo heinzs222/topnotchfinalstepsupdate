@@ -2674,8 +2674,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
     console.log("Texture clicked:", item);
-    // Remove any previously selected cards (if you need to handle it in this function too)
-    // document.querySelectorAll(".card_cardContainer.selected").forEach(card => card.classList.remove("selected"));
+
+    document.querySelectorAll(".card_small.selected").forEach((card) => {
+      card.classList.remove("selected");
+    });
     cardElement.classList.add("selected");
 
     const originalTextureUrl =
