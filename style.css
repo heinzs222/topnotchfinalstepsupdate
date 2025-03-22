@@ -869,7 +869,6 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     overflow: hidden;
     width: 100%;
     justify-content: center;
-    margin-top: 10px;
   }
   .pockets-slider .card_cardImageContainer {
     height: 148px;
@@ -1028,7 +1027,6 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     ) {
     justify-content: center;
     gap: 10px;
-    padding-bottom: 30px;
   }
   #chooseGarmentContainer.step-2
     .card_cardContainer[data-test-id="chooseJacket"] {
