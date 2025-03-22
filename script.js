@@ -4031,8 +4031,10 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Camera controls enabled.");
   }
   function initializeCardsSlider() {
-    // Get all elements with the "cards-wrapper" class.
-    const cardsWrappers = document.querySelectorAll(".cards-wrapper");
+    // Select all elements with class "cards-wrapper" except #chooseGarmentContainer
+    const cardsWrappers = document.querySelectorAll(
+      ".cards-wrapper:not(#chooseGarmentContainer)"
+    );
 
     cardsWrappers.forEach((wrapper) => {
       // Look up the closest container. In step 2, #textureContainer gets the "texture-container" class.
