@@ -3212,7 +3212,11 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // Attach a click (and touchend) listener for toggling selection.
+        // Auto-select the default option if it matches the stored value
+        if (userChoices.design.jacket["PocketsTop"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-top-pocket");
+        }
+
         function toggleSelection(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -3241,7 +3245,6 @@ document.addEventListener("DOMContentLoaded", function () {
           resetCamera();
         }
         pocketCard.addEventListener("click", toggleSelection);
-        // Also listen to touchend for immediacy on mobile.
         pocketCard.addEventListener("touchend", toggleSelection);
 
         const imgWrapper = document.createElement("div");
@@ -3265,7 +3268,6 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
-      // Similar toggle logic for bottom pockets...
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3287,14 +3289,15 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        function toggleSelection(e) {
-          // If dragging, do nothing.
-          if (isSliderDragging) return;
+        // Auto-select the default for bottom pockets
+        if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
+          pocketCard.classList.add("selected", "selected-bottom-pocket");
+        }
 
+        function toggleSelection(e) {
+          if (isSliderDragging) return;
           e.preventDefault();
           e.stopPropagation();
-
-          // If already selected, unselect it.
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3309,7 +3312,6 @@ document.addEventListener("DOMContentLoaded", function () {
             resetCamera();
             return;
           }
-          // Otherwise, clear selection on other buttons and select this one.
           document
             .querySelectorAll("#mobilePocketsSlider .part-option")
             .forEach((p) => {
