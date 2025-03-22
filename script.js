@@ -3327,10 +3327,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           document
-            .querySelectorAll("#mobilePocketsSlider .part-option")
+            .querySelectorAll(".part-option.selected-bottom-pocket")
             .forEach((p) => {
               p.classList.remove("selected", "selected-bottom-pocket");
             });
+
           pocketCard.classList.add("selected", "selected-bottom-pocket");
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
