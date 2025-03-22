@@ -4211,4 +4211,4 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeCardsSlider();
   window.addEventListener("resize", initializeCardsSlider);
 });
-console.log("good but slider slight weird behavior");
+console.log("sliders good");
