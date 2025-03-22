@@ -2673,11 +2673,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
-    console.log("Texture clicked:", item);
-
+    // Remove "selected" from any already-selected fabric card
     document.querySelectorAll(".card_small.selected").forEach((card) => {
       card.classList.remove("selected");
     });
+
+    // Mark this card as selected
     cardElement.classList.add("selected");
 
     const originalTextureUrl =
