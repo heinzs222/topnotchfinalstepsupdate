@@ -1281,20 +1281,38 @@ document.addEventListener("DOMContentLoaded", function () {
     setupMobileSlider(".part-option.card_cardContainer ");
   }
 
+  // Global variable
+  let isSliderDragging = false;
+
   function setupMobileSlider(selector) {
     const sliderContainer = document.querySelector(selector);
     if (!sliderContainer) {
       console.error(`Slider container "${selector}" not found.`);
       return;
     }
-    // Initialize Flickity on the container if it’s not already enabled.
+
+    let options = {
+      cellAlign: "left",
+      contain: true,
+      draggable: true,
+      prevNextButtons: false,
+      pageDots: false,
+      freeScroll: false, // force snapping
+      wrapAround: false,
+    };
+
+    if (selector === "#mobilePocketsSlider") {
+      options.groupCells = 1;
+    }
+
     if (!sliderContainer.classList.contains("flickity-enabled")) {
-      new Flickity(sliderContainer, {
-        cellAlign: "left",
-        contain: true,
-        draggable: true,
-        prevNextButtons: false,
-        pageDots: false,
+      const flkty = new Flickity(sliderContainer, options);
+      // Listen to drag events and update our flag
+      flkty.on("dragStart", () => {
+        isSliderDragging = true;
+      });
+      flkty.on("dragEnd", () => {
+        setTimeout(() => (isSliderDragging = false), 50);
       });
     }
   }
@@ -1306,11 +1324,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
 
+    // Create the confirm button (unchanged)
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
-        <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
-      </svg>`;
+      <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
+      <path d="M4.64645 8.64645C4.45118 8.84171 4.45118 9.15829 4.64645 9.35355L7.82843 12.5355C8.02369 12.7308 8.34027 12.7308 8.53553 12.5355C8.7308 12.3403 8.7308 12.0237 8.53553 11.8284L5.70711 9L8.53553 6.17157C8.7308 5.97631 8.7308 5.65973 8.53553 5.46447C8.34027 5.2692 8.02369 5.2692 7.82843 5.46447L4.64645 8.64645ZM13 8.5L5 8.5L5 9.5L13 9.5L13 8.5Z" fill="black"></path>
+    </svg>`;
     confirmButton.classList.add("back-to-cat");
     confirmButton.addEventListener("click", () => {
       console.log(
@@ -1320,29 +1339,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     textureContainer.appendChild(confirmButton);
 
+    // Create top/bottom buttons:
     const tbBtnWrapper = document.createElement("div");
     tbBtnWrapper.classList.add("top-bottom-pockets-wrapper");
 
+    // Create top pockets button
     const topPctsBtn = document.createElement("button");
     topPctsBtn.textContent = "Top Pockets";
-    topPctsBtn.classList.add("top-bottom-btns");
+    topPctsBtn.classList.add("top-bottom-btns", "top-pockets-btn");
     topPctsBtn.addEventListener("click", () => {
       console.log("Top pockets button clicked");
       renderMobilePocketsOptions("top");
+      // Disable the top button and enable the bottom one
+      topPctsBtn.disabled = true;
+      bottomPctsBtn.disabled = false;
     });
 
+    // Create bottom pockets button
     const bottomPctsBtn = document.createElement("button");
     bottomPctsBtn.textContent = "Bottom Pockets";
-    bottomPctsBtn.classList.add("top-bottom-btns");
+    bottomPctsBtn.classList.add("top-bottom-btns", "bottom-pockets-btn");
     bottomPctsBtn.addEventListener("click", () => {
       console.log("Bottom pockets button clicked");
       renderMobilePocketsOptions("bottom");
+      // Disable the bottom button and enable the top one
+      bottomPctsBtn.disabled = true;
+      topPctsBtn.disabled = false;
     });
 
+    // Append the two buttons
     tbBtnWrapper.appendChild(topPctsBtn);
     tbBtnWrapper.appendChild(bottomPctsBtn);
     textureContainer.appendChild(tbBtnWrapper);
 
+    // Create (or clear) the pockets container:
     let pocketsParent = document.getElementById("mobilePocketsContainer");
     if (!pocketsParent) {
       pocketsParent = document.createElement("div");
@@ -1352,6 +1382,10 @@ document.addEventListener("DOMContentLoaded", function () {
       pocketsParent.innerHTML = "";
     }
 
+    // Default to top pockets:
+    // Disable the top button initially
+    topPctsBtn.disabled = true;
+    bottomPctsBtn.disabled = false;
     renderMobilePocketsOptions("top");
   }
 
@@ -3253,8 +3287,13 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.cursor = "pointer";
 
         function toggleSelection(e) {
+          // If dragging, do nothing.
+          if (isSliderDragging) return;
+
           e.preventDefault();
           e.stopPropagation();
+
+          // If already selected, unselect it.
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3269,6 +3308,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resetCamera();
             return;
           }
+          // Otherwise, clear selection on other buttons and select this one.
           document
             .querySelectorAll("#mobilePocketsSlider .part-option")
             .forEach((p) => {
