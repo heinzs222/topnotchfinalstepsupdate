@@ -1294,6 +1294,10 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     max-width: 160px;
     cursor: pointer;
   }
+  .cards-wrapper:has([data-mesh-name="4on2_Lapels_2"])
+    .card_cardContainer.part-option {
+    width: 32%;
+  }
   #colorChoices .color-option[data-color="#0000FF"] {
     border-radius: 10px;
     border: 1px solid #000;
