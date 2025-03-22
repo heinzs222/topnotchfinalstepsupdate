@@ -2673,12 +2673,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
-    // Remove "selected" from any already-selected fabric card
+    console.log("Texture clicked:", item);
+
     document.querySelectorAll(".card_small.selected").forEach((card) => {
       card.classList.remove("selected");
     });
-
-    // Mark this card as selected
     cardElement.classList.add("selected");
 
     const originalTextureUrl =
@@ -3054,19 +3053,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!partOptionButton) return;
     const partName = partOptionButton.getAttribute("data-part-name");
     const meshName = partOptionButton.getAttribute("data-mesh-name");
-
-    // Remove selected classes from all buttons of the same part
-    document
-      .querySelectorAll(`.part-option[data-part-name="${partName}"]`)
-      .forEach((btn) => {
-        btn.classList.remove(
-          "selected",
-          "selected-back",
-          "selected-lapel",
-          "selected-top-pocket",
-          "selected-bottom-pocket"
-        );
-      });
     if (!partName || !meshName) {
       console.warn("Missing data-part-name or data-mesh-name attributes.");
       return;
@@ -3308,20 +3294,10 @@ document.addEventListener("DOMContentLoaded", function () {
           pocketCard.classList.add("selected", "selected-bottom-pocket");
         }
 
-        // Inside your toggleSelection for bottom pockets:
         function toggleSelection(e) {
           if (isSliderDragging) return;
           e.preventDefault();
           e.stopPropagation();
-
-          // Get the Flickity instance and current selected index
-          const sliderContainer = document.querySelector(
-            "#mobilePocketsSlider"
-          );
-          const flkty = Flickity.data(sliderContainer);
-          const currentIndex = flkty.selectedIndex;
-
-          // If already selected, toggle off
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3334,26 +3310,18 @@ document.addEventListener("DOMContentLoaded", function () {
             userChoices.design.jacket["PocketsBottom"] = undefined;
             disablePocketMesh(item.meshName);
             resetCamera();
-            // Restore slider position
-            flkty.select(currentIndex, false, false);
             return;
           }
-
-          // Otherwise, clear all and select this one
           document
-            .querySelectorAll(".part-option.selected-bottom-pocket")
+            .querySelectorAll("#mobilePocketsSlider .part-option")
             .forEach((p) => {
               p.classList.remove("selected", "selected-bottom-pocket");
             });
-
           pocketCard.classList.add("selected", "selected-bottom-pocket");
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
           resetCamera();
-          // Restore the Flickity slider to its previous index
-          flkty.select(currentIndex, false, false);
         }
-
         pocketCard.addEventListener("click", toggleSelection);
         pocketCard.addEventListener("touchend", toggleSelection);
 

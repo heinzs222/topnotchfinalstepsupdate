@@ -329,6 +329,7 @@ div .selected p {
   border-radius: 7px;
   border: 1px solid #1a1a1a;
   background: #363636;
+  color: white;
 }
 .jacket-embroidery-choice.selected,
 .pants-embroidery-choice.selected {
@@ -733,6 +734,9 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   color: gray;
 }
 @media screen and (min-width: 1025px) {
+  .part-option:hover {
+    color: white;
+  }
   #textureContainer {
     align-items: start;
     justify-content: start;
@@ -749,6 +753,12 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
 }
 @media screen and (max-width: 1024.9px) {
+  .part-option.selected:hover p {
+    color: white;
+  }
+  .part-option:hover p {
+    color: black;
+  }
   .card_cardText,
   .part-option p {
     color: #2d2d2c;
@@ -1332,7 +1342,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   height: 100dvh;
   width: 70dvw;
 }
-.part-option:hover,
+
 .selected-back,
 .selected-bottom-pocket,
 .selected-lapel,
