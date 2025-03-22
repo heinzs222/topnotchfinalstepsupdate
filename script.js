@@ -3054,6 +3054,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!partOptionButton) return;
     const partName = partOptionButton.getAttribute("data-part-name");
     const meshName = partOptionButton.getAttribute("data-mesh-name");
+
+    // Remove selected classes from all buttons of the same part
+    document
+      .querySelectorAll(`.part-option[data-part-name="${partName}"]`)
+      .forEach((btn) => {
+        btn.classList.remove(
+          "selected",
+          "selected-back",
+          "selected-lapel",
+          "selected-top-pocket",
+          "selected-bottom-pocket"
+        );
+      });
     if (!partName || !meshName) {
       console.warn("Missing data-part-name or data-mesh-name attributes.");
       return;
