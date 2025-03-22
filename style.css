@@ -989,7 +989,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     z-index: 99;
     display: flex;
     gap: 30px;
-    top: 80%;
+    top: 85%;
   }
   #mobilePocketsContainer:has([data-mesh-name="4on2_pocket_2"])
     .part-option.card_cardContainer {
