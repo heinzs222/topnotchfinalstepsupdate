@@ -1007,7 +1007,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     width: 100%;
   }
   #mobilePocketsContainer .part-option.card_cardContainer {
-    width: 30%;
+    width: 100%;
     max-width: 120px;
   }
   #sidePanel:has(#mobileCutSlider) .text-container,
