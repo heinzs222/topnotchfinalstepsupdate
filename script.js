@@ -3308,10 +3308,20 @@ document.addEventListener("DOMContentLoaded", function () {
           pocketCard.classList.add("selected", "selected-bottom-pocket");
         }
 
+        // Inside your toggleSelection for bottom pockets:
         function toggleSelection(e) {
           if (isSliderDragging) return;
           e.preventDefault();
           e.stopPropagation();
+
+          // Get the Flickity instance and current selected index
+          const sliderContainer = document.querySelector(
+            "#mobilePocketsSlider"
+          );
+          const flkty = Flickity.data(sliderContainer);
+          const currentIndex = flkty.selectedIndex;
+
+          // If already selected, toggle off
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3324,8 +3334,12 @@ document.addEventListener("DOMContentLoaded", function () {
             userChoices.design.jacket["PocketsBottom"] = undefined;
             disablePocketMesh(item.meshName);
             resetCamera();
+            // Restore slider position
+            flkty.select(currentIndex, false, false);
             return;
           }
+
+          // Otherwise, clear all and select this one
           document
             .querySelectorAll(".part-option.selected-bottom-pocket")
             .forEach((p) => {
@@ -3336,7 +3350,10 @@ document.addEventListener("DOMContentLoaded", function () {
           userChoices.design.jacket["PocketsBottom"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
           resetCamera();
+          // Restore the Flickity slider to its previous index
+          flkty.select(currentIndex, false, false);
         }
+
         pocketCard.addEventListener("click", toggleSelection);
         pocketCard.addEventListener("touchend", toggleSelection);
 
