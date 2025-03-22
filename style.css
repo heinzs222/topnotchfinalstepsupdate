@@ -1215,7 +1215,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   .back-button {
     border: none;
-    font-size: 16px;
+    font-size: 11px;
     border-radius: 5px;
     margin-bottom: 20px;
     display: flex;
@@ -1356,6 +1356,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   z-index: 99999;
   cursor: pointer;
   text-align: center;
+  font-size: 11px;
 }
 .back-to-cat {
   position: sticky;
