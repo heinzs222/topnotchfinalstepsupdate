@@ -178,28 +178,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (window.matchMedia("(max-width: 1024.9px)").matches) {
-      // For mobile, set default pockets and add the "selected" class to their buttons.
       if (!userChoices.design.jacket["PocketsTop"]) {
         userChoices.design.jacket["PocketsTop"] = TOP_POCKETS[0];
         switchPartMesh("Pockets", TOP_POCKETS[0], "top");
-        // Add "selected" to the corresponding button
-        const topPocketBtn = document.querySelector(
-          `.part-option[data-part-name="Pockets"][data-mesh-name="${TOP_POCKETS[0]}"]`
-        );
-        if (topPocketBtn) {
-          topPocketBtn.classList.add("selected");
-        }
       }
       if (!userChoices.design.jacket["PocketsBottom"]) {
         userChoices.design.jacket["PocketsBottom"] = BOTTOM_POCKETS[0];
         switchPartMesh("Pockets", BOTTOM_POCKETS[0], "bottom");
-        // Add "selected" to the corresponding button
-        const bottomPocketBtn = document.querySelector(
-          `.part-option[data-part-name="Pockets"][data-mesh-name="${BOTTOM_POCKETS[0]}"]`
-        );
-        if (bottomPocketBtn) {
-          bottomPocketBtn.classList.add("selected");
-        }
       }
     } else {
       if (!userChoices.design.jacket["PocketsTop"]) {
@@ -1306,7 +1291,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Define Flickity options
     let options = {
       cellAlign: "left",
       contain: true,
@@ -1321,28 +1305,14 @@ document.addEventListener("DOMContentLoaded", function () {
       options.groupCells = 1;
     }
 
-    // Initialize Flickity only once.
     if (!sliderContainer.classList.contains("flickity-enabled")) {
       const flkty = new Flickity(sliderContainer, options);
-
-      flkty.on("settle", function () {
-        flkty.cells.forEach(function (cell) {
-          if (cell.element.getAttribute("aria-hidden") === "true") {
-            cell.element.removeAttribute("tabindex");
-            cell.element.setAttribute("inert", "");
-          } else {
-            cell.element.setAttribute("tabindex", "0");
-            cell.element.removeAttribute("inert");
-          }
-        });
-      });
-
-      // Set the drag flag on dragStart and clear it after a slight delay on dragEnd.
+      // Listen to drag events and update our flag
       flkty.on("dragStart", () => {
         isSliderDragging = true;
       });
       flkty.on("dragEnd", () => {
-        isSliderDragging = false;
+        setTimeout(() => (isSliderDragging = false), 50);
       });
     }
   }
@@ -1810,7 +1780,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <p>Please choose which garment to design first:</p>
           `;
           textureContainer.innerHTML = `
-            <div id="chooseGarmentContainer" style="display: flex; gap: 20px;">
+  <div id="chooseGarmentContainer" class="cards-wrapper" style="display: flex; gap: 20px; overflow-x: auto;">
               <div class="card_cardContainer" data-test-id="chooseJacket" tabindex="0">
                 <div class="card_cardImageContainer">
                   <img loading="lazy" class="card_cardImage"  src="./assets/jacketandpants/jacket.png" alt="Jacket">
@@ -1848,6 +1818,7 @@ document.addEventListener("DOMContentLoaded", function () {
               showPantsDesignOptions();
             });
           }
+          initializeCardsSlider();
         } else {
           stepTitle.innerHTML += `
             <p>Choose from the available options for each key design feature. Let’s start creating your perfect look!</p>
@@ -3233,7 +3204,7 @@ document.addEventListener("DOMContentLoaded", function () {
       container.classList.add("cards-wrapper");
       if (!container) return;
       container.innerHTML = "";
-      filteredOptions.forEach((item, index) => {
+      filteredOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.classList.add("part-option", "card_cardContainer");
         pocketCard.setAttribute("data-part-name", "Pockets");
@@ -3241,19 +3212,11 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // If a default exists (or if none exists, default the first one)
-        if (
-          userChoices.design.jacket["PocketsTop"] === item.meshName ||
-          (!userChoices.design.jacket["PocketsTop"] && index === 0)
-        ) {
-          pocketCard.classList.add("selected", "selected-top-pocket");
-          userChoices.design.jacket["PocketsTop"] = item.meshName;
-        }
-
+        // Attach a click (and touchend) listener for toggling selection.
         function toggleSelection(e) {
           e.preventDefault();
           e.stopPropagation();
-          // Toggle off if already selected
+          // If this option is already selected, unselect it.
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-top-pocket")
@@ -3268,7 +3231,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resetCamera();
             return;
           }
-          // Otherwise, clear other selections and mark this one
+          // Otherwise, clear other top pocket selections and select this one.
           container.querySelectorAll(".part-option").forEach((p) => {
             p.classList.remove("selected", "selected-top-pocket");
           });
@@ -3278,6 +3241,7 @@ document.addEventListener("DOMContentLoaded", function () {
           resetCamera();
         }
         pocketCard.addEventListener("click", toggleSelection);
+        // Also listen to touchend for immediacy on mobile.
         pocketCard.addEventListener("touchend", toggleSelection);
 
         const imgWrapper = document.createElement("div");
@@ -3301,6 +3265,7 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
+      // Similar toggle logic for bottom pockets...
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3314,7 +3279,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         sliderContainer.innerHTML = "";
       }
-      filteredOptions.forEach((item, index) => {
+      filteredOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.classList.add("part-option", "card_cardContainer");
         pocketCard.setAttribute("data-part-name", "Pockets");
@@ -3322,19 +3287,14 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // Set default for bottom pockets (first one if none set)
-        if (
-          userChoices.design.jacket["PocketsBottom"] === item.meshName ||
-          (!userChoices.design.jacket["PocketsBottom"] && index === 0)
-        ) {
-          pocketCard.classList.add("selected", "selected-bottom-pocket");
-          userChoices.design.jacket["PocketsBottom"] = item.meshName;
-        }
-
         function toggleSelection(e) {
+          // If dragging, do nothing.
           if (isSliderDragging) return;
+
           e.preventDefault();
           e.stopPropagation();
+
+          // If already selected, unselect it.
           if (
             pocketCard.classList.contains("selected") &&
             pocketCard.classList.contains("selected-bottom-pocket")
@@ -3349,6 +3309,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resetCamera();
             return;
           }
+          // Otherwise, clear selection on other buttons and select this one.
           document
             .querySelectorAll("#mobilePocketsSlider .part-option")
             .forEach((p) => {
