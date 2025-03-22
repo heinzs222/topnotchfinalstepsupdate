@@ -859,6 +859,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     overflow: hidden;
     width: 100%;
     justify-content: center;
+    margin-top: 10px;
   }
   .pockets-slider .card_cardImageContainer {
     height: 148px;
