@@ -722,6 +722,31 @@ document.addEventListener("DOMContentLoaded", function () {
   function handlePartSelection(partName, meshName) {
     switchPartMesh(partName, meshName);
   }
+  function initializeEmbroideryChoicesSlider() {
+    const container = document.querySelector("#embroideryChoices");
+    if (!container) {
+      console.error("Embroidery choices container not found.");
+      return;
+    }
+
+    // If a Flickity instance already exists, destroy it first
+    if (container.flickityInstance) {
+      container.flickityInstance.destroy();
+    }
+
+    // Initialize Flickity on the container with your options
+    const flkty = new Flickity(container, {
+      cellAlign: "center",
+      contain: true,
+      draggable: true,
+      prevNextButtons: false,
+      pageDots: false,
+      wrapAround: false, // Change to true if you want continuous looping
+    });
+
+    // Save the instance for later use if needed
+    container.flickityInstance = flkty;
+  }
 
   function createMobileJacketPartCard(partName) {
     if (partName === "Back") {
@@ -1981,6 +2006,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         textureContainer.innerHTML = embroideryHTML;
+
+        if (isMobile) {
+          initializeEmbroideryChoicesSlider();
+        }
 
         if (userChoices.embroidery.jacket.length > 0) {
           userChoices.embroidery.jacket.forEach((embroidery) => {
