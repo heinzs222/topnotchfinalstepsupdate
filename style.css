@@ -615,6 +615,7 @@ div .selected p {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   border-color: #000;
 }
+
 #pantsMeasurementWrapper {
   position: relative;
   text-align: center;
@@ -1285,6 +1286,16 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+  }
+  button,
+  a,
+  .size-btn,
+  .decrement-btn,
+  .increment-btn {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
   #jacketPartsSlider > .card_cardContainer {
     flex: 0 0 auto;
