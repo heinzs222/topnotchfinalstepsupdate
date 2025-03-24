@@ -1014,6 +1014,9 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   #sidePanel:has(.text-step3) .text-container {
     margin-bottom: 10px;
   }
+  .bottom-sizes-section {
+    margin-top: 20px;
+  }
   .mobile-colors {
     padding: 7px 7px 5px;
     border-radius: 10px;
