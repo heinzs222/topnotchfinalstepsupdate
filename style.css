@@ -351,7 +351,7 @@ input[type="number"] {
 }
 .confirm-size-btn {
   border-radius: 31px;
-  padding: 15px 50px;
+  padding: 10px 50px;
   background: black;
   color: white;
   cursor: pointer;
@@ -1151,7 +1151,9 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     overflow: hidden;
     position: relative;
   }
-
+  #sidePanel:has(.size-subtitle) .text-container {
+    display: none;
+  }
   .text-container > p {
     max-width: 250px;
     margin: 0 auto;
