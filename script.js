@@ -2499,7 +2499,6 @@ document.addEventListener("DOMContentLoaded", function () {
       case 5:
         if (window.matchMedia("(max-width: 1024.9px)").matches) {
           gsap.to(".canvas-container", {
-            maxHeight: 0,
             duration: 0.5,
             autoAlpha: 0, // fades opacity to 0 and sets visibility to hidden
           });
@@ -4073,7 +4072,7 @@ document.addEventListener("DOMContentLoaded", function () {
       enableCameraControls();
     }
     gsap.to(".canvas-container", {
-      maxHeight: "",
+      duration: 0.5,
       autoAlpha: 1, // fades opacity to 1 and sets visibility to visible
     });
     document.querySelector("#arrow").style.display = "block";
