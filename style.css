@@ -1321,6 +1321,13 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   .dragging {
     cursor: grabbing;
   }
+  .size-title {
+    font-size: 24px;
+  }
+  .size-subtitle {
+    font-size: 12px;
+    margin: 0;
+  }
   #chooseGarmentContainer .card_cardImageContainer {
     background: #95959559;
     width: 100%;
