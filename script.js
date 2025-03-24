@@ -14,8 +14,31 @@ gsap.registerPlugin(
   CustomBounce,
   CustomWiggle
 );
+// 1. Create a variable containing your custom select dropdown SVG.
+const selectDropdownIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4" viewBox="0 0 6 4" fill="none">
+  <path d="M2.8596 3.93864L0.135858 0.895581C0.0645054 0.815824 0.0190453 0.718786 0.00480478 0.615837C-0.00943571 0.512889 0.00813298 0.408294 0.0554523 0.314308C0.102772 0.220323 0.177882 0.14084 0.271981 0.0851729C0.366081 0.029506 0.475271 -3.89017e-05 0.586759 3.84426e-08H5.41397C5.5254 9.07691e-05 5.63449 0.0297298 5.72848 0.0854476C5.82247 0.141165 5.89747 0.220656 5.9447 0.314617C5.99193 0.408578 6.00944 0.51312 5.99517 0.616007C5.9809 0.718894 5.93546 0.815869 5.86414 0.895581L3.14114 3.93864C3.12393 3.95785 3.10241 3.9733 3.07808 3.9839C3.05376 3.9945 3.02723 4 3.00037 4C2.97351 4 2.94698 3.9945 2.92265 3.9839C2.89832 3.9733 2.8768 3.95785 2.8596 3.93864Z" fill="black"/>
+</svg>`;
 
 document.addEventListener("DOMContentLoaded", function () {
+  // 2. Insert a style block to override the select’s default arrow
+  const styleEl = document.createElement("style");
+  styleEl.textContent = `
+  .measurement-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,${encodeURIComponent(
+      selectDropdownIconSVG
+    )}");
+    background-repeat: no-repeat;
+    background-position: right 17px center;
+    background-size: 6px 4px;
+    /* Optionally, add padding to ensure text doesn't overlap the icon */
+    padding-right: 20px;
+  }
+`;
+  document.head.appendChild(styleEl);
+
   function observeAddedNodes(container, callback, options = {}) {
     const observerOptions = Object.assign(
       { childList: true, subtree: true },
@@ -729,22 +752,19 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // If a Flickity instance already exists, destroy it first
     if (container.flickityInstance) {
       container.flickityInstance.destroy();
     }
 
-    // Initialize Flickity on the container with your options
     const flkty = new Flickity(container, {
       cellAlign: "center",
       contain: true,
       draggable: true,
       prevNextButtons: false,
       pageDots: false,
-      wrapAround: false, // Change to true if you want continuous looping
+      wrapAround: false,
     });
 
-    // Save the instance for later use if needed
     container.flickityInstance = flkty;
   }
 
@@ -1306,7 +1326,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setupMobileSlider(".part-option.card_cardContainer ");
   }
 
-  // Global variable
   let isSliderDragging = false;
   function setupMobileSlider(selector) {
     const sliderContainer = document.querySelector(selector);
@@ -1314,7 +1333,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error(`Slider container "${selector}" not found.`);
       return;
     }
-    // If a Flickity instance already exists, destroy it first.
+
     if (sliderContainer.flickityInstance) {
       sliderContainer.flickityInstance.destroy();
     }
@@ -1324,10 +1343,10 @@ document.addEventListener("DOMContentLoaded", function () {
       draggable: true,
       prevNextButtons: false,
       pageDots: false,
-      freeScroll: false, // set to false to force snapping
-      wrapAround: false, // enables continuous looping
+      freeScroll: false,
+      wrapAround: false,
     });
-    // Save the instance on the container (for later use if needed)
+
     sliderContainer.flickityInstance = flkty;
     flkty.on("dragStart", () => {
       isSliderDragging = true;
@@ -1344,7 +1363,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.innerHTML = "";
 
-    // Create the confirm button (unchanged)
     const confirmButton = document.createElement("button");
     confirmButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 18 18" fill="none">
       <circle cx="9" cy="9" r="9" fill="#EFEFEF"></circle>
@@ -1359,40 +1377,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     textureContainer.appendChild(confirmButton);
 
-    // Create top/bottom buttons:
     const tbBtnWrapper = document.createElement("div");
     tbBtnWrapper.classList.add("top-bottom-pockets-wrapper");
 
-    // Create top pockets button
     const topPctsBtn = document.createElement("button");
     topPctsBtn.textContent = "Top Pockets";
     topPctsBtn.classList.add("top-bottom-btns", "top-pockets-btn");
     topPctsBtn.addEventListener("click", () => {
       console.log("Top pockets button clicked");
       renderMobilePocketsOptions("top");
-      // Disable the top button and enable the bottom one
+
       topPctsBtn.disabled = true;
       bottomPctsBtn.disabled = false;
     });
 
-    // Create bottom pockets button
     const bottomPctsBtn = document.createElement("button");
     bottomPctsBtn.textContent = "Bottom Pockets";
     bottomPctsBtn.classList.add("top-bottom-btns", "bottom-pockets-btn");
     bottomPctsBtn.addEventListener("click", () => {
       console.log("Bottom pockets button clicked");
       renderMobilePocketsOptions("bottom");
-      // Disable the bottom button and enable the top one
+
       bottomPctsBtn.disabled = true;
       topPctsBtn.disabled = false;
     });
 
-    // Append the two buttons
     tbBtnWrapper.appendChild(topPctsBtn);
     tbBtnWrapper.appendChild(bottomPctsBtn);
     textureContainer.appendChild(tbBtnWrapper);
 
-    // Create (or clear) the pockets container:
     let pocketsParent = document.getElementById("mobilePocketsContainer");
     if (!pocketsParent) {
       pocketsParent = document.createElement("div");
@@ -1402,8 +1415,6 @@ document.addEventListener("DOMContentLoaded", function () {
       pocketsParent.innerHTML = "";
     }
 
-    // Default to top pockets:
-    // Disable the top button initially
     topPctsBtn.disabled = true;
     bottomPctsBtn.disabled = false;
     renderMobilePocketsOptions("top");
@@ -1705,6 +1716,47 @@ document.addEventListener("DOMContentLoaded", function () {
       sidePanel.appendChild(wrapper);
     }
   }
+  function attachIncrementDecrementListeners(container) {
+    // Save input values whenever they change
+    const inputs = container.querySelectorAll(".measurement-input");
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        // Save the value using the input's id as key
+        userChoices.measurements[input.id] = input.value;
+      });
+    });
+
+    // Also save select values whenever they change
+    const selects = container.querySelectorAll("select.measurement-select");
+    selects.forEach((select) => {
+      select.addEventListener("change", () => {
+        userChoices.measurements[select.id] = select.value;
+      });
+    });
+
+    const decrementButtons = container.querySelectorAll(".decrement-btn");
+    const incrementButtons = container.querySelectorAll(".increment-btn");
+
+    decrementButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = btn.parentElement.querySelector('input[type="number"]');
+        if (input) {
+          input.value = Math.max(0, parseInt(input.value, 10) - 1);
+          input.dispatchEvent(new Event("input"));
+        }
+      });
+    });
+
+    incrementButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = btn.parentElement.querySelector('input[type="number"]');
+        if (input) {
+          input.value = parseInt(input.value, 10) + 1;
+          input.dispatchEvent(new Event("input"));
+        }
+      });
+    });
+  }
 
   function transitionToStep(newStep) {
     const sidePanel = document.getElementById("sidePanel");
@@ -1759,12 +1811,295 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
+  // Helper: Render the Pants measurement inputs (no +/- buttons)
+  // New function for Pants measurement inputs:
+  // 1. Declare the SVG variable (place this near the top of your script)
+  const measurementIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8" fill="none">
+  <path d="M3.77778 6H4.22222V3.55556H3.77778V6ZM4 2.92311C4.07763 2.92311 4.14267 2.89689 4.19511 2.84444C4.24756 2.792 4.27363 2.72696 4.27333 2.64933C4.27304 2.5717 4.24681 2.50681 4.19467 2.45467C4.14252 2.40252 4.07763 2.3763 4 2.376C3.92237 2.3757 3.85748 2.40193 3.80533 2.45467C3.75319 2.50741 3.72696 2.57244 3.72667 2.64978C3.72637 2.72711 3.75259 2.792 3.80533 2.84444C3.85807 2.89689 3.92296 2.92311 4 2.92311ZM4.00133 8C3.44815 8 2.92815 7.89511 2.44133 7.68533C1.95452 7.47526 1.53096 7.19022 1.17067 6.83022C0.81037 6.47022 0.525185 6.04711 0.315111 5.56089C0.105037 5.07467 0 4.55481 0 4.00133C0 3.44785 0.105037 2.92785 0.315111 2.44133C0.524889 1.95452 0.809482 1.53096 1.16889 1.17067C1.5283 0.81037 1.95156 0.525185 2.43867 0.315111C2.92578 0.105037 3.44578 0 3.99867 0C4.55156 0 5.07156 0.105037 5.55867 0.315111C6.04548 0.524889 6.46904 0.80963 6.82933 1.16933C7.18963 1.52904 7.47481 1.9523 7.68489 2.43911C7.89496 2.92593 8 3.44578 8 3.99867C8 4.55155 7.89511 5.07156 7.68533 5.55867C7.47556 6.04578 7.19052 6.46933 6.83022 6.82933C6.46993 7.18933 6.04681 7.47452 5.56089 7.68489C5.07496 7.89526 4.55511 8.0003 4.00133 8ZM4 7.55555C4.99259 7.55555 5.83333 7.21111 6.52222 6.52222C7.21111 5.83333 7.55556 4.99259 7.55556 4C7.55556 3.00741 7.21111 2.16667 6.52222 1.47778C5.83333 0.788889 4.99259 0.444444 4 0.444444C3.00741 0.444444 2.16667 0.788889 1.47778 1.47778C0.788889 2.16667 0.444444 3.00741 0.444444 4C0.444444 4.99259 0.788889 5.83333 1.47778 6.52222C2.16667 7.21111 3.00741 7.55555 4 7.55555Z" fill="black"/>
+</svg>`;
+
+  // 2. Update the renderPantsSizeInputs function
+
+  function renderPantsSizeInputs() {
+    return `
+    <div class="pants-size-inputs">
+      <div class="blazer-pants-title">
+        <h3 class="size-title">Pants Size Measurements</h3>
+        <p class="size-subtitle">Adjust your pants measurements to get the perfect fit</p>
+      </div>
+            <div class="top-sizes-section">
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="pantLengthInput">Pant Length</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="pantLengthInput" value="${
+            userChoices.measurements["pantLengthInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="waistInput">Waist</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="waistInput" value="${
+            userChoices.measurements["waistInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="hipsInput">Hips</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="hipsInput" value="${
+            userChoices.measurements["hipsInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="thighInput">Thigh</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="thighInput" value="${
+            userChoices.measurements["thighInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="kneeInput">Knee</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="kneeInput" value="${
+            userChoices.measurements["kneeInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="calfInput">Calf</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="calfInput" value="${
+            userChoices.measurements["calfInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="cuffInput">Cuff</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="cuffInput" value="${
+            userChoices.measurements["cuffInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      <div class="measurement-group">
+        <div class="measurement-label">
+          ${measurementIconSVG}
+          <label for="crotchInput">Crotch</label>
+        </div>
+        <div class="measurement-input-group">
+          <a class="decrement-btn">-</a>
+          <input type="number" class="measurement-input" id="crotchInput" value="${
+            userChoices.measurements["crotchInput"] || 0
+          }">
+          <a class="increment-btn">+</a>
+        </div>
+      </div>
+      </div>
+       <div class="bottom-sizes-section">
+          <p class="size-message-almost">We’re almost there! </p>
+          <p class="size-message-almostsub">Let’s make sure your garment fits you perfectly!</p>
+           <div class="confirm-bottom">
+              <p class="size-help">Need help? <a href="#">Finish in store</a></p>
+             <a id="confirm-pants-sizes" class="confirm-size-btn">Confirm</a>
+           </div>
+      </div>
+    </div>
+  `;
+  }
+
+  // 3. Update the renderBlazerSizeInputs function
+
+  function renderBlazerSizeInputs() {
+    return `
+    <div class="blazer-size-inputs">
+      <div class="blzer-pants-title">
+        <h3 class="size-title">Blazer Size Measurements</h3>
+        <p class="size-subtitle">Adjusting the size that fits you perfectly</p>
+      </div>
+      <div class="top-sizes-section">
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="bodyTypeSelect">Body type</label>
+          </div>
+          <select class="measurement-select" id="bodyTypeSelect">
+            <option value="slim" ${
+              userChoices.measurements["bodyTypeSelect"] === "slim"
+                ? "selected"
+                : ""
+            }>Slim</option>
+            <option value="regular" ${
+              userChoices.measurements["bodyTypeSelect"] === "regular"
+                ? "selected"
+                : ""
+            }>Regular</option>
+            <option value="athletic" ${
+              userChoices.measurements["bodyTypeSelect"] === "athletic"
+                ? "selected"
+                : ""
+            }>Athletic</option>
+          </select>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="frontLengthInput">Front length</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="frontLengthInput" value="${
+              userChoices.measurements["frontLengthInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="backLengthInput">Back length</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="backLengthInput" value="${
+              userChoices.measurements["backLengthInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="shoulderInput">Shoulder</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="shoulderInput" value="${
+              userChoices.measurements["shoulderInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="chestInput">Chest</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="chestInput" value="${
+              userChoices.measurements["chestInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="stomachInput">Stomach</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="stomachInput" value="${
+              userChoices.measurements["stomachInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="steeveLengthInput">Steeve length</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="steeveLengthInput" value="${
+              userChoices.measurements["steeveLengthInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="bicepsInput">Biceps</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="bicepsInput" value="${
+              userChoices.measurements["bicepsInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <div class="measurement-label">
+            ${measurementIconSVG}
+            <label for="wristInput">Wrist</label>
+          </div>
+          <div class="measurement-input-group">
+            <a class="decrement-btn">-</a>
+            <input type="number" class="measurement-input" id="wristInput" value="${
+              userChoices.measurements["wristInput"] || 0
+            }">
+            <a class="increment-btn">+</a>
+          </div>
+        </div>
+      </div>
+      
+       <div class="bottom-sizes-section">
+          <p class="size-message-almost">We’re almost there! </p>
+          <p class="size-message-almostsub">Let’s make sure your garment fits you perfectly!</p>
+           <div class="confirm-bottom">
+              <p class="size-help">Need help? <a href="#">Finish in store</a></p>
+             <a id="confirm-pants-sizes" class="confirm-size-btn">Confirm</a>
+           </div>
+      </div>
+    </div>
+  `;
+  }
 
   function initializeStep(currentStep) {
     updateStepClass(currentStep);
     const stepTitle = document.getElementById("stepTitle");
     const textureContainer = document.getElementById("textureContainer");
-    const batchSelector = document.getElementById("batchSelector");
 
     const existingBackButton = document.querySelector(
       "#sidePanel .back-button"
@@ -1781,7 +2116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <p>Here we’ve curated a selection of fabrics that best suits you.</p>
         <p>Please choose your preferred fabric group from the options below to proceed to the next step.</p>
       `;
-        batchSelector.style.display = "none";
+
         loadJacketBasedOnUserChoices();
         initializeTextureButtons();
         textureContainer.style.display = "flex";
@@ -1791,7 +2126,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stepTitle.innerHTML = `
           <p>Great choice!</br>Now, let’s move on to designing your garment.</p>
         `;
-        batchSelector.style.display = "none";
+
         textureContainer.style.display = "flex";
         textureContainer.classList.add("texture-container");
 
@@ -2062,7 +2397,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <p>Customize your jacket embroidery!</p>
         <p>Please enter your desired text and select your preferred color for each embroidery location.</p>
       `;
-        batchSelector.style.display = "none";
+
         textureContainer.style.display = "flex";
         textureContainer.style.padding = "0 20px";
         textureContainer.style.justifyContent = "start";
@@ -2160,36 +2495,191 @@ document.addEventListener("DOMContentLoaded", function () {
 
         break;
 
+      // (inside initializeStep, case 5:)
       case 5:
-        document.querySelector(
-          "body > main > div > div.canvas-container"
-        ).style.display = "none";
+        if (window.matchMedia("(max-width: 1024.9px)").matches) {
+          document.querySelector("div.canvas-container").style.display = "none";
+          document.querySelector("#arrow").style.display = "none";
+        }
+        // Set the step title.
+        stepTitle.innerHTML = `<h2 class="measurement-header">Customize your suit size</h2>`;
 
-        stepTitle.innerHTML = `
-        <p>Please provide your measurements for the pants.</p>
-        <p>Enter your measurements in the fields provided. If you need assistance, refer to the diagram.</p>
-      `;
-        batchSelector.style.display = "none";
+        // Configure the texture container as a centered column.
         textureContainer.style.display = "flex";
-        textureContainer.style.padding = "0 20px";
+        textureContainer.style.flexDirection = "column";
+        textureContainer.style.alignItems = "center";
         textureContainer.style.justifyContent = "center";
 
+        // Insert the measurement step content.
         textureContainer.innerHTML = `
-        <div id="pantsMeasurementWrapper">
-          <img loading="lazy" id="pantsMeasurementImage" src="assets/pants/pants.png" alt="Pants Diagram">
-          ${generatePantsMeasurementInputs()}
+    <div class="measurement-step-content">
+      <div class="blazer-pants-sizes" id="sizeDetailsContainer"></div>
+      <div class="size-type-buttons">
+        <div class="blazerpants-size-trigger">
+          <span>Blazer</span>
+          <a id="blazerSizeBtn" class="size-btn">Add Blazer Size</a>
         </div>
-      `;
+        <div class="blazerpants-size-trigger">
+          <span>Pants</span>
+          <a id="pantsSizeBtn" class="size-btn">Add Pants Size</a>
+        </div>
+      </div>
+            <div class="bottom-sizes-section outer">
+          <p class="size-message-almost">We’re almost there! </p>
+          <p class="size-message-almostsub">Let’s make sure your garment fits you perfectly!</p>
+           <div class="confirm-bottom">
+              <p class="size-help">Need help? <a href="#">Finish in store</a></p>
+             
+           </div>
+      </div>
+    </div>
+  `;
 
-        const pantsMeasurementWrapper = document.getElementById(
-          "pantsMeasurementWrapper"
+        // Get a reference to the container and buttons.
+        const sizeDetailsContainer = document.getElementById(
+          "sizeDetailsContainer"
         );
-        pantsMeasurementWrapper.style.position = "relative";
-        pantsMeasurementWrapper.style.display = "inline-block";
+        const blazerSizeBtn = document.getElementById("blazerSizeBtn");
+        const pantsSizeBtn = document.getElementById("pantsSizeBtn");
 
-        setupPantsMeasurementListeners();
+        // We'll store which measurement inputs are currently showing.
+        let currentMeasurementType = userChoices.currentMeasurementType || null;
 
-        document.getElementById("nextButton").textContent = "Finish";
+        // --- Blazer button handler ---
+        blazerSizeBtn.onclick = function () {
+          // If blazer inputs are already showing, simply ensure the container is visible.
+          if (
+            currentMeasurementType === "blazer" &&
+            sizeDetailsContainer.style.visibility !== "hidden"
+          ) {
+            if (sizeDetailsContainer.style.visibility === "hidden") {
+              sizeDetailsContainer.style.visibility = "visible";
+              gsap.fromTo(
+                sizeDetailsContainer,
+                { y: -50, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+              );
+            }
+            return;
+          }
+          // Otherwise, update the current type and animate out the old content.
+          currentMeasurementType = "blazer";
+          userChoices.currentMeasurementType = "blazer";
+          if (
+            sizeDetailsContainer.innerHTML.trim() &&
+            sizeDetailsContainer.style.visibility !== "hidden"
+          ) {
+            gsap.to(sizeDetailsContainer, {
+              x: 50,
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.in",
+              onComplete: function () {
+                // Re-render the blazer inputs (which now pre-fill using userChoices.measurements)
+                sizeDetailsContainer.innerHTML = renderBlazerSizeInputs();
+                sizeDetailsContainer.style.visibility = "visible";
+                gsap.fromTo(
+                  sizeDetailsContainer,
+                  { x: -50, opacity: 0 },
+                  { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+                );
+                attachIncrementDecrementListeners(sizeDetailsContainer);
+              },
+            });
+          } else {
+            sizeDetailsContainer.innerHTML = renderBlazerSizeInputs();
+            sizeDetailsContainer.style.visibility = "visible";
+            gsap.fromTo(
+              sizeDetailsContainer,
+              { x: -50, opacity: 0 },
+              { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+            );
+            attachIncrementDecrementListeners(sizeDetailsContainer);
+          }
+        };
+
+        // --- Pants button handler ---
+        pantsSizeBtn.onclick = function () {
+          if (
+            currentMeasurementType === "pants" &&
+            sizeDetailsContainer.style.visibility !== "hidden"
+          ) {
+            if (sizeDetailsContainer.style.visibility === "hidden") {
+              sizeDetailsContainer.style.visibility = "visible";
+              gsap.fromTo(
+                sizeDetailsContainer,
+                { y: -50, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+              );
+            }
+            return;
+          }
+          currentMeasurementType = "pants";
+          userChoices.currentMeasurementType = "pants";
+          if (
+            sizeDetailsContainer.innerHTML.trim() &&
+            sizeDetailsContainer.style.visibility !== "hidden"
+          ) {
+            gsap.to(sizeDetailsContainer, {
+              x: 50,
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.in",
+              onComplete: function () {
+                sizeDetailsContainer.innerHTML = renderPantsSizeInputs();
+                sizeDetailsContainer.style.visibility = "visible";
+                gsap.fromTo(
+                  sizeDetailsContainer,
+                  { x: -50, opacity: 0 },
+                  { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+                );
+                attachIncrementDecrementListeners(sizeDetailsContainer);
+              },
+            });
+          } else {
+            sizeDetailsContainer.innerHTML = renderPantsSizeInputs();
+            sizeDetailsContainer.style.visibility = "visible";
+            gsap.fromTo(
+              sizeDetailsContainer,
+              { x: -50, opacity: 0 },
+              { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+            );
+            attachIncrementDecrementListeners(sizeDetailsContainer);
+          }
+        };
+
+        // --- Confirm handler for both Blazer and Pants ---
+        // --- Confirm handler for both Blazer and Pants ---
+        sizeDetailsContainer.addEventListener("click", function (e) {
+          if (
+            e.target &&
+            (e.target.id === "confirm-blazer-sizes" ||
+              e.target.id === "confirm-pants-sizes")
+          ) {
+            e.stopPropagation();
+
+            // **NEW CODE: Update select values before validation**
+            const selects = sizeDetailsContainer.querySelectorAll(
+              "select.measurement-select"
+            );
+            selects.forEach((select) => {
+              userChoices.measurements[select.id] = select.value;
+            });
+
+            // Animate the container out and then hide it; also apply the final transform.
+            gsap.to(sizeDetailsContainer, {
+              x: window.innerWidth + sizeDetailsContainer.offsetWidth,
+              opacity: 0,
+              duration: 0.5,
+              ease: "power2.in",
+              onComplete: function () {
+                sizeDetailsContainer.style.visibility = "hidden";
+                sizeDetailsContainer.style.transform = "translate(-30dvw, 0px)";
+              },
+            });
+          }
+        });
+
         break;
 
       default:
@@ -2198,27 +2688,6 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
     }
     wrapSidePanelContent(currentStep);
-  }
-
-  function setupPantsMeasurementListeners() {
-    const measurements = [
-      "Waist",
-      "Crotch Depth",
-      "Seat",
-      "Knee",
-      "Inseam",
-      "Hips",
-      "Thigh",
-      "Outseam",
-      "Ankle",
-    ];
-
-    measurements.forEach((measurement) => {
-      const inputField = document.getElementById(`${measurement}Input`);
-      inputField.addEventListener("input", () => {
-        userChoices.measurements[measurement] = inputField.value;
-      });
-    });
   }
 
   function generateColorCirclesHTML(numberOfColors) {
@@ -2697,12 +3166,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selectFabric(categoryKey, item, cardElement, folderPath) {
-    // Remove "selected" from any already-selected fabric card
     document.querySelectorAll(".card_small.selected").forEach((card) => {
       card.classList.remove("selected");
     });
 
-    // Mark this card as selected
     cardElement.classList.add("selected");
 
     const originalTextureUrl =
@@ -2715,21 +3182,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function applyTexture(url) {
     if (!material) return;
-    // If the texture is already set, don't change anything.
+
     if (material.diffuseTexture && material.diffuseTexture.name === url) {
       return;
     }
 
-    // Get the canvas element to fade everything (you could also target a container if desired)
     const canvasEl = document.getElementById("renderCanvas");
 
-    // Fade out the canvas over 0.5 seconds.
     gsap.to(canvasEl, {
       opacity: 0,
       duration: 0.5,
       ease: "power2.out",
       onComplete: () => {
-        // Load the new texture.
         const newTexture = new BABYLON.Texture(
           url,
           scene,
@@ -2739,7 +3203,7 @@ document.addEventListener("DOMContentLoaded", function () {
           () => {
             console.log(`Texture loaded: ${url}`);
             hideLoader();
-            // Apply the new texture.
+
             material.diffuseTexture = newTexture;
             material.diffuseTexture.name = url;
             newTexture.uScale = 5.0;
@@ -2747,7 +3211,7 @@ document.addEventListener("DOMContentLoaded", function () {
             material.backFaceCulling = false;
             material.specularColor = new BABYLON.Color3(0, 0, 0);
             material.ambientColor = new BABYLON.Color3(1, 1, 1);
-            // Fade the canvas back in over 0.5 seconds.
+
             gsap.to(canvasEl, { opacity: 1, duration: 0.5, ease: "power2.in" });
           },
           (message, exception) => {
@@ -2834,7 +3298,6 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileCutSlider.id = "mobileCutSlider";
     mobileCutSlider.classList.add("cards-wrapper");
 
-    // Append each cut card directly into mobileCutSlider:
     cutOptions.forEach((item) => {
       const cutCard = document.createElement("div");
       cutCard.classList.add("card_cardContainer", "part-option");
@@ -2867,7 +3330,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       cutCard.addEventListener("click", () => {
         console.log("[showMobileCutOptions] Chosen cut:", item.label);
-        // Remove previously selected classes from cut cards within mobileCutSlider:
+
         mobileCutSlider.querySelectorAll(".part-option").forEach((p) => {
           p.classList.remove("selected");
         });
@@ -3170,7 +3633,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "4on2_pocket_8",
   ];
   function renderMobilePocketsOptions(mode) {
-    // Define your pockets design options (same for both top and bottom)
     const pocketsDesignOptions = [
       {
         src: "assets/jacket/pockets/jacketpockets.png",
@@ -3217,10 +3679,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mode === "top") {
       const container = document.getElementById("mobilePocketsContainer");
       if (!container) return;
-      container.className = "cards-wrapper"; // ensure proper styling
-      container.innerHTML = ""; // clear previous content
+      container.className = "cards-wrapper";
+      container.innerHTML = "";
 
-      // Filter options to include only top pockets
       const filteredOptions = pocketsDesignOptions.filter((opt) =>
         TOP_POCKETS.includes(opt.meshName)
       );
@@ -3232,7 +3693,6 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // If the stored selection matches, mark as selected
         if (userChoices.design.jacket["PocketsTop"] === item.meshName) {
           pocketCard.classList.add("selected", "selected-top-pocket");
         }
@@ -3246,13 +3706,13 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          // Remove "selected" classes from all siblings
+
           container.querySelectorAll(".part-option").forEach((el) => {
             el.classList.remove("selected", "selected-top-pocket");
           });
-          // Mark this option as selected
+
           pocketCard.classList.add("selected", "selected-top-pocket");
-          // Update your userChoices and switch the mesh accordingly
+
           userChoices.design.jacket["PocketsTop"] = item.meshName;
           switchPartMesh("Pockets", item.meshName, "top");
           resetCamera();
@@ -3260,7 +3720,6 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
-      // For bottom pockets, use a Flickity slider
       let sliderContainer = document.getElementById("mobilePocketsSlider");
       if (!sliderContainer) {
         sliderContainer = document.createElement("div");
@@ -3272,11 +3731,9 @@ document.addEventListener("DOMContentLoaded", function () {
           parent.appendChild(sliderContainer);
         }
       } else {
-        // Clear the slider content but do not remove the container
         sliderContainer.innerHTML = "";
       }
 
-      // Filter options to include only bottom pockets
       const filteredOptions = pocketsDesignOptions.filter((opt) =>
         BOTTOM_POCKETS.includes(opt.meshName)
       );
@@ -3288,7 +3745,6 @@ document.addEventListener("DOMContentLoaded", function () {
         pocketCard.style.touchAction = "pan-y";
         pocketCard.style.cursor = "pointer";
 
-        // If stored selection exists, add selected classes
         if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
           pocketCard.classList.add("selected", "selected-bottom-pocket");
         }
@@ -3303,7 +3759,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (isSliderDragging) return;
           e.preventDefault();
           e.stopPropagation();
-          // Remove "selected" classes from all bottom pocket cards in the slider
+
           sliderContainer.querySelectorAll(".part-option").forEach((el) => {
             el.classList.remove("selected", "selected-bottom-pocket");
           });
@@ -3314,7 +3770,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         sliderContainer.appendChild(pocketCard);
       });
-      // Initialize Flickity on the slider container
+
       setupMobileSlider("#mobilePocketsSlider");
     }
   }
@@ -3471,7 +3927,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const isBottom = BOTTOM_POCKETS.includes(meshName);
       if (isTop) {
         if (userChoices.design.jacket["PocketsTop"] === meshName) {
-          // Already selected – do nothing on model click.
           return;
         } else {
           TOP_POCKETS.forEach((pName) => disablePocketMesh(pName));
@@ -3480,7 +3935,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } else if (isBottom) {
         if (userChoices.design.jacket["PocketsBottom"] === meshName) {
-          // Already selected – do nothing on model click.
           return;
         } else {
           BOTTOM_POCKETS.forEach((pName) => disablePocketMesh(pName));
@@ -3604,12 +4058,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(
       "body > main > div > div.canvas-container"
     ).style.display = "block";
+    document.querySelector("#arrow").style.display = "block";
   });
-  function getFabricName(filename) {
-    let baseName = filename.replace(/\.[^.]+$/, "");
-    return baseName.replace(/-\s*\$[\d.]+$/, "");
-  }
 
+  // Updated nextButton click handler
   document.getElementById("nextButton").addEventListener("click", function () {
     enableCameraControls();
     resetCamera();
@@ -3625,24 +4077,36 @@ document.addEventListener("DOMContentLoaded", function () {
         userChoices.texture = "E5102-38.webp";
       }
     } else if (step === 2) {
-      selectedChoice = {
-        design: userChoices.design,
-      };
+      selectedChoice = { design: userChoices.design };
     } else if (step === 3) {
-      selectedChoice = {
-        jacketEmbroidery: userChoices.embroidery.jacket,
-      };
+      selectedChoice = { jacketEmbroidery: userChoices.embroidery.jacket };
     } else if (step === 4) {
       selectedChoice = {
         jacketEmbroideryCustomizations: userChoices.embroidery.jacket,
       };
     } else if (step === 5) {
-      if (validateMeasurements()) {
-        step++;
-        transitionToStep(step);
-      } else {
-        alert("Please fill in all measurements before proceeding.");
+      // Update any select values from the measurement container.
+      const sizeDetailsContainer = document.getElementById(
+        "sizeDetailsContainer"
+      );
+      if (sizeDetailsContainer) {
+        const selects = sizeDetailsContainer.querySelectorAll(
+          "select.measurement-select"
+        );
+        selects.forEach((select) => {
+          userChoices.measurements[select.id] = select.value;
+        });
       }
+      // Validate measurements – they must not be undefined, empty, or zero.
+      if (!validateMeasurements()) {
+        alert("Please fill in all measurements before proceeding.");
+        return; // Stop further processing if validation fails.
+      }
+      // If validation passes, thank the user and finalize.
+      alert("Thank you for customizing your suit!");
+      finalizeConfiguration();
+      step = 6;
+      document.getElementById("nextButton").disabled = true;
       return;
     }
 
@@ -3650,6 +4114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Selected Choice: ", selectedChoice);
     console.log("User Choices: ", userChoices);
 
+    // Process non‑final steps (steps 1–4)
     if (step < 5) {
       if (step === 3) {
         if (userChoices.embroidery.jacket.length === 0) {
@@ -3660,31 +4125,85 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         step++;
       }
-
       transitionToStep(step);
     } else if (step === 5) {
+      // Handled above.
     } else {
       finalizeConfiguration();
     }
   });
 
+  // Updated validation function that ensures none of the required inputs are 0.
   function validateMeasurements() {
-    const requiredMeasurements = [
-      "Waist",
-      "Crotch Depth",
-      "Seat",
-      "Knee",
-      "Inseam",
-      "Hips",
-      "Thigh",
-      "Outseam",
-      "Ankle",
-    ];
+    let requiredMeasurements = [];
+    if (userChoices.currentMeasurementType === "pants") {
+      requiredMeasurements = [
+        "pantLengthInput",
+        "waistInput",
+        "hipsInput",
+        "thighInput",
+        "kneeInput",
+        "calfInput",
+        "cuffInput",
+        "crotchInput",
+      ];
+    } else if (userChoices.currentMeasurementType === "blazer") {
+      requiredMeasurements = [
+        "bodyTypeSelect",
+        "frontLengthInput",
+        "backLengthInput",
+        "shoulderInput",
+        "chestInput",
+        "stomachInput",
+        "steeveLengthInput",
+        "bicepsInput",
+        "wristInput",
+      ];
+    }
 
     for (let measurement of requiredMeasurements) {
+      let value = userChoices.measurements[measurement];
+      // Convert value to a number for checking. Zero (0) is considered not filled.
+      if (value === undefined || value === "" || parseFloat(value) === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function validateMeasurements() {
+    let requiredMeasurements = [];
+
+    // Determine which set of measurements is currently active
+    if (userChoices.currentMeasurementType === "pants") {
+      requiredMeasurements = [
+        "pantLengthInput",
+        "waistInput",
+        "hipsInput",
+        "thighInput",
+        "kneeInput",
+        "calfInput",
+        "cuffInput",
+        "crotchInput",
+      ];
+    } else if (userChoices.currentMeasurementType === "blazer") {
+      requiredMeasurements = [
+        "bodyTypeSelect",
+        "frontLengthInput",
+        "backLengthInput",
+        "shoulderInput",
+        "chestInput",
+        "stomachInput",
+        "steeveLengthInput",
+        "bicepsInput",
+        "wristInput",
+      ];
+    }
+
+    // Check that each required measurement is defined and not an empty string.
+    for (let measurement of requiredMeasurements) {
       if (
-        !userChoices.measurements ||
-        !userChoices.measurements[measurement] ||
+        userChoices.measurements[measurement] === undefined ||
         userChoices.measurements[measurement] === ""
       ) {
         return false;
@@ -3754,7 +4273,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       pleatCard.addEventListener("click", () => {
         console.log("[showMobilePleatOptions] Chosen pleat:", item.label);
-        // Remove any previously selected classes
+
         mobilePleatSlider.querySelectorAll(".part-option").forEach((p) => {
           p.classList.remove("selected");
         });
@@ -3763,7 +4282,6 @@ document.addEventListener("DOMContentLoaded", function () {
         switchPartMesh("Pleat", item.label);
       });
 
-      // Append the card directly to the slider container
       mobilePleatSlider.appendChild(pleatCard);
     });
 
@@ -4060,26 +4578,20 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Camera controls enabled.");
   }
   function initializeCardsSlider() {
-    // Select all elements with class "cards-wrapper" except #chooseGarmentContainer
     const cardsWrappers = document.querySelectorAll(
       ".cards-wrapper:not(#chooseGarmentContainer)"
     );
 
     cardsWrappers.forEach((wrapper) => {
-      // Look up the closest container. In step 2, #textureContainer gets the "texture-container" class.
       const container = wrapper.closest("#textureContainer");
       let effectiveWidth = window.innerWidth;
 
-      // If we're on step 2, subtract extra padding.
       if (container && container.classList.contains("texture-container")) {
-        // Adjust the value if your actual left/right padding is different.
-        effectiveWidth = window.innerWidth - 40; // 20px on each side
+        effectiveWidth = window.innerWidth - 40;
       }
 
-      // Use the effectiveWidth when deciding if Flickity should be enabled.
       const contentWidth = wrapper.scrollWidth;
 
-      // If the content is too small, then destroy Flickity (if it exists).
       if (contentWidth <= effectiveWidth - 30) {
         if (wrapper.classList.contains("flickity-enabled")) {
           Flickity.data(wrapper).destroy();
@@ -4087,7 +4599,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // If the content is wide enough, initialize Flickity (if not already done).
       if (contentWidth >= effectiveWidth - 100) {
         if (!wrapper.classList.contains("flickity-enabled")) {
           new Flickity(wrapper, {

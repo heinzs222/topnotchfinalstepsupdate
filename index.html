@@ -55,7 +55,7 @@
   <body>
     <main>
       <div class="content-wrapper" id="main-content-wrapper">
-        <div class="canvas-container">
+        <div id="canvas-container-id" class="canvas-container">
           <canvas id="renderCanvas" style="width: 100%"></canvas>
         </div>
         <div id="sidePanel">
@@ -68,7 +68,7 @@
               proceed to the next step.
             </p>
           </div>
-          <select id="batchSelector"></select>
+
           <div id="textureContainer"></div>
           <div class="next-back-btns">
             <a id="backButton">Back</a>
@@ -76,7 +76,6 @@
             <div id="tooltip"></div>
             <button id="resetCameraButton">Reset Camera</button>
           </div>
-          <span class="version">v0.8</span>
         </div>
         <img id="arrow" src="./assets/arrow.svg" />
       </div>
