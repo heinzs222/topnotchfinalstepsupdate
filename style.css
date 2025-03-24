@@ -1054,7 +1054,8 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     justify-self: start;
   }
   .step-5-ws.widescreen-step {
-    justify-content: center;
+    justify-content: start;
+    margin-top: 6dvh;
   }
   .cards-wrapper {
     display: flex;
