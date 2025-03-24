@@ -1726,6 +1726,14 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    // Also save select values whenever they change
+    const selects = container.querySelectorAll("select.measurement-select");
+    selects.forEach((select) => {
+      select.addEventListener("change", () => {
+        userChoices.measurements[select.id] = select.value;
+      });
+    });
+
     const decrementButtons = container.querySelectorAll(".decrement-btn");
     const incrementButtons = container.querySelectorAll(".increment-btn");
 
@@ -2641,6 +2649,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         // --- Confirm handler for both Blazer and Pants ---
+        // --- Confirm handler for both Blazer and Pants ---
         sizeDetailsContainer.addEventListener("click", function (e) {
           if (
             e.target &&
@@ -2648,6 +2657,15 @@ document.addEventListener("DOMContentLoaded", function () {
               e.target.id === "confirm-pants-sizes")
           ) {
             e.stopPropagation();
+
+            // **NEW CODE: Update select values before validation**
+            const selects = sizeDetailsContainer.querySelectorAll(
+              "select.measurement-select"
+            );
+            selects.forEach((select) => {
+              userChoices.measurements[select.id] = select.value;
+            });
+
             // Animate the container out and then hide it; also apply the final transform.
             gsap.to(sizeDetailsContainer, {
               x: window.innerWidth + sizeDetailsContainer.offsetWidth,
@@ -2661,8 +2679,21 @@ document.addEventListener("DOMContentLoaded", function () {
             });
           }
         });
-        break;
 
+        break;
+      case 6:
+        // In step 6 we clear the container and show a centered thank you message.
+        textureContainer.innerHTML = `
+        <div class="thank-you-message" style="font-size: 2em; text-align: center; padding: 40px;">
+          Thank you for using our app!
+        </div>
+      `;
+        textureContainer.style.display = "flex";
+        textureContainer.style.justifyContent = "center";
+        textureContainer.style.alignItems = "center";
+        // Update the Next button text to "Finish"
+        document.getElementById("nextButton").textContent = "Finish";
+        break;
       default:
         canvas.style.display = "block";
         console.log("Invalid step");
@@ -4066,12 +4097,16 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     } else if (step === 5) {
       if (validateMeasurements()) {
-        // All measurement inputs are valid – proceed to the final step.
+        // All measurements are valid, so move to step 6
         step++;
         transitionToStep(step);
       } else {
         alert("Please fill in all measurements before proceeding.");
       }
+      return;
+    } else if (step === 6) {
+      // In step 6, clicking finish will finalize the configuration.
+      finalizeConfiguration();
       return;
     }
 
@@ -4090,17 +4125,17 @@ document.addEventListener("DOMContentLoaded", function () {
         step++;
       }
       transitionToStep(step);
-    } else if (step === 5) {
-      // Do nothing – handled above.
-    } else {
-      finalizeConfiguration();
     }
   });
 
   function validateMeasurements() {
+    // Make sure a measurement type is selected.
+    if (!userChoices.currentMeasurementType) {
+      return false;
+    }
+
     let requiredMeasurements = [];
 
-    // Determine which set of measurements is currently active
     if (userChoices.currentMeasurementType === "pants") {
       requiredMeasurements = [
         "pantLengthInput",
@@ -4126,13 +4161,17 @@ document.addEventListener("DOMContentLoaded", function () {
       ];
     }
 
-    // Check that each required measurement is defined and not an empty string.
+    // Check that each required measurement is defined and greater than 0 (or non-empty for selects)
     for (let measurement of requiredMeasurements) {
-      if (
-        userChoices.measurements[measurement] === undefined ||
-        userChoices.measurements[measurement] === ""
-      ) {
-        return false;
+      const value = userChoices.measurements[measurement];
+      if (measurement === "bodyTypeSelect") {
+        if (!value || value.trim() === "") {
+          return false;
+        }
+      } else {
+        if (!value || parseFloat(value) <= 0) {
+          return false;
+        }
       }
     }
     return true;
