@@ -2497,6 +2497,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // (inside initializeStep, case 5:)
       case 5:
+        userChoices.currentMeasurementType = null;
+
         if (window.matchMedia("(max-width: 1024.9px)").matches) {
           gsap.to(".canvas-container", {
             duration: 0.5,
