@@ -2681,7 +2681,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         break;
-
+      case 6:
+        // In step 6 we clear the container and show a centered thank you message.
+        textureContainer.innerHTML = `
+        <div class="thank-you-message" style="font-size: 2em; text-align: center; padding: 40px;">
+          Thank you for using our app!
+        </div>
+      `;
+        textureContainer.style.display = "flex";
+        textureContainer.style.justifyContent = "center";
+        textureContainer.style.alignItems = "center";
+        // Update the Next button text to "Finish"
+        document.getElementById("nextButton").textContent = "Finish";
+        break;
       default:
         canvas.style.display = "block";
         console.log("Invalid step");
@@ -4061,7 +4073,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector("#arrow").style.display = "block";
   });
 
-  // Updated nextButton click handler
   document.getElementById("nextButton").addEventListener("click", function () {
     enableCameraControls();
     resetCamera();
@@ -4085,28 +4096,17 @@ document.addEventListener("DOMContentLoaded", function () {
         jacketEmbroideryCustomizations: userChoices.embroidery.jacket,
       };
     } else if (step === 5) {
-      // Update any select values from the measurement container.
-      const sizeDetailsContainer = document.getElementById(
-        "sizeDetailsContainer"
-      );
-      if (sizeDetailsContainer) {
-        const selects = sizeDetailsContainer.querySelectorAll(
-          "select.measurement-select"
-        );
-        selects.forEach((select) => {
-          userChoices.measurements[select.id] = select.value;
-        });
-      }
-      // Validate measurements – they must not be undefined, empty, or zero.
-      if (!validateMeasurements()) {
+      if (validateMeasurements()) {
+        // All measurements are valid, so move to step 6
+        step++;
+        transitionToStep(step);
+      } else {
         alert("Please fill in all measurements before proceeding.");
-        return; // Stop further processing if validation fails.
       }
-      // If validation passes, thank the user and finalize.
-      alert("Thank you for customizing your suit!");
+      return;
+    } else if (step === 6) {
+      // In step 6, clicking finish will finalize the configuration.
       finalizeConfiguration();
-      step = 6;
-      document.getElementById("nextButton").disabled = true;
       return;
     }
 
@@ -4114,7 +4114,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Selected Choice: ", selectedChoice);
     console.log("User Choices: ", userChoices);
 
-    // Process non‑final steps (steps 1–4)
     if (step < 5) {
       if (step === 3) {
         if (userChoices.embroidery.jacket.length === 0) {
@@ -4126,16 +4125,17 @@ document.addEventListener("DOMContentLoaded", function () {
         step++;
       }
       transitionToStep(step);
-    } else if (step === 5) {
-      // Handled above.
-    } else {
-      finalizeConfiguration();
     }
   });
 
-  // Updated validation function that ensures none of the required inputs are 0.
   function validateMeasurements() {
+    // Make sure a measurement type is selected.
+    if (!userChoices.currentMeasurementType) {
+      return false;
+    }
+
     let requiredMeasurements = [];
+
     if (userChoices.currentMeasurementType === "pants") {
       requiredMeasurements = [
         "pantLengthInput",
@@ -4161,52 +4161,17 @@ document.addEventListener("DOMContentLoaded", function () {
       ];
     }
 
+    // Check that each required measurement is defined and greater than 0 (or non-empty for selects)
     for (let measurement of requiredMeasurements) {
-      let value = userChoices.measurements[measurement];
-      // Convert value to a number for checking. Zero (0) is considered not filled.
-      if (value === undefined || value === "" || parseFloat(value) === 0) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function validateMeasurements() {
-    let requiredMeasurements = [];
-
-    // Determine which set of measurements is currently active
-    if (userChoices.currentMeasurementType === "pants") {
-      requiredMeasurements = [
-        "pantLengthInput",
-        "waistInput",
-        "hipsInput",
-        "thighInput",
-        "kneeInput",
-        "calfInput",
-        "cuffInput",
-        "crotchInput",
-      ];
-    } else if (userChoices.currentMeasurementType === "blazer") {
-      requiredMeasurements = [
-        "bodyTypeSelect",
-        "frontLengthInput",
-        "backLengthInput",
-        "shoulderInput",
-        "chestInput",
-        "stomachInput",
-        "steeveLengthInput",
-        "bicepsInput",
-        "wristInput",
-      ];
-    }
-
-    // Check that each required measurement is defined and not an empty string.
-    for (let measurement of requiredMeasurements) {
-      if (
-        userChoices.measurements[measurement] === undefined ||
-        userChoices.measurements[measurement] === ""
-      ) {
-        return false;
+      const value = userChoices.measurements[measurement];
+      if (measurement === "bodyTypeSelect") {
+        if (!value || value.trim() === "") {
+          return false;
+        }
+      } else {
+        if (!value || parseFloat(value) <= 0) {
+          return false;
+        }
       }
     }
     return true;
