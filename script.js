@@ -2498,7 +2498,12 @@ document.addEventListener("DOMContentLoaded", function () {
       // (inside initializeStep, case 5:)
       case 5:
         if (window.matchMedia("(max-width: 1024.9px)").matches) {
-          document.querySelector("div.canvas-container").style.display = "none";
+          gsap.to(".canvas-container", {
+            maxHeight: 0,
+            duration: 0.5,
+            autoAlpha: 0, // fades opacity to 0 and sets visibility to hidden
+          });
+
           document.querySelector("#arrow").style.display = "none";
         }
         // Set the step title.
@@ -4067,9 +4072,10 @@ document.addEventListener("DOMContentLoaded", function () {
       transitionToStep(step);
       enableCameraControls();
     }
-    document.querySelector(
-      "body > main > div > div.canvas-container"
-    ).style.display = "block";
+    gsap.to(".canvas-container", {
+      maxHeight: "",
+      autoAlpha: 1, // fades opacity to 1 and sets visibility to visible
+    });
     document.querySelector("#arrow").style.display = "block";
   });
 
@@ -4485,36 +4491,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return urls;
   }
-  function duplicateSliderItems(containerSelector, times = 1) {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
 
-    const items = Array.from(container.children);
-
-    for (let i = 0; i < times; i++) {
-      items.forEach((item) => {
-        const clone = item.cloneNode(true);
-        container.appendChild(clone);
-      });
-    }
-  }
-
-  function preloadImages(urls) {
-    return new Promise((resolve) => {
-      let loadedCount = 0;
-      const total = urls.length;
-      urls.forEach((url) => {
-        const img = new Image();
-        img.onload = img.onerror = () => {
-          loadedCount++;
-          if (loadedCount === total) {
-            resolve();
-          }
-        };
-        img.src = url;
-      });
-    });
-  }
   fetch("textures.json")
     .then((response) => response.json())
     .then((data) => {
