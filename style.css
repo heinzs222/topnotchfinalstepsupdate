@@ -252,7 +252,7 @@ body:has(#pantsMeasurementWrapper) {
 .content-wrapper:has(.step-5-ws) #arrow,
 .content-wrapper:has(.step-6-ws) .canvas-container,
 .content-wrapper:has(.step-5-ws) .canvas-container {
-  display: none !important;
+  visibility: hidden !important;
 }
 .step-6-ws {
   height: 100%;
