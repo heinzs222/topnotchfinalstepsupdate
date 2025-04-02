@@ -253,14 +253,14 @@ div #textureContainer:has(.accordion) .part-option:hover {
   font-size: 14px;
   color: #000;
 }
-.content-wrapper:has(.step-6-ws) #arrow,
+/* .content-wrapper:has(.step-6-ws) #arrow,
 .content-wrapper:has(.step-5-ws) #arrow,
 .content-wrapper:has(.step-6-ws) .canvas-container,
 .content-wrapper:has(.step-5-ws) .canvas-container {
   opacity: 0 !important;
   max-height: 0;
   transition: all 0.5s ease;
-}
+} */
 .step-6-ws {
   height: 100%;
 }
