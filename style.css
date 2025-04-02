@@ -145,6 +145,11 @@ body:has(#pantsMeasurementWrapper) {
 }
 #textureContainer:has(.accordion) .part-option {
   padding: 15px;
+  margin-top: 15px;
+}
+div #textureContainer:has(.accordion) .part-option:hover {
+  color: white;
+  background: black;
 }
 .next-back-btns {
   display: flex;
