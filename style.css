@@ -261,6 +261,9 @@ div #textureContainer:has(.accordion) .part-option:hover {
   max-height: 0;
   transition: all 0.5s ease;
 } */
+.bottom-sizes-section.outer {
+  margin-top: 20px;
+}
 .step-6-ws {
   height: 100%;
 }
