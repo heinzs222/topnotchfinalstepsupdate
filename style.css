@@ -940,7 +940,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   .card_cardImageContainer {
     width: 50%;
-    max-width: 150px;
+    max-width: 120px;
   }
   .cards-wrapper {
     padding: 40px 0;
@@ -1138,7 +1138,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     padding: 30px;
   }
   .cards-wrapper .card_cardContainer.part-option {
-    max-width: 150px;
+    max-width: 120px;
     width: 33%;
   }
 
@@ -1176,20 +1176,18 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     padding-bottom: 10px;
   }
   .design-options .card_cardContainer {
-    max-width: 150px;
-    min-width: 96.8px;
-    flex: 0 0 auto;
+    max-width: 120px;
   }
   #mobileBackSlider .part-option {
     padding: 5px;
-    max-width: 150px;
+    max-width: 120px;
     justify-content: center;
     gap: 5px;
   }
   #mobileLapelsSlider .part-option,
   #mobileBackSlider .part-option {
     width: 33%;
-    max-width: 150px;
+    max-width: 120px;
   }
   #mobileLapelsSlider,
   #mobileBackSlider {
@@ -1224,9 +1222,8 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   #mobilePocketsContainer .part-option.card_cardContainer {
     margin-top: 10px;
-
-    max-width: 150px;
-    min-width: 96.8px;
+    width: 100%;
+    max-width: 120px;
   }
   #sidePanel:has(#mobileCutSlider) .text-container,
   #sidePanel:has(.design-options) .text-container,
@@ -1262,7 +1259,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
     justify-content: center;
   }
   .cards-wrapper:has([data-test-id="Back"]) .card_cardContainer {
-    width: 33%;
+    width: 100%;
   }
   .design-options:has([data-test-id="Back"]) .card_cardImage {
     width: 100%;
@@ -1358,7 +1355,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   .step-1 .card_cardImageContainer {
     width: 100%;
-    max-width: 150px;
+    max-width: 120px;
     border-radius: 5px;
   }
   .slider-container {
@@ -1522,7 +1519,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   .step-1 .back-to-cat {
     left: -20px;
-
+    top: -27%;
     font-size: 16px;
   }
   .step-5-ws,
@@ -1538,7 +1535,7 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   }
   /* .choice-container-step3 > div {
     width: 22%;
-    max-width: 150px;
+    max-width: 120px;
   } */
   #colorChoices .color-option {
     width: 80px;
