@@ -1329,9 +1329,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (sliderContainer.flickityInstance) {
-      sliderContainer.flickityInstance.destroy();
-    }
+    // (we already destroyed any prior instance in the renderer)
+    sliderContainer.flickityInstance = null;
+
     const flkty = new Flickity(sliderContainer, {
       cellAlign: "left",
       contain: true,
@@ -3676,7 +3676,35 @@ document.addEventListener("DOMContentLoaded", function () {
     "4on2_pocket_11", // newly added
     "4on2_pocket_12", // newly added
   ];
+
+  function clearPocketMeshes(which) {
+    const list = which === "top" ? TOP_POCKETS : BOTTOM_POCKETS;
+    list.forEach((meshName) => disablePocketMesh(meshName));
+    // clear your model state
+    if (which === "top") {
+      userChoices.design.jacket.PocketsTop = undefined;
+    } else {
+      userChoices.design.jacket.PocketsBottom = undefined;
+    }
+  }
+
   function renderMobilePocketsOptions(mode) {
+    const container = document.getElementById("mobilePocketsContainer");
+    if (!container) return;
+
+    // ── DESTROY OLD SLIDER IF IT EXISTS ──
+    if (container.flickityInstance) {
+      try {
+        container.flickityInstance.destroy();
+      } catch (e) {
+        /* ignore: it means Flickity was already torn down */
+      }
+      container.flickityInstance = null;
+    }
+
+    // now safe to wipe & rebuild…
+    container.className = "cards-wrapper";
+    container.innerHTML = "";
     const pocketsDesignOptions = [
       {
         src: "assets/jacket/pockets/jacketpockets.png",
@@ -3725,7 +3753,22 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!container) return;
       container.className = "cards-wrapper";
       container.innerHTML = "";
-
+      const noTop = document.createElement("div");
+      noTop.className = "part-option card_cardContainer no-pocket";
+      noTop.innerHTML = `<div class="img-wrapper"><p>No Pockets</p></div>`;
+      noTop.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearPocketMeshes("top");
+        // update UI
+        container
+          .querySelectorAll(".part-option")
+          .forEach((el) =>
+            el.classList.remove("selected", "selected-top-pocket")
+          );
+        noTop.classList.add("selected");
+        resetCamera();
+      });
+      container.appendChild(noTop);
       const filteredOptions = pocketsDesignOptions.filter((opt) =>
         TOP_POCKETS.includes(opt.meshName)
       );
@@ -3764,58 +3807,70 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(pocketCard);
       });
     } else if (mode === "bottom") {
-      let sliderContainer = document.getElementById("mobilePocketsSlider");
-      if (!sliderContainer) {
-        sliderContainer = document.createElement("div");
-        sliderContainer.id = "mobilePocketsSlider";
-        sliderContainer.className = "cards-wrapper";
-        const parent = document.getElementById("mobilePocketsContainer");
-        if (parent) {
-          parent.innerHTML = "";
-          parent.appendChild(sliderContainer);
-        }
-      } else {
-        sliderContainer.innerHTML = "";
-      }
+      const container = document.getElementById("mobilePocketsContainer");
+      if (!container) return;
 
-      const filteredOptions = pocketsDesignOptions.filter((opt) =>
+      // Reset container
+      container.className = "cards-wrapper";
+      container.innerHTML = "";
+
+      // --- No Bottom Pockets option ---
+      const noBottom = document.createElement("div");
+      noBottom.className = "part-option card_cardContainer no-pocket";
+      noBottom.innerHTML = `<div class="img-wrapper"><p>No Bottom Pockets</p></div>`;
+      noBottom.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearPocketMeshes("bottom");
+        container
+          .querySelectorAll(".part-option")
+          .forEach((el) =>
+            el.classList.remove("selected", "selected-bottom-pocket")
+          );
+        noBottom.classList.add("selected");
+        resetCamera();
+      });
+      container.appendChild(noBottom);
+
+      // --- Bottom pocket options ---
+      const bottomOptions = pocketsDesignOptions.filter((opt) =>
         BOTTOM_POCKETS.includes(opt.meshName)
       );
-      filteredOptions.forEach((item) => {
+      bottomOptions.forEach((item) => {
         const pocketCard = document.createElement("div");
         pocketCard.className = "part-option card_cardContainer";
         pocketCard.setAttribute("data-part-name", "Pockets");
         pocketCard.setAttribute("data-mesh-name", item.meshName);
-        pocketCard.style.touchAction = "pan-y";
-        pocketCard.style.cursor = "pointer";
+        pocketCard.innerHTML = `
+      <div class="img-wrapper">
+        <img src="${item.src}" alt="${item.label}" style="width:100%;height:auto;">
+      </div>
+      <p>${item.label}</p>
+    `;
 
-        if (userChoices.design.jacket["PocketsBottom"] === item.meshName) {
+        // preserve existing selection
+        if (userChoices.design.jacket.PocketsBottom === item.meshName) {
           pocketCard.classList.add("selected", "selected-bottom-pocket");
         }
 
-        pocketCard.innerHTML = `
-        <div class="img-wrapper">
-          <img src="${item.src}" alt="${item.label}" style="width:100%; height:auto;">
-        </div>
-        <p>${item.label}</p>
-      `;
         pocketCard.addEventListener("click", (e) => {
           if (isSliderDragging) return;
-          e.preventDefault();
           e.stopPropagation();
-
-          sliderContainer.querySelectorAll(".part-option").forEach((el) => {
-            el.classList.remove("selected", "selected-bottom-pocket");
-          });
+          container
+            .querySelectorAll(".part-option")
+            .forEach((el) =>
+              el.classList.remove("selected", "selected-bottom-pocket")
+            );
           pocketCard.classList.add("selected", "selected-bottom-pocket");
-          userChoices.design.jacket["PocketsBottom"] = item.meshName;
+          userChoices.design.jacket.PocketsBottom = item.meshName;
           switchPartMesh("Pockets", item.meshName, "bottom");
           resetCamera();
         });
-        sliderContainer.appendChild(pocketCard);
+
+        container.appendChild(pocketCard);
       });
 
-      setupMobileSlider("#mobilePocketsSlider");
+      // Re-init Flickity
+      setupMobileSlider("#mobilePocketsContainer");
     }
   }
   function disablePocketMesh(meshName) {
