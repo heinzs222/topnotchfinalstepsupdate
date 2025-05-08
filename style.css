@@ -1586,6 +1586,12 @@ div.card_cardImageContainer > .image-pants-pleat:nth-child(4) {
   .content-wrapper {
     flex-direction: column;
   }
+  .selected-lapel p,
+  .selected-lapel:hover p,
+  .selected-back:hover p,
+  .selected-back p {
+    color: white;
+  }
 }
 .card_small:has(.susu-pcons) .card_infoSpaceContainer {
   display: none;
