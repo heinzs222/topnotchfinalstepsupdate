@@ -1403,7 +1403,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tbBtnWrapper.classList.add("top-bottom-pockets-wrapper");
 
     const topPctsBtn = document.createElement("button");
-    topPctsBtn.textContent = "Top Pockets";
+    topPctsBtn.textContent = "Chest Pocket";
     topPctsBtn.classList.add("top-bottom-btns", "top-pockets-btn");
     topPctsBtn.addEventListener("click", () => {
       console.log("Top pockets button clicked");
@@ -1414,7 +1414,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const bottomPctsBtn = document.createElement("button");
-    bottomPctsBtn.textContent = "Bottom Pockets";
+    bottomPctsBtn.textContent = "Jacket Pockets";
     bottomPctsBtn.classList.add("top-bottom-btns", "bottom-pockets-btn");
     bottomPctsBtn.addEventListener("click", () => {
       console.log("Bottom pockets button clicked");
@@ -3805,7 +3805,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const TOP_POCKETS = ["4on2_pocket_4", "4on2_pocket_5", "4on2_pocket_6"];
+  const TOP_POCKETS = ["4on2_pocket_4", "4on2_pocket_5"];
   const BOTTOM_POCKETS = [
     "4on2_pocket_1",
     "4on2_pocket_2",
@@ -3843,29 +3843,15 @@ document.addEventListener("DOMContentLoaded", function () {
     container.className = "cards-wrapper";
     container.innerHTML = "";
     const pocketsDesignOptions = [
-      {
-        src: "assets/jacket/pockets/jacketpockets.png",
-        label: "Single Pocket",
-        meshName: "4on2_pocket_1",
-      },
-      {
-        src: "assets/jacket/pockets/jacketpockets.png",
-        label: "Double Pocket",
-        meshName: "4on2_pocket_2",
-      },
+      // ── TOP POCKETS ──
       {
         src: "assets/jacket/pockets/jacketpockets.png",
         label: "Patch Pocket",
-        meshName: "4on2_pocket_3",
-      },
-      {
-        src: "assets/jacket/pockets/jacketpockets.png",
-        label: "Flap Pocket",
         meshName: "4on2_pocket_4",
       },
       {
         src: "assets/jacket/pockets/jacketpockets.png",
-        label: "Ticket Pocket",
+        label: "Welt Pocket",
         meshName: "4on2_pocket_5",
       },
       {
@@ -3873,15 +3859,32 @@ document.addEventListener("DOMContentLoaded", function () {
         label: "Slash Pocket",
         meshName: "4on2_pocket_6",
       },
-      {
-        src: "assets/jacket/pockets/jacketpockets.png",
-        label: "Welt Pocket",
-        meshName: "4on2_pocket_7",
-      },
+
+      // ── BOTTOM POCKETS ──
       {
         src: "assets/jacket/pockets/jacketpockets.png",
         label: "Jetted Pocket",
+        meshName: "4on2_pocket_1",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Patch Pockets",
+        meshName: "4on2_pocket_2",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Triple Jetted Pockets",
         meshName: "4on2_pocket_8",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Slanted Flap Pocket",
+        meshName: "4on2_pocket_10",
+      },
+      {
+        src: "assets/jacket/pockets/jacketpockets.png",
+        label: "Flap Pockets",
+        meshName: "4on2_pocket_11",
       },
     ];
 
@@ -3952,21 +3955,6 @@ document.addEventListener("DOMContentLoaded", function () {
       container.innerHTML = "";
 
       // --- No Bottom Pockets option ---
-      const noBottom = document.createElement("div");
-      noBottom.className = "part-option card_cardContainer no-pocket";
-      noBottom.innerHTML = `<div class="img-wrapper"><p>No Bottom Pockets</p></div>`;
-      noBottom.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clearPocketMeshes("bottom");
-        container
-          .querySelectorAll(".part-option")
-          .forEach((el) =>
-            el.classList.remove("selected", "selected-bottom-pocket")
-          );
-        noBottom.classList.add("selected");
-        resetCamera();
-      });
-      container.appendChild(noBottom);
 
       // --- Bottom pocket options ---
       const bottomOptions = pocketsDesignOptions.filter((opt) =>
