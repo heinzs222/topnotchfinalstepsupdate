@@ -20,6 +20,29 @@ const selectDropdownIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="6"
 </svg>`;
 
 document.addEventListener("DOMContentLoaded", function () {
+  const BLAZER_MEASURE_KEYS = [
+    "frontLengthInput",
+    "backLengthInput",
+    "shoulderInput",
+    "chestInput",
+    "stomachInput",
+    "steeveLengthInput",
+    "bicepsInput",
+    "wristInput",
+    "bodyTypeSelect", // select: just check it’s non-empty
+  ];
+
+  const PANTS_MEASURE_KEYS = [
+    "pantLengthInput",
+    "waistInput",
+    "hipsInput",
+    "thighInput",
+    "kneeInput",
+    "calfInput",
+    "cuffInput",
+    "crotchInput",
+  ];
+
   let collarMesh;
 
   // 2. Insert a style block to override the select’s default arrow
@@ -136,6 +159,10 @@ document.addEventListener("DOMContentLoaded", function () {
       threadColor: null,
     },
     measurements: {},
+    measurementsCompleted: {
+      blazer: false,
+      pants: false,
+    },
   };
 
   let shirtRoot;
@@ -1201,17 +1228,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const lapelsDesigns = [
       {
         src: "./assets/jacket/lapel/jacketlapel.png",
-        label: "Classic Lapel",
+        label: "Peak Lapel",
         meshName: "4on2_Lapels_1",
       },
       {
         src: "./assets/jacket/lapel/jacketlapel.png",
-        label: "Slim Lapel",
+        label: "Shawl Lapel",
         meshName: "4on2_Lapels_2",
       },
       {
         src: "./assets/jacket/lapel/jacketlapel.png",
-        label: "Wide Lapel",
+        label: "Notched Lapel",
         meshName: "4on2_Lapels_3",
       },
     ];
@@ -1273,17 +1300,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const backViewOptions = [
       {
         src: "./assets/jacket/back/jacketback.png",
-        label: "Back Option 1",
+        label: "Single Vent",
         meshName: "4on2_Back_1",
       },
       {
         src: "./assets/jacket/back/jacketback.png",
-        label: "Back Option 2",
+        label: "Double Vent",
         meshName: "4on2_Back_2",
       },
       {
         src: "./assets/jacket/back/jacketback.png",
-        label: "Back Option 3",
+        label: "No Vent",
         meshName: "4on2_Back_3",
       },
     ];
@@ -1933,7 +1960,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <p class="size-message-almostsub">Let’s make sure your garment fits you perfectly!</p>
            <div class="confirm-bottom">
               <p class="size-help">Need help? <a href="#">Finish in store</a></p>
-             <a id="confirm-pants-sizes" class="confirm-size-btn">Confirm</a>
+<a id="confirm-blazer-sizes" class="confirm-size-btn">Confirm</a>
+
            </div>
       </div>
     </div>
@@ -2287,16 +2315,16 @@ document.addEventListener("DOMContentLoaded", function () {
           <!-- Embroidery Choices -->
           <div class="choice-container-step3" id="embroideryChoices">
             <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/behind-your-lapel.png" alt="Inner right chest pocket"/>
-              <p>Inner right chest pocket</p>
+              <img loading="lazy" src="./assets/embroidery/behind-your-lapel.png" alt="Inner Right Chest Pocket"/>
+              <p>Inner Right Chest Pocket</p>
             </div>
             <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/inner-left-embroidery.png" alt="Inner left chest pocket"/>
-              <p>Inner left chest pocket</p>
+              <img loading="lazy" src="./assets/embroidery/inner-left-embroidery.png" alt="Inner Left Chest Pocket"/>
+              <p>Inner Left Chest Pocket</p>
             </div>
             <div class="jacket-embroidery-choice">
-              <img loading="lazy" src="./assets/embroidery/inner-right-embroidery.png" alt="Under the collar flap"/>
-              <p>Under the collar flap</p>
+              <img loading="lazy" src="./assets/embroidery/inner-right-embroidery.png" alt="Under The Collar Flap"/>
+              <p>Under The Collar Flap</p>
             </div>
             <!-- "No Embroidery" Option -->
             <div class="jacket-embroidery-choice no-embroidery">
@@ -2676,22 +2704,25 @@ document.addEventListener("DOMContentLoaded", function () {
         // --- Confirm handler for both Blazer and Pants ---
         // --- Confirm handler for both Blazer and Pants ---
         sizeDetailsContainer.addEventListener("click", function (e) {
-          if (
-            e.target &&
-            (e.target.id === "confirm-blazer-sizes" ||
-              e.target.id === "confirm-pants-sizes")
-          ) {
-            e.stopPropagation();
+          if (!e.target) return;
+          const id = e.target.id;
 
-            // **NEW CODE: Update select values before validation**
-            const selects = sizeDetailsContainer.querySelectorAll(
-              "select.measurement-select"
-            );
-            selects.forEach((select) => {
-              userChoices.measurements[select.id] = select.value;
-            });
+          // before you animate it away, mark the right flag:
+          if (id === "confirm-blazer-sizes") {
+            userChoices.measurementsCompleted.blazer = true;
+          }
+          if (id === "confirm-pants-sizes") {
+            userChoices.measurementsCompleted.pants = true;
+          }
 
-            // Animate the container out and then hide it; also apply the final transform.
+          if (id === "confirm-blazer-sizes" || id === "confirm-pants-sizes") {
+            // update selects too, in case they changed right before confirm:
+            container
+              .querySelectorAll("select.measurement-select")
+              .forEach((select) => {
+                userChoices.measurements[select.id] = select.value;
+              });
+
             gsap.to(sizeDetailsContainer, {
               x: window.innerWidth + sizeDetailsContainer.offsetWidth,
               opacity: 0,
@@ -2780,6 +2811,30 @@ document.addEventListener("DOMContentLoaded", function () {
   function generatePartItems(parts) {
     return parts
       .map((part) => {
+        if (part.partName === "Back") {
+          return `
+        <div class="part-item" data-part="Back">
+          Back
+          <div class="part-options">
+            <button class="part-option" data-part-name="Back" data-mesh-name="4on2_Back_1">Single Vent</button>
+            <button class="part-option" data-part-name="Back" data-mesh-name="4on2_Back_2">Double Vent</button>
+            <button class="part-option" data-part-name="Back" data-mesh-name="4on2_Back_3">No Vent</button>
+          </div>
+        </div>
+        `;
+        }
+        if (part.partName === "Lapels") {
+          return `
+        <div class="part-item" data-part="Lapels">
+          Lapels
+          <div class="part-options">
+            <button class="part-option" data-part-name="Lapels" data-mesh-name="4on2_Lapels_1">Peak Lapel</button>
+            <button class="part-option" data-part-name="Lapels" data-mesh-name="4on2_Lapels_2">Shawl Lapel</button>
+            <button class="part-option" data-part-name="Lapels" data-mesh-name="4on2_Lapels_3">Notched Lapel</button>
+          </div>
+        </div>
+        `;
+        }
         if (part.partName === "Pockets") {
           const topPockets = part.options.filter((meshName) =>
             TOP_POCKETS.includes(meshName)
@@ -2789,36 +2844,64 @@ document.addEventListener("DOMContentLoaded", function () {
           );
 
           return `
-          <div class="part-item" data-part="${part.partName}">
-            ${part.partName}
-            <div class="part-options">
-              <!-- Top Pockets Section -->
-              <div class="sub-part top-pockets">
-                <h4>Top Pockets</h4>
-                ${topPockets
-                  .map(
-                    (meshName, index) =>
-                      `<button class="part-option" data-part-name="Pockets" data-mesh-name="${meshName}">
-                        Pockets Option ${index + 1}
-                      </button>`
-                  )
-                  .join("")}
-              </div>
-              <!-- Bottom Pockets Section -->
-              <div class="sub-part bottom-pockets">
-                <h4>Bottom Pockets</h4>
-                ${bottomPockets
-                  .map(
-                    (meshName, index) =>
-                      `<button class="part-option" data-part-name="Pockets" data-mesh-name="${meshName}">
-                        Pockets Option ${index + 1}
-                      </button>`
-                  )
-                  .join("")}
-              </div>
-            </div>
-          </div>
-        `;
+    <div class="part-item" data-part="${part.partName}">
+      ${part.partName}
+      <div class="part-options">
+        <!-- Chest Pocket Section -->
+        <div class="sub-part top-pockets">
+          <h4>Chest Pocket</h4>
+          <!-- No Pocket is the 3rd mesh in TOP_POCKETS -->
+           <button
+        class="part-option no-pocket-option"
+          data-part-name="Pockets"
+         data-mesh-name="NO_TOP_POCKET"
+       >No Pocket</button>
+          <!-- Patch Pocket is the 1st -->
+          <button
+            class="part-option"
+            data-part-name="Pockets"
+            data-mesh-name="${TOP_POCKETS[0]}"
+          >Patch Pocket</button>
+          <!-- Welt Pocket is the 2nd -->
+          <button
+            class="part-option"
+            data-part-name="Pockets"
+            data-mesh-name="${TOP_POCKETS[1]}"
+          >Welt Pocket</button>
+        </div>
+
+        <!-- Bottom Pockets (unchanged) -->
+   <div class="sub-part bottom-pockets">
+         <h4>Jacket Pockets</h4>
+         <button
+           class="part-option"
+           data-part-name="Pockets"
+           data-mesh-name="4on2_pocket_1"
+         >Jetted Pockets</button>
+         <button
+           class="part-option"
+           data-part-name="Pockets"
+           data-mesh-name="4on2_pocket_2"
+         >Patch Pockets</button>
+         <button
+           class="part-option"
+           data-part-name="Pockets"
+           data-mesh-name="4on2_pocket_8"
+         >Triple Jetted Pockets</button>
+         <button
+           class="part-option"
+           data-part-name="Pockets"
+           data-mesh-name="4on2_pocket_10"
+         >Slanted Flap Pockets</button>
+         <button
+           class="part-option"
+           data-part-name="Pockets"
+           data-mesh-name="4on2_pocket_11"
+         >Flap Pockets</button>
+       </div>
+      </div>
+    </div>
+  `;
         } else if (part.options && part.options.length > 1) {
           return `
           <div class="part-item" data-part="${part.partName}">
@@ -3574,65 +3657,118 @@ document.addEventListener("DOMContentLoaded", function () {
     const textureContainer = document.getElementById("textureContainer");
     textureContainer.addEventListener("click", partSelectionHandler);
   }
-
+  function highlightWidescreenNoPockets(which) {
+    const container = document.querySelector(`.sub-part.${which}-pockets`);
+    if (!container) return;
+    // clear all pocket‐related selections
+    container.querySelectorAll(".part-option").forEach((el) => {
+      el.classList.remove(
+        "selected-top-pocket",
+        "selected-bottom-pocket",
+        "selected"
+      );
+    });
+    // highlight only the no-pocket button
+    const noBtn = container.querySelector(
+      `[data-mesh-name="NO_${which.toUpperCase()}_POCKET"]`
+    );
+    if (noBtn) {
+      noBtn.classList.add(
+        which === "top" ? "selected-top-pocket" : "selected-bottom-pocket"
+      );
+    }
+  }
   function partSelectionHandler(e) {
     const partOptionButton = e.target.closest(".part-option");
     if (!partOptionButton) return;
+
     const partName = partOptionButton.getAttribute("data-part-name");
     const meshName = partOptionButton.getAttribute("data-mesh-name");
+
+    // ── Handle widescreen “No Pockets” buttons ──
+    if (partName === "Pockets" && meshName === "NO_TOP_POCKET") {
+      clearPocketMeshes("top");
+      resetCamera();
+      highlightWidescreenNoPockets("top");
+      return;
+    }
+    if (partName === "Pockets" && meshName === "NO_BOTTOM_POCKET") {
+      clearPocketMeshes("bottom");
+      resetCamera();
+      highlightWidescreenNoPockets("bottom");
+      return;
+    }
+
     if (!partName || !meshName) {
       console.warn("Missing data-part-name or data-mesh-name attributes.");
       return;
     }
+
+    // ── On mobile, Pockets are handled separately ──
     if (
       window.matchMedia("(max-width: 1024.9px)").matches &&
       partName === "Pockets"
     ) {
       return;
     }
+
+    // ── If we're selecting a real pocket on widescreen, clear any “no pocket” highlights ──
+    if (
+      partName === "Pockets" &&
+      meshName !== "NO_TOP_POCKET" &&
+      meshName !== "NO_BOTTOM_POCKET"
+    ) {
+      // remove any selected classes from no-pocket buttons
+      document.querySelectorAll(".no-pocket-option").forEach((btn) => {
+        btn.classList.remove(
+          "selected-top-pocket",
+          "selected-bottom-pocket",
+          "selected"
+        );
+      });
+    }
+
+    // ── Pocket toggle (deselect if same clicked) ──
     if (partName === "Pockets") {
-      const selectedClass = getSelectedClass(partName, meshName);
-
-      if (partOptionButton.classList.contains(selectedClass)) {
-        partOptionButton.classList.remove(selectedClass);
-
-        userChoices.design.jacket["Pockets"] = undefined;
+      const selClass = getSelectedClass(partName, meshName);
+      if (partOptionButton.classList.contains(selClass)) {
+        partOptionButton.classList.remove(selClass);
         if (TOP_POCKETS.includes(meshName)) {
-          userChoices.design.jacket["PocketsTop"] = undefined;
+          userChoices.design.jacket.PocketsTop = undefined;
         } else if (BOTTOM_POCKETS.includes(meshName)) {
-          userChoices.design.jacket["PocketsBottom"] = undefined;
+          userChoices.design.jacket.PocketsBottom = undefined;
         }
         disablePocketMesh(meshName);
-
         return;
       }
     }
 
+    // ── Switch the mesh in the scene ──
     switchPartMesh(partName, meshName);
 
+    // ── Clean up sibling buttons ──
     if (partName === "Pockets") {
-      const isTopPocket = TOP_POCKETS.includes(meshName);
-      const isBottomPocket = BOTTOM_POCKETS.includes(meshName);
-      if (isTopPocket) {
-        TOP_POCKETS.forEach((pocketName) => {
+      const isTop = TOP_POCKETS.includes(meshName);
+      const isBottom = BOTTOM_POCKETS.includes(meshName);
+      if (isTop) {
+        TOP_POCKETS.forEach((p) => {
           const btn = document.querySelector(
-            `.part-option[data-mesh-name="${pocketName}"]`
+            `.part-option[data-mesh-name="${p}"]`
           );
-          if (btn && pocketName !== meshName) {
+          if (btn && p !== meshName)
             btn.classList.remove("selected-top-pocket");
-          }
         });
-      } else if (isBottomPocket) {
-        BOTTOM_POCKETS.forEach((pocketName) => {
+      } else if (isBottom) {
+        BOTTOM_POCKETS.forEach((p) => {
           const btn = document.querySelector(
-            `.part-option[data-mesh-name="${pocketName}"]`
+            `.part-option[data-mesh-name="${p}"]`
           );
-          if (btn && pocketName !== meshName) {
+          if (btn && p !== meshName)
             btn.classList.remove("selected-bottom-pocket");
-          }
         });
       }
     } else {
+      // other parts: clear all selected in this group
       document
         .querySelectorAll(`.part-option[data-part-name="${partName}"]`)
         .forEach((btn) => {
@@ -3646,15 +3782,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ── Mark this button as selected ──
     partOptionButton.classList.add(getSelectedClass(partName, meshName));
+
+    // ── Camera adjustments ──
     if (partName === "Back") {
       resetCameraBack();
     } else if (partName === "Lapels" || partName === "Pockets") {
       resetCamera();
     }
-    if (["Pockets"].includes(partName)) {
+
+    // ── Keep jacket accordion open on widescreen ──
+    if (partName === "Pockets") {
       const jacketAcc = document.querySelector(
-        `.accordion[data-category="jacket"]`
+        '.accordion[data-category="jacket"]'
       );
       if (jacketAcc && !jacketAcc.classList.contains("active")) {
         jacketAcc.click();
@@ -3668,13 +3809,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const BOTTOM_POCKETS = [
     "4on2_pocket_1",
     "4on2_pocket_2",
-    "4on2_pocket_3",
-    "4on2_pocket_7",
     "4on2_pocket_8",
-    "4on2_pocket_9", // newly added
-    "4on2_pocket_10", // newly added
-    "4on2_pocket_11", // newly added
-    "4on2_pocket_12", // newly added
+    "4on2_pocket_10",
+    "4on2_pocket_11",
   ];
 
   function clearPocketMeshes(which) {
@@ -4189,13 +4326,40 @@ document.addEventListener("DOMContentLoaded", function () {
         jacketEmbroideryCustomizations: userChoices.embroidery.jacket,
       };
     } else if (step === 5) {
-      if (validateMeasurements()) {
-        // All measurements are valid, so move to step 6
-        step++;
-        transitionToStep(step);
-      } else {
-        alert("Please fill in all measurements before proceeding.");
+      // First stash any last-second select values:
+      sizeDetailsContainer
+        .querySelectorAll("select.measurement-select")
+        .forEach((s) => (userChoices.measurements[s.id] = s.value));
+
+      // Pull them out:
+      const m = userChoices.measurements;
+      // Find any missing / zero measurements:
+      const missing = [];
+
+      BLAZER_MEASURE_KEYS.forEach((key) => {
+        if (!m[key] || (key !== "bodyTypeSelect" && parseFloat(m[key]) <= 0)) {
+          missing.push(
+            key === "bodyTypeSelect" ? "Body type" : key.replace(/Input$/, "")
+          );
+        }
+      });
+      PANTS_MEASURE_KEYS.forEach((key) => {
+        if (!m[key] || parseFloat(m[key]) <= 0) {
+          missing.push(key.replace(/Input$/, ""));
+        }
+      });
+
+      if (missing.length > 0) {
+        alert(
+          "Please enter valid (non-zero) values for all measurements before proceeding:\n" +
+            missing.join(", ")
+        );
+        return;
       }
+
+      // All good—advance to Step 6
+      step++;
+      transitionToStep(step);
       return;
     } else if (step === 6) {
       // In step 6, clicking finish will finalize the configuration.
